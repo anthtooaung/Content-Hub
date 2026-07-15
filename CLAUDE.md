@@ -77,6 +77,7 @@ OpenAI is used if `OPENAI_API_KEY` is set; otherwise Gemini if `GEMINI_API_KEY` 
 ## Conventions
 
 - **Branching:** GitHub Flow — branch off main, open PR, require 1 review, no self-merge.
+- **Starting work:** When beginning a task, always ask the user whether to create a new branch or use the current branch.
 - **AI generation pattern:** Always try OpenAI first in `/api/generate`, fall back to Gemini on failure.
 - **Prisma client:** Always import from `/lib/prisma.ts` — it's a singleton with dev hot-reload caching via `globalThis`.
 - **Auth:** NextAuth.js v4 with Credentials provider and JWT strategy. Session is checked server-side in API routes and client-side via `useSession`.

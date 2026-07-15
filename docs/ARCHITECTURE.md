@@ -1,39 +1,42 @@
-# Architecture — Team {{PROJECT_NAME}}
+# Architecture — Content Hub
 
-> One page. Keep it true as the project grows. A teammate should be able to read
-> this and find their way around in 5 minutes.
+> One page overview of the AI Social Media Content Generator.
 
 ## What it does
-<!-- One paragraph: the product and the real user it serves. -->
+An AI-powered web app that helps small businesses, freelancers, and content creators generate social media posts, captions, hashtags, and marketing ideas. Users enter their business details and goals, and the AI produces platform-specific content ready to publish.
 
 ## Diagram
-<!-- Boxes and arrows. Text is fine. Example:
-
-  [ Browser UI ] --> [ API / server ] --> [ Database ]
-                          |
-                          v
-                   [ AI / LLM proxy ]
--->
 
 ```
-[ frontend ] --> [ backend ] --> [ data ]
-                     |
-                     v
-               [ AI / LLM proxy ]
+[ Browser (React/Next.js) ]
+         |
+         v
+[ Next.js API Routes ]
+         |
+    +---------+
+    |         |
+    v         v
+[ PostgreSQL ] [ OpenAI / Gemini API ]
+[ (Prisma)  ]
 ```
 
 ## Where things live
 | Path | What |
 |---|---|
-| `src/` (or `app/`) | application code |
-| `tests/` | tests |
+| `app/` | Next.js pages and API routes |
+| `app/api/` | Backend API endpoints |
+| `lib/` | Shared utilities (DB, AI setup) |
+| `prisma/` | Database schema |
 | `.github/workflows/` | CI + security |
-| `docs/` | this file, demo script, decisions |
+| `docs/` | Architecture, decisions |
 
 ## External services
-<!-- LLM proxy, DB, auth, hosting/deploy target, analytics. Which keys they need
-     (names only — real values live in .env / GitHub Secrets). -->
+| Service | Purpose | Keys needed |
+|---|---|---|
+| PostgreSQL | User data, content history | `DATABASE_URL` |
+| OpenAI API | Content generation | `OPENAI_API_KEY` |
+| Google Gemini API | Content generation (alternative) | `GEMINI_API_KEY` |
+| NextAuth.js | Authentication | `NEXTAUTH_SECRET` |
 
 ## How to run
-<!-- Point to the README Quickstart; don't duplicate it here. -->
 See the [README](../README.md) Quickstart.

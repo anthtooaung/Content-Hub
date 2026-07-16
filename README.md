@@ -1,69 +1,90 @@
-<!--
-  Vibe Code Tours — Project Starter
-  A ready-to-build repo with CI, security scanning, and team practices baked in.
-  Click "Use this template" → "Create a new repository" to start your project.
-  Then replace THIS README with your project's own (keep the Quickstart working).
--->
+# Content Hub — AI Social Media Content Generator
 
-# {{PROJECT_NAME}}
-
-> One line: what you're building, and for which real user.
-
-![ci](../../actions/workflows/ci.yml/badge.svg) ![security](../../actions/workflows/security.yml/badge.svg)
-
-<!-- A screenshot or GIF of the app goes here — it's the best README section. -->
+An AI-powered web application that helps businesses, freelancers, and content creators generate engaging social media content for multiple platforms within seconds. Users describe their business or campaign, and the AI produces posts, captions, hashtags, and marketing ideas tailored to their audience.
 
 ---
 
 ## Quickstart
 
 ```bash
-git clone <your-repo-url> && cd <repo>
+git clone https://github.com/anthtooaung/Content-Hub.git && cd Content-Hub
 cp .env.example .env        # fill in real values LOCALLY — never commit .env
-# then, for your stack:
-npm install && npm run dev  # Node    (or)
-# pip install -r requirements.txt && python -m app   # Python
+npm install && npm run dev
 ```
 
-Keep this Quickstart working — it's how a new teammate onboards in 2 minutes.
+## Tech Stack
 
-## Stack
-
-<!-- Languages, frameworks, hosting/deploy target, AI/LLM provider. -->
-
-## Project structure
-
-| Path | What |
+| Layer | Technology |
 |---|---|
-| `src/` (or `app/`) | application code |
-| `tests/` | tests |
-| `docs/` | ARCHITECTURE.md + decision records |
-| `.github/` | CI, security, PR/issue templates |
+| Framework | Next.js (Full-stack) |
+| Styling | Tailwind CSS |
+| Database | PostgreSQL + Prisma ORM |
+| AI | OpenAI API / Google Gemini API (JS SDK) |
+| Auth | NextAuth.js |
+| Deploy | Vercel |
+
+## Features
+
+- Generate Facebook, Instagram, LinkedIn, X, TikTok posts
+- Smart hashtag suggestions
+- Marketing campaign ideas
+- Call-to-action generation
+- Multiple writing tones (professional, casual, funny, etc.)
+- Content history & favorites
+- User authentication
+
+## Project Structure
+
+```
+app/
+  api/
+    auth/          → NextAuth.js (login/signup)
+    generate/      → AI content generation endpoint
+    history/       → Save/fetch generated content
+  dashboard/       → User dashboard
+  generate/        → Content generation page
+lib/
+  prisma.js        → Database connection
+  ai.js            → OpenAI/Gemini setup
+prisma/
+  schema.prisma    → Database schema
+```
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- PostgreSQL
+- OpenAI or Gemini API key
+
+### Installation
+```bash
+npm install
+cp .env.example .env    # add your keys
+npx prisma db push      # setup database
+npm run dev             # start dev server
+```
 
 ## Team
 
-<!-- Members + this week's roles (Anchor / Reviewer). Link your board. -->
+| Name | Role |
+|------|------|
+| Ant Htoo Aung | Anchor / Lead |
+| Hein Aung Kyaw | Developer |
+| Kaung Htet | Developer |
+| Khant Phone Pyaw Sone | Developer / Reviewer |
+| Kaung Pyaw Sone | Developer / Reviewer |
 
 ---
 
-## What's already set up for you
-
-This repo was created from the **Vibe Code Tours project starter**. It ships with:
+## What's already set up
 
 | File | Gives you |
 |---|---|
-| `.github/workflows/ci.yml` | lint · typecheck · test · build on every PR (stays green until you add each script) |
-| `.github/workflows/security.yml` | gitleaks (leaked keys) + semgrep (SAST) — advisory, report-only |
-| `.github/dependabot.yml` | weekly PRs for vulnerable / outdated dependencies |
-| `.env.example` | secret hygiene — copy to `.env`, never commit real keys |
-| `.github/pull_request_template.md` · `ISSUE_TEMPLATE/` · `CODEOWNERS` | small reviewed PRs, one-owner issues |
-| `docs/ARCHITECTURE.md` · `docs/decisions/` | a 1-page overview + lightweight ADRs |
-| `working-agreement.md` | how your team works (GitHub Flow + rotating roles) |
-
-**First thing to do:** follow [`SETUP.md`](./SETUP.md) — a ~1-hour checklist to turn it all on.
+| `.github/workflows/ci.yml` | lint, test, build on every PR |
+| `.github/workflows/security.yml` | gitleaks + semgrep security scanning |
+| `.github/dependabot.yml` | weekly dependency update PRs |
+| `.env.example` | secret hygiene — never commit real keys |
+| `docs/ARCHITECTURE.md` | 1-page architecture overview |
 
 **Git rule:** branch → PR → 1 teammate review → merge. No push to `main`, no self-merge.
-
-> A green pipeline ≠ secure. Scanners catch leaked keys, known-CVE deps, and injection
-> patterns. They do **not** catch prompt-injection, over-scoped tokens, or hallucinated
-> packages — a human still reviews for those.

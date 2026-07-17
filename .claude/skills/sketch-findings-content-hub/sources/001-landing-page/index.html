@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 001 — Landing Page</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <style>
+    /* Variant tabs */
+    #variant-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+      background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+      padding: 8px 16px; display: flex; gap: 8px; font-family: var(--font-sans);
+    }
+    .variant-tab {
+      padding: 6px 14px; border-radius: var(--radius-control); border: 1px solid var(--color-border);
+      background: var(--color-surface); color: var(--color-text-secondary); font-size: 13px;
+      font-weight: 500; cursor: pointer; transition: all var(--transition-fast);
+    }
+    .variant-tab:hover { background: var(--color-surface-subtle); }
+    .variant-tab.active { background: var(--color-primary-soft); border-color: var(--color-primary-border); color: var(--color-primary); }
+    .variant { padding-top: 52px; }
+
+    /* Sketch toolbar */
+    #sketch-tools {
+      position: fixed; bottom: 12px; right: 12px; z-index: 9999;
+      font-family: system-ui; font-size: 12px; background: rgba(0,0,0,0.75);
+      color: white; padding: 8px 12px; border-radius: 8px; opacity: 0.35;
+      transition: opacity 0.2s; display: flex; gap: 8px; align-items: center;
+    }
+    #sketch-tools:hover { opacity: 1; }
+    #sketch-tools select, #sketch-tools button {
+      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+      color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;
+    }
+    #sketch-tools button.active { background: rgba(255,255,255,0.35); }
+
+    /* Shared layout */
+    .page-container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+    @media (max-width: 768px) { .page-container { padding: 0 16px; } }
+
+    /* Header */
+    .site-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 0; border-bottom: 1px solid var(--color-border);
+    }
+    .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; color: var(--color-text); }
+    .logo-icon { width: 32px; height: 32px; background: var(--color-primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--color-text-secondary); transition: color var(--transition-fast); }
+    .nav-links a:hover { color: var(--color-primary); }
+    .nav-cta {
+      padding: 8px 16px; border-radius: var(--radius-control); background: var(--color-primary);
+      color: white; font-size: 14px; font-weight: 600; border: none; cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+    .nav-cta:hover { background: var(--color-primary-hover); }
+
+    /* Hero shared */
+    .hero-section { padding: 80px 0 60px; }
+    .platform-icons { display: flex; gap: 16px; justify-content: center; margin-top: 32px; }
+    .platform-icon {
+      width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center;
+      justify-content: center; font-size: 13px; font-weight: 700; color: white;
+    }
+    .platform-icon.tt { background: var(--color-tiktok); }
+    .platform-icon.ig { background: var(--color-instagram); }
+    .platform-icon.fb { background: var(--color-facebook); }
+
+    /* CTA button */
+    .cta-btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px;
+      background: var(--color-primary); color: white; border: none; border-radius: var(--radius-control);
+      font-size: 16px; font-weight: 600; cursor: pointer; transition: all var(--transition-fast);
+      min-height: 48px;
+    }
+    .cta-btn:hover { background: var(--color-primary-hover); transform: translateY(-1px); }
+    .cta-btn:active { background: var(--color-primary-active); transform: translateY(0); }
+    .cta-btn.loading { opacity: 0.7; pointer-events: none; }
+    .cta-btn .spinner { display: none; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; }
+    .cta-btn.loading .spinner { display: block; }
+    .cta-btn.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Feature cards */
+    .features-section { padding: 40px 0 80px; }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+    @media (max-width: 768px) { .features-grid { grid-template-columns: 1fr; } }
+    .feature-card {
+      background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-panel);
+      padding: 24px; transition: all var(--transition-fast);
+    }
+    .feature-card:hover { box-shadow: var(--shadow-card-hover); border-color: var(--color-primary-border); }
+    .feature-icon {
+      width: 40px; height: 40px; border-radius: 10px; background: var(--color-primary-soft);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 20px;
+    }
+    .feature-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    .feature-card p { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--color-text); color: white; padding: 12px 20px; border-radius: var(--radius-card);
+      font-size: 14px; font-weight: 500; opacity: 0; transition: all 0.25s ease;
+      box-shadow: var(--shadow-toast); z-index: 10000; pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Footer */
+    .site-footer {
+      border-top: 1px solid var(--color-border); padding: 32px 0; text-align: center;
+      color: var(--color-text-muted); font-size: 14px;
+    }
+
+    /* Variant B specific */
+    .split-hero { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+    @media (max-width: 768px) { .split-hero { grid-template-columns: 1fr; } }
+    .split-bullets { list-style: none; margin-top: 24px; }
+    .split-bullets li { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; font-size: 15px; color: var(--color-text-secondary); }
+    .split-bullets .check { color: var(--color-success); font-weight: 700; flex-shrink: 0; }
+    .mockup-frame {
+      background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-panel);
+      padding: 20px; box-shadow: var(--shadow-card);
+    }
+    .mockup-bar { display: flex; gap: 6px; margin-bottom: 12px; }
+    .mockup-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-border-strong); }
+    .mockup-content { background: var(--color-surface-subtle); border-radius: 8px; padding: 16px; }
+    .mockup-line { height: 10px; background: var(--color-border); border-radius: 4px; margin-bottom: 8px; }
+    .mockup-line.short { width: 60%; }
+    .mockup-line.medium { width: 80%; }
+    .mockup-input { height: 32px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 6px; margin-bottom: 8px; }
+    .mockup-btn { height: 28px; background: var(--color-primary); border-radius: 6px; width: 100%; }
+
+    /* Variant C specific */
+    .how-it-works { padding: 48px 0; }
+    .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 40px; }
+    @media (max-width: 768px) { .steps-grid { grid-template-columns: 1fr; } }
+    .step-card { text-align: center; }
+    .step-number {
+      width: 48px; height: 48px; border-radius: 50%; background: var(--color-primary-soft);
+      color: var(--color-primary); font-size: 20px; font-weight: 700; display: flex;
+      align-items: center; justify-content: center; margin: 0 auto 16px;
+    }
+    .step-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    .step-card p { font-size: 14px; color: var(--color-text-secondary); }
+    .social-proof { padding: 48px 0; text-align: center; }
+    .testimonial-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 32px; }
+    @media (max-width: 768px) { .testimonial-grid { grid-template-columns: 1fr; } }
+    .testimonial-card {
+      background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-panel);
+      padding: 24px; text-align: left;
+    }
+    .testimonial-text { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 16px; font-style: italic; }
+    .testimonial-author { font-size: 13px; font-weight: 600; color: var(--color-text); }
+    .testimonial-role { font-size: 12px; color: var(--color-text-muted); }
+  </style>
+</head>
+<body>
+
+<!-- Variant Navigation -->
+<div id="variant-nav">
+  <button class="variant-tab active" onclick="showVariant('a')">A: Centered Hero</button>
+  <button class="variant-tab" onclick="showVariant('b')">B: Split Layout</button>
+  <button class="variant-tab" onclick="showVariant('c')">C: Product-First ★</button>
+</div>
+
+<!-- ==================== VARIANT A: Centered Hero ==================== -->
+<div id="variant-a" class="variant">
+  <div class="page-container">
+    <header class="site-header">
+      <div class="logo">
+        <div class="logo-icon">✦</div>
+        Content Hub
+      </div>
+      <div style="display:flex;align-items:center;gap:24px;">
+        <div class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#how">How it works</a>
+        </div>
+        <button class="nav-cta" onclick="showToast('Redirecting to sign in...')">Sign in</button>
+      </div>
+    </header>
+
+    <section class="hero-section" style="text-align:center;">
+      <h1 style="font-size:var(--text-h1);font-weight:700;line-height:1.2;max-width:640px;margin:0 auto;">
+        Turn one idea into content for every platform
+      </h1>
+      <p style="font-size:18px;color:var(--color-text-secondary);max-width:520px;margin:16px auto 0;line-height:1.6;">
+        Describe your business or campaign. Get ready-to-post content for TikTok, Instagram, and Facebook — in seconds.
+      </p>
+      <div style="margin-top:32px;">
+        <button class="cta-btn" onclick="handleCTA(this)">
+          <span class="spinner"></span>
+          <span class="btn-text">Start creating</span>
+        </button>
+      </div>
+      <div class="platform-icons">
+        <div class="platform-icon tt">TT</div>
+        <div class="platform-icon ig">IG</div>
+        <div class="platform-icon fb">FB</div>
+      </div>
+    </section>
+
+    <section id="features" class="features-section">
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>AI-powered generation</h3>
+          <p>Describe your campaign once. Our AI crafts platform-specific posts, captions, hashtags, and CTAs tailored to each network's best practices.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>Multi-platform results</h3>
+          <p>Get TikTok, Instagram, and Facebook content simultaneously. Each post is optimized for its platform's format, tone, and audience.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💾</div>
+          <h3>Save and revisit</h3>
+          <p>Keep your best campaigns in your history. Copy content anytime, build on past ideas, and never lose a great post.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <p>Content Hub — AI-powered social media content for small businesses</p>
+    </footer>
+  </div>
+</div>
+
+<!-- ==================== VARIANT B: Split Layout ==================== -->
+<div id="variant-b" class="variant" style="display:none">
+  <div class="page-container">
+    <header class="site-header">
+      <div class="logo">
+        <div class="logo-icon">✦</div>
+        Content Hub
+      </div>
+      <div style="display:flex;align-items:center;gap:24px;">
+        <div class="nav-links">
+          <a href="#features-b">Features</a>
+        </div>
+        <button class="nav-cta" onclick="showToast('Redirecting to sign in...')">Sign in</button>
+      </div>
+    </header>
+
+    <section class="hero-section">
+      <div class="split-hero">
+        <div>
+          <h1 style="font-size:var(--text-h1);font-weight:700;line-height:1.2;">
+            Your campaign brief. Three platforms. Done.
+          </h1>
+          <p style="font-size:17px;color:var(--color-text-secondary);margin-top:16px;line-height:1.6;">
+            One form, one click. Content Hub generates platform-ready posts for TikTok, Instagram, and Facebook — each crafted for its audience.
+          </p>
+          <ul class="split-bullets">
+            <li><span class="check">✓</span> Works for any business type — coffee shops, freelancers, fitness, restaurants</li>
+            <li><span class="check">✓</span> Choose your tone: professional, casual, playful, or bold</li>
+            <li><span class="check">✓</span> Includes hashtags, captions, and calls to action</li>
+          </ul>
+          <div style="margin-top:32px;">
+            <button class="cta-btn" onclick="handleCTA(this)">
+              <span class="spinner"></span>
+              <span class="btn-text">Start creating — it's free</span>
+            </button>
+          </div>
+        </div>
+        <div class="mockup-frame">
+          <div class="mockup-bar">
+            <div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div>
+          </div>
+          <div class="mockup-content">
+            <div style="font-size:12px;font-weight:600;color:var(--color-text-muted);margin-bottom:8px;text-transform:uppercase;">Campaign Brief</div>
+            <div class="mockup-input"></div>
+            <div style="height:48px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:6px;margin-bottom:8px;padding:8px;">
+              <div class="mockup-line short" style="margin:0;"></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:12px;">
+              <div style="flex:1;height:28px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:6px;"></div>
+              <div style="flex:1;height:28px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:6px;"></div>
+            </div>
+            <div class="mockup-btn"></div>
+            <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--color-border);">
+              <div style="font-size:11px;font-weight:600;color:var(--color-text-muted);margin-bottom:8px;">RESULTS</div>
+              <div style="display:flex;gap:8px;">
+                <div style="flex:1;height:40px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:8px;border-top:3px solid var(--color-tiktok);"></div>
+                <div style="flex:1;height:40px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:8px;border-top:3px solid var(--color-instagram);"></div>
+                <div style="flex:1;height:40px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:8px;border-top:3px solid var(--color-facebook);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features-b" class="features-section">
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Describe once, post everywhere</h3>
+          <p>One campaign brief generates unique content for each platform — no copy-pasting between apps.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <h3>Platform-native content</h3>
+          <p>Each post respects platform limits — 280 chars for Twitter-style, longer captions for Instagram, conversational for Facebook.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📋</div>
+          <h3>Copy and go</h3>
+          <p>One-click copy for each platform's content. Paste directly into your scheduling tool or post manually.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <p>Content Hub — AI-powered social media content for small businesses</p>
+    </footer>
+  </div>
+</div>
+
+<!-- ==================== VARIANT C: Product-First ==================== -->
+<div id="variant-c" class="variant" style="display:none">
+  <div class="page-container">
+    <header class="site-header">
+      <div class="logo">
+        <div class="logo-icon">✦</div>
+        Content Hub
+      </div>
+      <div style="display:flex;align-items:center;gap:24px;">
+        <div class="nav-links">
+          <a href="#how-c">How it works</a>
+          <a href="#proof">What people say</a>
+        </div>
+        <button class="nav-cta" onclick="showToast('Redirecting to sign in...')">Sign in</button>
+      </div>
+    </header>
+
+    <section class="hero-section">
+      <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:48px;align-items:center;">
+        <div>
+          <h1 style="font-size:var(--text-h1);font-weight:700;line-height:1.2;">
+            Social media content, generated by AI
+          </h1>
+          <p style="font-size:17px;color:var(--color-text-secondary);margin-top:16px;line-height:1.6;">
+            Describe your business. Pick a tone. Hit generate. Get ready-to-post content for TikTok, Instagram, and Facebook.
+          </p>
+          <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="cta-btn" onclick="handleCTA(this)">
+              <span class="spinner"></span>
+              <span class="btn-text">Try it now</span>
+            </button>
+            <button class="cta-btn" style="background:var(--color-surface);color:var(--color-text);border:1px solid var(--color-border);min-height:48px;" onclick="document.getElementById('how-c').scrollIntoView({behavior:'smooth'})">
+              See how it works
+            </button>
+          </div>
+        </div>
+        <div class="mockup-frame" style="transform:perspective(800px) rotateY(-2deg);">
+          <div class="mockup-bar">
+            <div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div>
+          </div>
+          <div style="padding:12px 0;">
+            <div style="display:flex;gap:8px;margin-bottom:12px;">
+              <div style="flex:1;border:1px solid var(--color-border);border-radius:8px;padding:8px;background:var(--color-surface);">
+                <div class="mockup-line short"></div>
+                <div class="mockup-line" style="height:6px;"></div>
+              </div>
+              <div style="flex:1;border:1px solid var(--color-border);border-radius:8px;padding:8px;background:var(--color-surface);">
+                <div class="mockup-line short"></div>
+                <div class="mockup-line" style="height:6px;"></div>
+              </div>
+              <div style="flex:1;border:1px solid var(--color-border);border-radius:8px;padding:8px;background:var(--color-surface);">
+                <div class="mockup-line short"></div>
+                <div class="mockup-line" style="height:6px;"></div>
+              </div>
+            </div>
+            <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:8px;padding:12px;margin-bottom:12px;">
+              <div style="font-size:10px;font-weight:600;color:var(--color-text-muted);margin-bottom:6px;">CAMPAIGN</div>
+              <div class="mockup-line medium"></div>
+              <div class="mockup-line short"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+              <div style="border:1px solid var(--color-border);border-radius:8px;padding:8px;border-top:3px solid var(--color-tiktok);background:var(--color-surface);">
+                <div style="font-size:9px;font-weight:600;color:var(--color-tiktok);">TikTok</div>
+                <div class="mockup-line" style="margin-top:6px;height:4px;"></div>
+                <div class="mockup-line" style="height:4px;width:70%;"></div>
+              </div>
+              <div style="border:1px solid var(--color-border);border-radius:8px;padding:8px;border-top:3px solid var(--color-instagram);background:var(--color-surface);">
+                <div style="font-size:9px;font-weight:600;color:var(--color-instagram);">Instagram</div>
+                <div class="mockup-line" style="margin-top:6px;height:4px;"></div>
+                <div class="mockup-line" style="height:4px;width:70%;"></div>
+              </div>
+              <div style="border:1px solid var(--color-border);border-radius:8px;padding:8px;border-top:3px solid var(--color-facebook);background:var(--color-surface);">
+                <div style="font-size:9px;font-weight:600;color:var(--color-facebook);">Facebook</div>
+                <div class="mockup-line" style="margin-top:6px;height:4px;"></div>
+                <div class="mockup-line" style="height:4px;width:70%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="how-c" class="how-it-works">
+      <h2 style="font-size:var(--text-h2);font-weight:700;text-align:center;">How it works</h2>
+      <p style="text-align:center;color:var(--color-text-secondary);margin-top:8px;">Three steps to your next social media post.</p>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>Describe your campaign</h3>
+          <p>Tell us about your business, what you're promoting, and the tone you want. One form, that's it.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>Generate content</h3>
+          <p>Our AI creates platform-specific posts, captions, hashtags, and CTAs — optimized for each network.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>Copy and post</h3>
+          <p>Review your content, copy what you need, and paste directly into your scheduling tool or post manually.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="proof" class="social-proof">
+      <h2 style="font-size:var(--text-h2);font-weight:700;">What people say</h2>
+      <div class="testimonial-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-text">"I used to spend 2 hours writing social posts. Now I describe my weekend special and have content for all three platforms in under a minute."</div>
+          <div class="testimonial-author">Sarah Chen</div>
+          <div class="testimonial-role">Owner, Bloom & Brew Coffee</div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-text">"The platform-specific optimization is spot on. TikTok posts feel like TikTok, Instagram feels like Instagram. No more one-size-fits-all."</div>
+          <div class="testimonial-author">Marcus Johnson</div>
+          <div class="testimonial-role">Freelance Marketer</div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-text">"Finally, an AI tool that doesn't try to do everything. It does one thing really well — and that's exactly what I needed."</div>
+          <div class="testimonial-author">Priya Patel</div>
+          <div class="testimonial-role">Fitness Coach, MoveStudio</div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <p>Content Hub — AI-powered social media content for small businesses</p>
+    </footer>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Sketch Toolbar -->
+<div id="sketch-tools">
+  <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'">
+    <option value="default">Default</option>
+  </select>
+  <button onclick="setViewport(375)">📱</button>
+  <button onclick="setViewport(768)">📟</button>
+  <button onclick="setViewport(0)" class="active">🖥</button>
+</div>
+
+<script>
+  // Variant switching
+  function showVariant(id) {
+    document.querySelectorAll('.variant').forEach(v => v.style.display = 'none');
+    document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('variant-' + id).style.display = 'block';
+    event.target.classList.add('active');
+  }
+
+  // Toast
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  // CTA button
+  function handleCTA(btn) {
+    btn.classList.add('loading');
+    setTimeout(() => {
+      btn.classList.remove('loading');
+      showToast('Welcome to Content Hub! 🎉');
+    }, 1500);
+  }
+
+  // Viewport
+  function setViewport(w) {
+    const container = document.querySelector('.page-container');
+    document.querySelectorAll('#sketch-tools button').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    if (w === 0) {
+      container.style.maxWidth = '1200px';
+      container.style.margin = '0 auto';
+    } else {
+      container.style.maxWidth = w + 'px';
+      container.style.margin = '0 auto';
+    }
+  }
+</script>
+</body>
+</html>

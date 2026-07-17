@@ -83,3 +83,7 @@ OpenAI is used if `OPENAI_API_KEY` is set; otherwise Gemini if `GEMINI_API_KEY` 
 - **Auth:** NextAuth.js v4 with Credentials provider and JWT strategy. Session is checked server-side in API routes and client-side via `useSession`.
 - **Styling:** Tailwind CSS with `clsx` + `tailwind-merge` for conditional classes. Lucide React for icons.
 - **Testing:** Vitest is configured in package.json. No test files exist yet — new code should include tests.
+
+## Auto-Loaded Skills
+
+- **Sketch findings for Content Hub** (design decisions, CSS patterns, visual direction) → `Skill("sketch-findings-content-hub")`

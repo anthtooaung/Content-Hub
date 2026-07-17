@@ -54,12 +54,16 @@ Exceptions: None — strict 8px grid.
 | Body | 16px | 400 | 1.5 |
 | Label | 14px | 600 | 1.4 |
 | Heading | 24px | 600 | 1.2 |
-| Display | 36px | 700 | 1.15 |
+| Display | 36px | 600 | 1.15 |
 
-**Additional sizes from theme (used in specific contexts):**
-- 32px / 700 — h1 equivalent (hero heading)
-- 18px / 500 — nav links, site header
-- 12px / 400 — captions, footer text
+**Size mapping from theme:**
+- 32px → merges into Display (36px) — hero heading uses Display role
+- 18px → merges into Label (14px/600) — nav links use Label role
+- 12px → merges into Body (16px/400) — captions use Body role at smaller size via Tailwind `text-sm`
+
+**Weight mapping from theme:**
+- 500 → merges into 600 — nav links use Label role weight
+- 700 → merges into 600 — display/hero heading uses 600
 
 **Font stack:** `'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif` (already loaded in `app/layout.tsx` via `next/font/google`).
 
@@ -161,6 +165,16 @@ Components needed for Phase 1 (landing + auth). All are pure Tailwind + CSS cust
 | Auth form submit | Click submit button | Button disabled, opacity 0.7, pointer-events none, loading text |
 | Auth error display | API returns error | Error message appears below form with `--color-error` text, `--color-error-soft` bg, 4px top padding |
 | Page transition | Navigate between pages | Standard Next.js client-side navigation (no custom transitions for Phase 1) |
+
+---
+
+## Visual Hierarchy
+
+**Landing page focal point:** The hero heading (36px/600, "Generate social media content in seconds") is the primary visual anchor. Visual priority chain:
+1. Hero heading (36px/600, dark text on light bg — highest contrast)
+2. Hero CTA button (blue accent on light bg — second-highest contrast)
+3. Hero mockup (visual interest, supports heading)
+4. Section headings (24px/600 — secondary anchors)
 
 ---
 

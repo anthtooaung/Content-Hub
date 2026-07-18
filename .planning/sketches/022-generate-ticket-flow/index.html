@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 022: Generate Page — Ticket Flow</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <style>
+    /* Variant Nav */
+    #variant-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+      background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+      padding: 8px 16px; display: flex; gap: 8px; font-family: var(--font-sans);
+    }
+    .variant-tab {
+      padding: 6px 14px; border-radius: var(--radius-control); border: 1px solid var(--color-border);
+      background: transparent; cursor: pointer; font-size: var(--text-small); font-weight: 500;
+      color: var(--color-text-secondary); transition: all var(--transition-fast);
+    }
+    .variant-tab:hover { background: var(--color-surface-subtle); }
+    .variant-tab.active { background: var(--color-primary-soft); color: var(--color-primary); border-color: var(--color-primary-border); }
+    .variant { display: none; padding-top: 56px; min-height: 100vh; }
+    .variant.active { display: block; }
+
+    /* Common */
+    .page-bg { background: var(--color-page); min-height: 100vh; }
+    .container { max-width: 640px; margin: 0 auto; padding: var(--space-6); }
+    .stack { display: flex; flex-direction: column; gap: var(--space-4); }
+
+    /* Card */
+    .card {
+      background: var(--color-surface); border: 1px solid var(--color-border);
+      border-radius: var(--radius-card); box-shadow: var(--shadow-card);
+    }
+    .card-header {
+      padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--color-border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-body { padding: var(--space-5); }
+
+    /* Back Button */
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: var(--radius-control); border: 1px solid var(--color-border);
+      background: var(--color-surface); cursor: pointer; font-size: var(--text-small);
+      font-weight: 500; color: var(--color-text-secondary); transition: all var(--transition-fast);
+    }
+    .back-btn:hover { background: var(--color-surface-subtle); border-color: var(--color-border-strong); }
+    .back-btn svg { width: 16px; height: 16px; }
+
+    /* Ticket Badge (inline pill) */
+    .ticket-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: var(--radius-pill);
+      background: var(--color-primary-soft); border: 1px solid var(--color-primary-border);
+      font-size: var(--text-caption); font-weight: 600; color: var(--color-primary);
+    }
+    .ticket-badge svg { width: 14px; height: 14px; }
+    .ticket-badge.low { background: var(--color-warning-soft); border-color: var(--color-warning-border); color: var(--color-warning); }
+    .ticket-badge.critical { background: var(--color-error-soft); border-color: #FECACA; color: var(--color-error); }
+    .ticket-badge.none { background: var(--color-surface-subtle); border-color: var(--color-border); color: var(--color-text-muted); }
+
+    /* Ticket Bar (compact) */
+    .ticket-bar-track {
+      width: 100%; height: 6px; background: var(--color-surface-subtle);
+      border-radius: var(--radius-pill); overflow: hidden;
+    }
+    .ticket-bar-fill {
+      height: 100%; background: var(--color-primary); border-radius: var(--radius-pill);
+      transition: width 0.6s ease;
+    }
+    .ticket-bar-fill.low { background: var(--color-warning); }
+    .ticket-bar-fill.critical { background: var(--color-error); }
+
+    /* Form */
+    .form-group { display: flex; flex-direction: column; gap: var(--space-2); }
+    .form-label { font-size: var(--text-small); font-weight: 500; color: var(--color-text); }
+    .form-input {
+      padding: 10px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-control);
+      font-size: var(--text-small); font-family: var(--font-sans); color: var(--color-text);
+      background: var(--color-surface); transition: border-color var(--transition-fast);
+    }
+    .form-input:focus { outline: none; border-color: var(--color-focus); box-shadow: var(--shadow-focus); }
+    .form-input::placeholder { color: var(--color-text-disabled); }
+    textarea.form-input { resize: vertical; min-height: 80px; }
+
+    /* Platform pills */
+    .platform-pills { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+    .platform-pill {
+      padding: 6px 14px; border-radius: var(--radius-pill); border: 1px solid var(--color-border);
+      background: transparent; cursor: pointer; font-size: var(--text-caption); font-weight: 500;
+      color: var(--color-text-secondary); transition: all var(--transition-fast);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .platform-pill:hover { background: var(--color-surface-subtle); }
+    .platform-pill.active { border-color: var(--color-primary-border); background: var(--color-primary-soft); color: var(--color-primary); }
+    .platform-pill .dot { width: 8px; height: 8px; border-radius: var(--radius-pill); }
+
+    /* Generate Button */
+    .generate-btn {
+      width: 100%; padding: 12px; border: none; border-radius: var(--radius-control);
+      background: var(--color-primary); color: var(--color-text-on-primary);
+      font-size: var(--text-small); font-weight: 600; cursor: pointer;
+      transition: all var(--transition-fast); display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .generate-btn:hover { background: var(--color-primary-hover); }
+    .generate-btn:active { background: var(--color-primary-active); }
+    .generate-btn:disabled { background: var(--color-text-disabled); cursor: not-allowed; }
+    .generate-btn svg { width: 18px; height: 18px; }
+
+    /* Cost line */
+    .cost-line {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--space-3) var(--space-4); border-radius: var(--radius-control);
+      background: var(--color-surface-subtle); border: 1px solid var(--color-border);
+      font-size: var(--text-caption);
+    }
+    .cost-line .cost-label { color: var(--color-text-muted); }
+    .cost-line .cost-value { font-weight: 600; color: var(--color-text); }
+    .cost-line .cost-value.free { color: var(--color-success); }
+
+    /* Warning Banner */
+    .warning-banner {
+      display: flex; align-items: center; gap: var(--space-3);
+      padding: var(--space-3) var(--space-4); border-radius: var(--radius-control);
+      background: var(--color-warning-soft); border: 1px solid var(--color-warning-border);
+      font-size: var(--text-small); color: var(--color-warning);
+    }
+    .warning-banner svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .warning-banner.critical { background: var(--color-error-soft); border-color: #FECACA; color: var(--color-error); }
+
+    /* Blocked State */
+    .blocked-overlay {
+      position: relative;
+    }
+    .blocked-overlay .form-input,
+    .blocked-overlay .platform-pill,
+    .blocked-overlay .generate-btn {
+      opacity: 0.5; pointer-events: none;
+    }
+    .blocked-overlay .generate-btn { background: var(--color-text-disabled); }
+    .blocked-message {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card);
+      box-shadow: var(--shadow-modal); padding: var(--space-6); text-align: center; z-index: 10;
+      max-width: 320px; width: 90%;
+    }
+    .blocked-message h3 { font-size: var(--text-h3); font-weight: 600; margin-bottom: var(--space-2); }
+    .blocked-message p { font-size: var(--text-small); color: var(--color-text-muted); margin-bottom: var(--space-4); }
+    .blocked-message .timer-display {
+      font-size: var(--text-h2); font-weight: 700; color: var(--color-primary);
+      margin-bottom: var(--space-4);
+    }
+    .blocked-message .btn-primary {
+      padding: 10px 24px; border-radius: var(--radius-control); border: none;
+      background: var(--color-primary); color: white; font-weight: 600; font-size: var(--text-small);
+      cursor: pointer; transition: background var(--transition-fast);
+    }
+    .blocked-message .btn-primary:hover { background: var(--color-primary-hover); }
+
+    /* Low ticket modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-overlay.show { opacity: 1; pointer-events: auto; }
+    .modal-box {
+      background: var(--color-surface); border-radius: var(--radius-modal);
+      box-shadow: var(--shadow-modal); padding: var(--space-6); max-width: 380px; width: 90%; text-align: center;
+    }
+    .modal-box h3 { font-size: var(--text-h3); font-weight: 600; margin-bottom: var(--space-2); }
+    .modal-box p { font-size: var(--text-small); color: var(--color-text-muted); margin-bottom: var(--space-4); line-height: 1.5; }
+    .modal-box .cost-highlight {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: var(--radius-control);
+      background: var(--color-warning-soft); border: 1px solid var(--color-warning-border);
+      font-size: var(--text-body); font-weight: 600; color: var(--color-warning);
+      margin-bottom: var(--space-4);
+    }
+    .modal-actions { display: flex; gap: var(--space-2); justify-content: center; }
+    .modal-actions .btn {
+      padding: 8px 20px; border-radius: var(--radius-control); border: 1px solid var(--color-border);
+      font-size: var(--text-small); font-weight: 500; cursor: pointer; transition: all var(--transition-fast);
+    }
+    .modal-actions .btn-cancel { background: transparent; color: var(--color-text-secondary); }
+    .modal-actions .btn-cancel:hover { background: var(--color-surface-subtle); }
+    .modal-actions .btn-proceed { background: var(--color-warning); color: white; border-color: var(--color-warning); }
+    .modal-actions .btn-proceed:hover { background: #92400E; }
+
+    /* Ticket info row */
+    .ticket-info-row {
+      display: flex; align-items: center; gap: var(--space-2);
+      font-size: var(--text-caption); color: var(--color-text-muted);
+    }
+    .ticket-info-row svg { width: 14px; height: 14px; }
+
+    /* Sketch toolbar */
+    #sketch-tools {
+      position: fixed; bottom: 12px; right: 12px; z-index: 9999;
+      font-family: system-ui; font-size: 12px;
+      background: rgba(0,0,0,0.7); color: white;
+      padding: 8px 12px; border-radius: 8px; opacity: 0.4; transition: opacity 0.2s;
+    }
+    #sketch-tools:hover { opacity: 1; }
+    #sketch-tools select { background: transparent; color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; padding: 2px 4px; font-size: 11px; }
+    .viewport-btns { display: flex; gap: 4px; margin-top: 6px; }
+    .viewport-btn {
+      padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.3);
+      background: transparent; color: white; cursor: pointer; font-size: 11px;
+    }
+    .viewport-btn:hover { background: rgba(255,255,255,0.15); }
+    .viewport-btn.active { background: rgba(255,255,255,0.25); }
+  </style>
+</head>
+<body>
+  <!-- Variant Nav -->
+  <div id="variant-nav">
+    <button class="variant-tab" onclick="showVariant('a')">A: Inline Badge</button>
+    <button class="variant-tab active" onclick="showVariant('b')">B: Warning Modal ★</button>
+    <button class="variant-tab" onclick="showVariant('c')">C: Blocked State</button>
+  </div>
+
+  <!-- ======================== VARIANT A: Inline Badge ======================== -->
+  <div id="variant-a" class="variant">
+    <div class="page-bg">
+      <div class="container">
+        <div class="stack">
+          <!-- Back Button -->
+          <button class="back-btn" onclick="history.back()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            Back
+          </button>
+
+          <!-- Generate Form Card -->
+          <div class="card">
+            <div class="card-header">
+              <span style="font-weight:600; font-size: var(--text-body);">Generate Content</span>
+              <!-- Inline ticket badge -->
+              <div class="ticket-badge" id="badge-a">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
+                <span>12 tickets</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <!-- Compact ticket bar -->
+              <div style="margin-bottom: var(--space-4);">
+                <div class="ticket-bar-track">
+                  <div class="ticket-bar-fill" style="width: 80%;"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top: var(--space-1);">
+                  <span style="font-size: 11px; color: var(--color-text-muted);">3 used today</span>
+                  <span style="font-size: 11px; color: var(--color-text-muted);">Resets in 18h 42m</span>
+                </div>
+              </div>
+
+              <!-- Form Fields -->
+              <div class="stack" style="gap: var(--space-4);">
+                <div class="form-group">
+                  <label class="form-label">Business Name</label>
+                  <input class="form-input" type="text" placeholder="e.g. Coffee Corner">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Campaign Description</label>
+                  <textarea class="form-input" placeholder="Describe what you're promoting..."></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Platforms</label>
+                  <div class="platform-pills">
+                    <button class="platform-pill active"><span class="dot" style="background: #111827;"></span> TikTok</button>
+                    <button class="platform-pill active"><span class="dot" style="background: #E1306C;"></span> Instagram</button>
+                    <button class="platform-pill active"><span class="dot" style="background: #1877F2;"></span> Facebook</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cost Line -->
+              <div class="cost-line" style="margin-top: var(--space-5);">
+                <span class="cost-label">Generation cost</span>
+                <span class="cost-value">3 tickets</span>
+              </div>
+
+              <!-- Generate Button -->
+              <button class="generate-btn" style="margin-top: var(--space-4);" onclick="this.innerHTML='<svg width=18 height=18 viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path d=&quot;M21 12a9 9 0 11-6.219-8.56&quot;/></svg> Generating...'; this.disabled=true; setTimeout(()=>{this.innerHTML='Generate Content'; this.disabled=false;}, 2000)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 3 14 9-14 9V3z"/></svg>
+                Generate Content
+              </button>
+            </div>
+          </div>
+
+          <!-- Ticket info -->
+          <div class="ticket-info-row" style="justify-content: center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            Each generation costs 3 tickets · 15 tickets reset daily
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== VARIANT B: Warning Modal ======================== -->
+  <div id="variant-b" class="variant active">
+    <div class="page-bg">
+      <div class="container">
+        <div class="stack">
+          <!-- Back Button -->
+          <button class="back-btn" onclick="history.back()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            Back
+          </button>
+
+          <!-- Warning Banner (low tickets) -->
+          <div class="warning-banner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <span>Only <strong>4 tickets</strong> left — enough for 1 more generation</span>
+          </div>
+
+          <!-- Generate Form Card -->
+          <div class="card">
+            <div class="card-header">
+              <span style="font-weight:600; font-size: var(--text-body);">Generate Content</span>
+              <div class="ticket-badge low">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
+                <span>4 tickets</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <!-- Ticket bar (low) -->
+              <div style="margin-bottom: var(--space-4);">
+                <div class="ticket-bar-track">
+                  <div class="ticket-bar-fill low" style="width: 27%;"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top: var(--space-1);">
+                  <span style="font-size: 11px; color: var(--color-warning);">⚠ Low on tickets</span>
+                  <span style="font-size: 11px; color: var(--color-text-muted);">Resets in 6h 15m</span>
+                </div>
+              </div>
+
+              <!-- Form Fields -->
+              <div class="stack" style="gap: var(--space-4);">
+                <div class="form-group">
+                  <label class="form-label">Business Name</label>
+                  <input class="form-input" type="text" value="Coffee Corner">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Campaign Description</label>
+                  <textarea class="form-input">New summer iced latte launch — available in 3 flavors</textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Platforms</label>
+                  <div class="platform-pills">
+                    <button class="platform-pill active"><span class="dot" style="background: #111827;"></span> TikTok</button>
+                    <button class="platform-pill active"><span class="dot" style="background: #E1306C;"></span> Instagram</button>
+                    <button class="platform-pill active"><span class="dot" style="background: #1877F2;"></span> Facebook</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cost Line -->
+              <div class="cost-line" style="margin-top: var(--space-5); border-color: var(--color-warning-border);">
+                <span class="cost-label">Generation cost</span>
+                <span class="cost-value" style="color: var(--color-warning);">3 tickets</span>
+              </div>
+
+              <!-- Generate Button -->
+              <button class="generate-btn" style="margin-top: var(--space-4);" onclick="document.getElementById('modal-b').classList.add('show')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 3 14 9-14 9V3z"/></svg>
+                Generate Content
+              </button>
+            </div>
+          </div>
+
+          <!-- Ticket info -->
+          <div class="ticket-info-row" style="justify-content: center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            Each generation costs 3 tickets · 15 tickets reset daily
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Low Ticket Confirmation Modal -->
+    <div class="modal-overlay" id="modal-b">
+      <div class="modal-box">
+        <h3>Almost out of tickets</h3>
+        <p>This generation will use <strong>3 tickets</strong>, leaving you with <strong>1 ticket</strong>. You won't be able to generate again until tickets reset.</p>
+        <div class="cost-highlight">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+          4 → 1 ticket remaining
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-cancel" onclick="document.getElementById('modal-b').classList.remove('show')">Cancel</button>
+          <button class="btn btn-proceed" onclick="document.getElementById('modal-b').classList.remove('show')">Proceed anyway</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== VARIANT C: Blocked State ======================== -->
+  <div id="variant-c" class="variant">
+    <div class="page-bg">
+      <div class="container">
+        <div class="stack">
+          <!-- Back Button -->
+          <button class="back-btn" onclick="history.back()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            Back
+          </button>
+
+          <!-- Critical Warning -->
+          <div class="warning-banner critical">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            <span><strong>No tickets remaining</strong> — resets in 4h 23m</span>
+          </div>
+
+          <!-- Generate Form (Blocked) -->
+          <div class="card blocked-overlay">
+            <div class="card-header">
+              <span style="font-weight:600; font-size: var(--text-body);">Generate Content</span>
+              <div class="ticket-badge none">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
+                <span>0 tickets</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <!-- Ticket bar (empty) -->
+              <div style="margin-bottom: var(--space-4);">
+                <div class="ticket-bar-track">
+                  <div class="ticket-bar-fill critical" style="width: 0%;"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top: var(--space-1);">
+                  <span style="font-size: 11px; color: var(--color-error);">✗ No tickets left</span>
+                  <span style="font-size: 11px; color: var(--color-text-muted);">Resets in 4h 23m</span>
+                </div>
+              </div>
+
+              <!-- Form Fields (disabled) -->
+              <div class="stack" style="gap: var(--space-4);">
+                <div class="form-group">
+                  <label class="form-label">Business Name</label>
+                  <input class="form-input" type="text" placeholder="e.g. Coffee Corner">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Campaign Description</label>
+                  <textarea class="form-input" placeholder="Describe what you're promoting..."></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Platforms</label>
+                  <div class="platform-pills">
+                    <button class="platform-pill"><span class="dot" style="background: #111827;"></span> TikTok</button>
+                    <button class="platform-pill"><span class="dot" style="background: #E1306C;"></span> Instagram</button>
+                    <button class="platform-pill"><span class="dot" style="background: #1877F2;"></span> Facebook</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cost Line -->
+              <div class="cost-line" style="margin-top: var(--space-5);">
+                <span class="cost-label">Generation cost</span>
+                <span class="cost-value">3 tickets</span>
+              </div>
+
+              <!-- Generate Button (disabled) -->
+              <button class="generate-btn" disabled style="margin-top: var(--space-4);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+                No Tickets Available
+              </button>
+
+              <!-- Blocked Overlay Message -->
+              <div class="blocked-message" style="margin-top: var(--space-4); position: relative; top: auto; left: auto; transform: none; box-shadow: none; border: 1px solid var(--color-error); border-radius: var(--radius-control); background: var(--color-error-soft);">
+                <div style="font-size: 32px; margin-bottom: var(--space-2);">⏱</div>
+                <h3 style="color: var(--color-error);">Tickets reset soon</h3>
+                <p>Your 15 tickets refresh in:</p>
+                <div class="timer-display">4:23:07</div>
+                <p style="font-size: var(--text-caption);">Next refresh at <strong>3:00 AM</strong></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ticket info -->
+          <div class="ticket-info-row" style="justify-content: center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            Each generation costs 3 tickets · 15 tickets reset daily
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sketch Toolbar -->
+  <div id="sketch-tools">
+    <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'">
+      <option value="default">Default</option>
+    </select>
+    <div class="viewport-btns">
+      <button class="viewport-btn" onclick="setViewport(375)">📱</button>
+      <button class="viewport-btn" onclick="setViewport(768)"> tablet</button>
+      <button class="viewport-btn active" onclick="setViewport(null)">Full</button>
+    </div>
+  </div>
+
+  <script>
+    function showVariant(id) {
+      document.querySelectorAll('.variant').forEach(v => v.style.display = 'none');
+      document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('variant-' + id).style.display = 'block';
+      event.target.classList.add('active');
+      setViewport(null);
+      // Close any open modals
+      document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show'));
+    }
+    function setViewport(width) {
+      document.querySelectorAll('.variant').forEach(v => {
+        if (v.style.display !== 'none') {
+          v.style.maxWidth = width ? width + 'px' : 'none';
+          v.style.margin = width ? '0 auto' : '0';
+          v.style.boxShadow = width ? '0 0 0 1px var(--color-border)' : 'none';
+        }
+      });
+      document.querySelectorAll('.viewport-btn').forEach(b => b.classList.remove('active'));
+      if (event && event.target) event.target.classList.add('active');
+    }
+    // Platform pill toggle
+    document.querySelectorAll('.platform-pill').forEach(pill => {
+      pill.addEventListener('click', () => pill.classList.toggle('active'));
+    });
+    // Countdown timer for variant C
+    let totalSeconds = 4 * 3600 + 23 * 60 + 7;
+    setInterval(() => {
+      totalSeconds = totalSeconds > 0 ? totalSeconds - 1 : 0;
+      const h = Math.floor(totalSeconds / 3600);
+      const m = Math.floor((totalSeconds % 3600) / 60);
+      const s = totalSeconds % 60;
+      document.querySelectorAll('.timer-display').forEach(el => {
+        el.textContent = `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      });
+    }, 1000);
+  </script>
+</body>
+</html>

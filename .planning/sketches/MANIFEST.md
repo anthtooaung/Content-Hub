@@ -21,3 +21,7 @@ Calm, modern, helpful AI content generation workspace. Blue controls the AI syst
 | 007 | auth-screens | What do login/signup feel like in the calm, professional aesthetic? | A | auth, login, signup, trust |
 | 008 | post-generation | What happens after content is generated — copy, save, edit, share? | C | post-gen, interactions, copy, save |
 | 009 | error-edge-states | How do failed generation, empty API keys, and network errors feel? | C | error, edge-case, failure, empty-state |
+| 010 | button-states | How should buttons look in idle vs hover states? | B | buttons, interaction, states, color |
+| 012 | settings-page | How should the Settings page organize user data, auto-post toggles, platform connections, and preferences? | | settings, preferences, toggles, profile |
+| 013 | templates-sidebar | How should the Templates page sidebar organize platform filtering and categories? | | templates, sidebar, navigation, filter |
+| 014 | platform-template-cards | How should template cards reflect each platform's brand identity? | | templates, cards, platform-branding, facebook, tiktok, instagram |

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 010: Button States</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <style>
+    body { padding: 56px 0 0 0; }
+    .variant { display: none; padding: 32px; max-width: 1000px; margin: 0 auto; }
+    .variant.active { display: block; }
+
+    .variant-tab {
+      padding: 8px 16px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-control);
+      background: var(--color-surface);
+      color: var(--color-text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .variant-tab:hover { background: var(--color-surface-subtle); }
+    .variant-tab.active {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+    .variant-tab.winner {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+    }
+    .row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    /* ========== BUTTON BASE ========== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: var(--radius-control);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 44px;
+      border: none;
+    }
+    .btn:active { transform: scale(0.97); }
+
+    /* Ghost icon button */
+    .btn-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: var(--radius-control);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 36px;
+    }
+
+    /* ========================================
+       VARIANT A: Current — Vibrant Primary, Neutral Secondary
+       ======================================== */
+    .va .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .va .btn-primary:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .va .btn-secondary {
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+    }
+    .va .btn-secondary:hover {
+      background: var(--color-surface-subtle);
+      border-color: var(--color-border-strong);
+    }
+
+    .va .btn-outline {
+      background: transparent;
+      color: var(--color-text-secondary);
+      border: 1px solid var(--color-border);
+    }
+    .va .btn-outline:hover {
+      border-color: var(--color-primary-border);
+      background: var(--color-primary-soft);
+      color: var(--color-primary);
+    }
+
+    .va .btn-icon-outline {
+      background: transparent;
+      color: var(--color-text-secondary);
+      border: 1px solid var(--color-border);
+    }
+    .va .btn-icon-outline:hover {
+      border-color: var(--color-primary-border);
+      background: var(--color-primary-soft);
+      color: var(--color-primary);
+    }
+
+    /* ========================================
+       VARIANT B: All Vibrant — Every Button Has Color in Idle
+       ======================================== */
+    .vb .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .vb .btn-primary:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .vb .btn-secondary {
+      background: var(--color-primary-soft);
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary-border);
+    }
+    .vb .btn-secondary:hover {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .vb .btn-outline {
+      background: var(--color-primary-soft);
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary-border);
+    }
+    .vb .btn-outline:hover {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+
+    .vb .btn-icon-outline {
+      background: var(--color-primary-soft);
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary-border);
+    }
+    .vb .btn-icon-outline:hover {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+
+    /* ========================================
+       VARIANT C: Tinted Secondary — Subtle Color Tint + Clear Hover
+       ======================================== */
+    .vc .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .vc .btn-primary:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .vc .btn-secondary {
+      background: var(--color-surface);
+      color: var(--color-text-secondary);
+      border: 1px solid var(--color-primary-border);
+    }
+    .vc .btn-secondary:hover {
+      background: var(--color-primary-soft);
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+      transform: translateY(-1px);
+    }
+
+    .vc .btn-outline {
+      background: transparent;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary-border);
+    }
+    .vc .btn-outline:hover {
+      background: var(--color-primary-soft);
+      border-color: var(--color-primary);
+      transform: translateY(-1px);
+    }
+
+    .vc .btn-icon-outline {
+      background: transparent;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary-border);
+    }
+    .vc .btn-icon-outline:hover {
+      background: var(--color-primary-soft);
+      border-color: var(--color-primary);
+    }
+
+    /* Context preview */
+    .context-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-panel);
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+    }
+    .context-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    /* SVG icons */
+    .icon { width: 16px; height: 16px; }
+    .icon-sm { width: 14px; height: 14px; }
+  </style>
+</head>
+<body>
+  <!-- Variant Nav -->
+  <div id="variant-nav" style="position:fixed;top:0;left:0;right:0;z-index:9998;background:var(--color-surface,#fff);border-bottom:1px solid var(--color-border,#e5e5e5);padding:8px 16px;display:flex;gap:8px;font-family:system-ui;">
+    <button class="variant-tab" onclick="showVariant('a')">A: Current (Vibrant Primary, Neutral Secondary)</button>
+    <button class="variant-tab active winner" onclick="showVariant('b')">B: All Vibrant (Color Tint on All) ★ Selected</button>
+    <button class="variant-tab" onclick="showVariant('c')">C: Tinted Border (Subtle Primary Border)</button>
+  </div>
+
+  <!-- ==================== VARIANT A ==================== -->
+  <div id="variant-a" class="variant va">
+    <div class="section">
+      <div class="section-title">Primary Buttons</div>
+      <div class="row">
+        <button class="btn btn-primary">Try it now</button>
+        <button class="btn btn-primary">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Generate 3 posts →
+        </button>
+        <button class="btn btn-primary" disabled style="opacity:0.5;pointer-events:none">Disabled</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Secondary / Ghost Buttons</div>
+      <div class="row">
+        <button class="btn btn-secondary">See how it works</button>
+        <button class="btn btn-secondary">+ New generation</button>
+        <button class="btn btn-outline">Cancel</button>
+        <button class="btn btn-outline">Show more</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Icon Buttons (Inline Actions)</div>
+      <div class="row">
+        <button class="btn-icon btn-icon-outline">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+        <button class="btn-icon btn-icon-outline">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+          Save
+        </button>
+        <button class="btn-icon btn-icon-outline" style="color:var(--color-success);border-color:var(--color-success);background:var(--color-success-soft)">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          Saved
+        </button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Context: Hero CTA Area</div>
+      <div class="context-card">
+        <div style="font-size:20px;font-weight:600;color:var(--color-text);margin-bottom:4px">Generate social media content in seconds</div>
+        <div style="font-size:14px;color:var(--color-text-secondary);margin-bottom:16px">Describe your campaign. Pick your platforms. Get ready-to-post content.</div>
+        <div class="row">
+          <button class="btn btn-primary">Try it now</button>
+          <button class="btn btn-secondary">See how it works</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Context: Auth Header</div>
+      <div class="context-card">
+        <div class="context-row">
+          <div style="font-size:16px;font-weight:700;color:var(--color-text)">Content Hub</div>
+          <button class="btn btn-primary" style="padding:8px 16px;min-height:36px;font-size:13px">Sign in</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== VARIANT B ==================== -->
+  <div id="variant-b" class="variant vb active">
+    <div class="section">
+      <div class="section-title">Primary Buttons</div>
+      <div class="row">
+        <button class="btn btn-primary">Try it now</button>
+        <button class="btn btn-primary">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Generate 3 posts →
+        </button>
+        <button class="btn btn-primary" disabled style="opacity:0.5;pointer-events:none">Disabled</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Secondary / Ghost Buttons — Now With Blue Tint</div>
+      <div class="row">
+        <button class="btn btn-secondary">See how it works</button>
+        <button class="btn btn-secondary">+ New generation</button>
+        <button class="btn btn-outline">Cancel</button>
+        <button class="btn btn-outline">Show more</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Icon Buttons (Inline Actions)</div>
+      <div class="row">
+        <button class="btn-icon btn-icon-outline">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+        <button class="btn-icon btn-icon-outline">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+          Save
+        </button>
+        <button class="btn-icon btn-icon-outline" style="background:var(--color-success-soft);color:var(--color-success);border-color:var(--color-success)">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          Saved
+        </button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Context: Hero CTA Area</div>
+      <div class="context-card">
+        <div style="font-size:20px;font-weight:600;color:var(--color-text);margin-bottom:4px">Generate social media content in seconds</div>
+        <div style="font-size:14px;color:var(--color-text-secondary);margin-bottom:16px">Describe your campaign. Pick your platforms. Get ready-to-post content.</div>
+        <div class="row">
+          <button class="btn btn-primary">Try it now</button>
+          <button class="btn btn-secondary">See how it works</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Context: Auth Header</div>
+      <div class="context-card">
+        <div class="context-row">
+          <div style="font-size:16px;font-weight:700;color:var(--color-text)">Content Hub</div>
+          <button class="btn btn-primary" style="padding:8px 16px;min-height:36px;font-size:13px">Sign in</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== VARIANT C ==================== -->
+  <div id="variant-c" class="variant vc" style="display:none">
+    <div class="section">
+      <div class="section-title">Primary Buttons</div>
+      <div class="row">
+        <button class="btn btn-primary">Try it now</button>
+        <button class="btn btn-primary">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Generate 3 posts →
+        </button>
+        <button class="btn btn-primary" disabled style="opacity:0.5;pointer-events:none">Disabled</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Secondary / Ghost Buttons — Blue Border, Not Blue Fill</div>
+      <div class="row">
+        <button class="btn btn-secondary">See how it works</button>
+        <button class="btn btn-secondary">+ New generation</button>
+        <button class="btn btn-outline">Cancel</button>
+        <button class="btn btn-outline">Show more</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Icon Buttons (Inline Actions)</div>
+      <div class="row">
+        <button class="btn-icon btn-icon-outline">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+        <button class="btn-icon btn-icon-outline">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+          Save
+        </button>
+        <button class="btn-icon btn-icon-outline" style="background:var(--color-success-soft);color:var(--color-success);border-color:var(--color-success)">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          Saved
+        </button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Context: Hero CTA Area</div>
+      <div class="context-card">
+        <div style="font-size:20px;font-weight:600;color:var(--color-text);margin-bottom:4px">Generate social media content in seconds</div>
+        <div style="font-size:14px;color:var(--color-text-secondary);margin-bottom:16px">Describe your campaign. Pick your platforms. Get ready-to-post content.</div>
+        <div class="row">
+          <button class="btn btn-primary">Try it now</button>
+          <button class="btn btn-secondary">See how it works</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Context: Auth Header</div>
+      <div class="context-card">
+        <div class="context-row">
+          <div style="font-size:16px;font-weight:700;color:var(--color-text)">Content Hub</div>
+          <button class="btn btn-primary" style="padding:8px 16px;min-height:36px;font-size:13px">Sign in</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sketch Toolbar -->
+  <div id="sketch-tools" style="position:fixed;bottom:12px;right:12px;z-index:9999;font-family:system-ui;font-size:12px;background:rgba(0,0,0,0.7);color:white;padding:8px 12px;border-radius:8px;opacity:0.4;transition:opacity 0.2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.4'">
+    <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'" style="background:transparent;color:white;border:1px solid rgba(255,255,255,0.3);border-radius:4px;padding:2px 4px;font-size:11px;margin-right:8px;">
+      <option value="default">Default</option>
+    </select>
+    <span style="opacity:0.6">Sketch 010: Button States</span>
+  </div>
+
+  <script>
+    function showVariant(id) {
+      document.querySelectorAll('.variant').forEach(v => v.style.display = 'none');
+      document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('variant-' + id).style.display = 'block';
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>

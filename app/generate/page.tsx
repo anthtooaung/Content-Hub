@@ -335,27 +335,29 @@ function GenerateContent() {
                   className={clsx(
                     'flex items-center gap-2 text-sm whitespace-nowrap',
                     step === 'form' && i === 0 && 'font-semibold text-primary',
-                    step === 'loading' && i === 1 && 'font-semibold text-primary',
-                    step === 'results' && i === 2 && 'font-semibold text-primary',
                     i > 0 && step === 'form' && 'text-text-disabled',
                     i > 1 && step === 'loading' && 'text-text-disabled',
                     i === 0 && step !== 'form' && 'text-success',
-                    i === 1 && step === 'results' && 'text-success'
+                    i === 1 && (step === 'loading' || step === 'results') && 'font-semibold text-success',
+                    i === 2 && step === 'results' && 'font-semibold text-success'
                   )}
                 >
                   <div
                     className={clsx(
                       'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold',
                       step === 'form' && i === 0 && 'border-primary bg-primary-50 text-primary',
-                      step === 'loading' && i === 1 && 'border-primary bg-primary-50 text-primary',
-                      step === 'results' && i === 2 && 'border-primary bg-primary-50 text-primary',
                       i === 0 && step !== 'form' && 'border-success bg-success-soft text-success',
-                      i === 1 && step === 'results' && 'border-success bg-success-soft text-success',
+                      i === 1 && (step === 'loading' || step === 'results') && 'border-success bg-success-soft text-success',
+                      i === 2 && step === 'results' && 'border-success bg-success-soft text-success',
                       i > 0 && step === 'form' && 'border-border bg-surface text-text-disabled',
                       i > 1 && step === 'loading' && 'border-border bg-surface text-text-disabled'
                     )}
                   >
-                    {i === 0 && step !== 'form' ? '✓' : i === 1 && step === 'results' ? '✓' : s.num}
+                    {(i === 0 && step !== 'form') ||
+                    (i === 1 && (step === 'loading' || step === 'results')) ||
+                    (i === 2 && step === 'results')
+                      ? '✓'
+                      : s.num}
                   </div>
                   <span className="max-md:hidden">{s.label}</span>
                 </div>

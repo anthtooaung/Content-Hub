@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Clock, Ticket, Trash2, ExternalLink, Check, AlertCircle, AlertTriangle } from 'lucide-react';
+import ThemeSwitcher from '@/components/ThemeSwitcher';
 
 interface SocialConnection {
   id: string;
@@ -149,8 +150,8 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+      <div className="min-h-screen bg-page flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
       </div>
     );
   }
@@ -163,37 +164,37 @@ export default function ProfilePage() {
   const refreshTime = tickets ? formatRefreshTime(tickets.nextRefreshAt) : '';
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-page">
       <div className="mx-auto max-w-[640px] px-4 py-6">
         <div className="flex flex-col gap-4">
           {/* Back Button */}
           <button
             onClick={() => router.push('/generate')}
-            className="inline-flex items-center gap-1.5 self-start rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:border-slate-300"
+            className="inline-flex items-center gap-1.5 self-start rounded-control border border-border bg-surface px-3.5 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-subtle hover:border-border-strong"
           >
             <ArrowLeft size={16} />
             Back to Generate
           </button>
 
           {/* Profile Header */}
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="flex items-center gap-4 px-6 py-6 border-b border-slate-100">
+          <div className="rounded-panel border border-border bg-surface shadow-card">
+            <div className="flex items-center gap-4 px-6 py-6 border-b border-border">
               {profile?.avatar_url ? (
                 <img
                   src={profile.avatar_url}
                   alt={profile.name || 'Profile'}
-                  className="h-[72px] w-[72px] rounded-full object-cover border-2 border-blue-200"
+                  className="h-[72px] w-[72px] rounded-full object-cover border-2 border-primary-border"
                 />
               ) : (
-                <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-blue-50 border-2 border-blue-200 text-2xl font-bold text-blue-600">
+                <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-primary-50 border-2 border-primary-border text-2xl font-bold text-primary">
                   {getInitials(profile?.name || null, profile?.email || '')}
                 </div>
               )}
               <div>
-                <h1 className="text-xl font-semibold text-slate-900">
+                <h1 className="text-xl font-semibold text-text-primary">
                   {profile?.name || 'User'}
                 </h1>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-text-muted">
                   {profile?.email} · Member since {new Date(profile?.created_at || '').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                 </p>
               </div>
@@ -202,13 +203,13 @@ export default function ProfilePage() {
 
           {/* Messages */}
           {error && (
-            <div className="flex items-center gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+            <div className="flex items-center gap-2 rounded-control bg-error-soft border border-error/20 px-4 py-3 text-sm text-error">
               <AlertCircle size={16} />
               {error}
             </div>
           )}
           {success && (
-            <div className="flex items-center gap-2 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">
+            <div className="flex items-center gap-2 rounded-control bg-success-soft border border-success/20 px-4 py-3 text-sm text-success">
               <Check size={16} />
               {success}
             </div>
@@ -216,7 +217,7 @@ export default function ProfilePage() {
 
           {/* Low Ticket Warning */}
           {isLow && (
-            <div className="flex items-center gap-3 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
+            <div className="flex items-center gap-3 rounded-control bg-warning-soft border border-warning-border px-4 py-3 text-sm text-warning">
               <AlertTriangle size={16} className="shrink-0" />
               <span>
                 Only <strong>{tickets.remaining} tickets</strong> left — enough for {tickets.generationsLeft} more generation{tickets.generationsLeft !== 1 ? 's' : ''}
@@ -226,7 +227,7 @@ export default function ProfilePage() {
 
           {/* Critical: No tickets */}
           {isCritical && (
-            <div className="flex items-center gap-3 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+            <div className="flex items-center gap-3 rounded-control bg-error-soft border border-error/20 px-4 py-3 text-sm text-error">
               <AlertCircle size={16} className="shrink-0" />
               <span>
                 <strong>No tickets remaining</strong> — resets in {resetTimeLeft}
@@ -235,27 +236,27 @@ export default function ProfilePage() {
           )}
 
           {/* Ticket Dashboard */}
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <div className="rounded-panel border border-border bg-surface shadow-card overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
               <div className="flex items-center gap-3">
-                <Ticket size={20} className="text-blue-600" />
-                <span className="text-sm font-semibold text-slate-900">Generation Tickets</span>
+                <Ticket size={20} className="text-primary" />
+                <span className="text-sm font-semibold text-text-primary">Generation Tickets</span>
               </div>
-              <span className="text-xs text-slate-400">Resets daily</span>
+              <span className="text-xs text-text-disabled">Resets daily</span>
             </div>
             <div className="px-6 py-5">
               {/* Progress Bar */}
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-lg font-bold text-slate-900">
+                  <span className="text-lg font-bold text-text-primary">
                     {tickets?.remaining} / {tickets?.total}
                   </span>
-                  <span className="text-sm text-slate-500">{ticketPercent}% remaining</span>
+                  <span className="text-sm text-text-muted">{ticketPercent}% remaining</span>
                 </div>
-                <div className="h-2.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div className="h-2.5 w-full rounded-full bg-surface-subtle overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
-                      isCritical ? 'bg-red-500' : isLow ? 'bg-amber-500' : 'bg-blue-600'
+                      isCritical ? 'bg-error' : isLow ? 'bg-warning' : 'bg-primary'
                     }`}
                     style={{ width: `${ticketPercent}%` }}
                   />
@@ -265,21 +266,21 @@ export default function ProfilePage() {
               {/* Stats Row */}
               <div className="grid grid-cols-3 gap-4 mb-5">
                 <div className="text-left">
-                  <div className="text-lg font-bold text-slate-900">{tickets?.remaining}</div>
-                  <div className="text-xs text-slate-400">Available</div>
+                  <div className="text-lg font-bold text-text-primary">{tickets?.remaining}</div>
+                  <div className="text-xs text-text-disabled">Available</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold text-slate-900">{tickets?.usedToday}</div>
-                  <div className="text-xs text-slate-400">Used today</div>
+                  <div className="text-lg font-bold text-text-primary">{tickets?.usedToday}</div>
+                  <div className="text-xs text-text-disabled">Used today</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-bold text-blue-600">{tickets?.generationsLeft}</div>
-                  <div className="text-xs text-slate-400">Generations left</div>
+                  <div className="text-lg font-bold text-primary">{tickets?.generationsLeft}</div>
+                  <div className="text-xs text-text-disabled">Generations left</div>
                 </div>
               </div>
 
               {/* Reset Timer */}
-              <div className="flex items-center gap-2 rounded-lg bg-blue-50 border border-blue-100 px-4 py-3 text-sm text-blue-700">
+              <div className="flex items-center gap-2 rounded-control bg-primary-50 border border-primary-border px-4 py-3 text-sm text-primary">
                 <Clock size={16} className="shrink-0" />
                 <span>
                   Tickets reset in <strong>{resetTimeLeft}</strong> — next refresh at <strong>{refreshTime}</strong>
@@ -289,18 +290,18 @@ export default function ProfilePage() {
 
             {/* Usage Info */}
             <div className="px-6 pb-6">
-              <div className="rounded-lg bg-slate-50 border border-slate-200 p-4">
-                <h4 className="text-sm font-semibold text-slate-700 mb-2">How tickets work</h4>
-                <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+              <div className="rounded-control bg-surface-subtle border border-border p-4">
+                <h4 className="text-sm font-semibold text-text-secondary mb-2">How tickets work</h4>
+                <div className="flex items-center gap-2 text-xs text-text-muted mb-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
                   Each generation costs 3 tickets
                 </div>
-                <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+                <div className="flex items-center gap-2 text-xs text-text-muted mb-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
                   15 tickets refresh every 24 hours
                 </div>
-                <div className="flex items-center gap-2 text-xs text-slate-500">
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+                <div className="flex items-center gap-2 text-xs text-text-muted">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
                   Each platform counts as 1 generation
                 </div>
               </div>
@@ -308,22 +309,22 @@ export default function ProfilePage() {
           </div>
 
           {/* Account Details */}
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="px-6 py-4 border-b border-slate-100">
-              <h3 className="text-sm font-semibold text-slate-900">Account Details</h3>
+          <div className="rounded-panel border border-border bg-surface shadow-card">
+            <div className="px-6 py-4 border-b border-border">
+              <h3 className="text-sm font-semibold text-text-primary">Account Details</h3>
             </div>
             <div className="px-6 py-1">
-              <div className="flex justify-between items-center py-3 border-b border-slate-50">
-                <span className="text-sm text-slate-500">Email</span>
-                <span className="text-sm font-medium text-slate-900">{profile?.email}</span>
+              <div className="flex justify-between items-center py-3 border-b border-border/50">
+                <span className="text-sm text-text-muted">Email</span>
+                <span className="text-sm font-medium text-text-primary">{profile?.email}</span>
               </div>
-              <div className="flex justify-between items-center py-3 border-b border-slate-50">
-                <span className="text-sm text-slate-500">Login method</span>
-                <span className="text-sm font-medium text-slate-900 capitalize">Email</span>
+              <div className="flex justify-between items-center py-3 border-b border-border/50">
+                <span className="text-sm text-text-muted">Login method</span>
+                <span className="text-sm font-medium text-text-primary capitalize">Email</span>
               </div>
               <div className="flex justify-between items-center py-3">
-                <span className="text-sm text-slate-500">Member since</span>
-                <span className="text-sm font-medium text-slate-900">
+                <span className="text-sm text-text-muted">Member since</span>
+                <span className="text-sm font-medium text-text-primary">
                   {new Date(profile?.created_at || '').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                 </span>
               </div>
@@ -331,23 +332,23 @@ export default function ProfilePage() {
           </div>
 
           {/* Connected Accounts */}
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="px-6 py-4 border-b border-slate-100">
-              <h3 className="text-sm font-semibold text-slate-900">Connected Accounts</h3>
+          <div className="rounded-panel border border-border bg-surface shadow-card">
+            <div className="px-6 py-4 border-b border-border">
+              <h3 className="text-sm font-semibold text-text-primary">Connected Accounts</h3>
             </div>
             <div className="px-6 py-4 space-y-2">
               {/* Google */}
-              <div className="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-3">
+              <div className="flex items-center justify-between rounded-control border border-border px-4 py-3">
                 <div className="flex items-center gap-3">
                   {getProviderIcon('google')}
                   <div>
-                    <p className="text-sm font-medium text-slate-900">Google</p>
+                    <p className="text-sm font-medium text-text-primary">Google</p>
                     {profile?.social_connections.find(c => c.provider === 'google') ? (
-                      <p className="text-xs text-green-600">
+                      <p className="text-xs text-success">
                         Connected as {profile.social_connections.find(c => c.provider === 'google')?.provider_username || 'account'}
                       </p>
                     ) : (
-                      <p className="text-xs text-slate-400">Not connected</p>
+                      <p className="text-xs text-text-disabled">Not connected</p>
                     )}
                   </div>
                 </div>
@@ -357,14 +358,14 @@ export default function ProfilePage() {
                       const conn = profile.social_connections.find(c => c.provider === 'google');
                       if (conn) handleDisconnect(conn.id);
                     }}
-                    className="text-xs font-medium text-red-600 hover:underline"
+                    className="text-xs font-medium text-error hover:underline"
                   >
                     Disconnect
                   </button>
                 ) : (
                   <button
                     onClick={() => signIn('google', { callbackUrl: '/profile' })}
-                    className="text-xs font-medium text-blue-600 hover:underline"
+                    className="text-xs font-medium text-primary hover:underline"
                   >
                     Connect
                   </button>
@@ -372,17 +373,17 @@ export default function ProfilePage() {
               </div>
 
               {/* Facebook */}
-              <div className="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-3">
+              <div className="flex items-center justify-between rounded-control border border-border px-4 py-3">
                 <div className="flex items-center gap-3">
                   {getProviderIcon('facebook')}
                   <div>
-                    <p className="text-sm font-medium text-slate-900">Facebook</p>
+                    <p className="text-sm font-medium text-text-primary">Facebook</p>
                     {profile?.social_connections.find(c => c.provider === 'facebook') ? (
-                      <p className="text-xs text-green-600">
+                      <p className="text-xs text-success">
                         Connected as {profile.social_connections.find(c => c.provider === 'facebook')?.provider_username || 'account'}
                       </p>
                     ) : (
-                      <p className="text-xs text-slate-400">Not connected</p>
+                      <p className="text-xs text-text-disabled">Not connected</p>
                     )}
                   </div>
                 </div>
@@ -392,14 +393,14 @@ export default function ProfilePage() {
                       const conn = profile.social_connections.find(c => c.provider === 'facebook');
                       if (conn) handleDisconnect(conn.id);
                     }}
-                    className="text-xs font-medium text-red-600 hover:underline"
+                    className="text-xs font-medium text-error hover:underline"
                   >
                     Disconnect
                   </button>
                 ) : (
                   <button
                     onClick={() => signIn('facebook', { callbackUrl: '/profile' })}
-                    className="text-xs font-medium text-blue-600 hover:underline"
+                    className="text-xs font-medium text-primary hover:underline"
                   >
                     Connect
                   </button>
@@ -408,17 +409,28 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {/* Theme Settings */}
+          <div className="rounded-panel border border-border bg-surface shadow-card">
+            <div className="px-6 py-4 border-b border-border">
+              <h3 className="text-sm font-semibold text-text-primary">Appearance</h3>
+              <p className="text-xs text-text-muted mt-0.5">Choose your preferred theme</p>
+            </div>
+            <div className="px-6 py-5">
+              <ThemeSwitcher />
+            </div>
+          </div>
+
           {/* Danger Zone */}
-          <div className="rounded-xl border border-red-200 bg-white shadow-sm">
+          <div className="rounded-panel border border-error/30 bg-surface shadow-card">
             <div className="px-6 py-4">
-              <h3 className="text-sm font-semibold text-red-600 mb-1">Danger Zone</h3>
-              <p className="text-xs text-slate-500 mb-4">
+              <h3 className="text-sm font-semibold text-error mb-1">Danger Zone</h3>
+              <p className="text-xs text-text-muted mb-4">
                 Permanently delete your account and all associated data. This action cannot be undone.
               </p>
               {!showDeleteConfirm ? (
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                  className="flex items-center gap-2 rounded-control border border-error/30 px-4 py-2 text-sm font-medium text-error transition-colors hover:bg-error-soft"
                 >
                   <Trash2 size={16} />
                   Delete Account
@@ -428,13 +440,13 @@ export default function ProfilePage() {
                   <button
                     onClick={handleDeleteAccount}
                     disabled={deleting}
-                    className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+                    className="rounded-control bg-error px-4 py-2 text-sm font-medium text-text-on-primary transition-colors hover:opacity-90 disabled:opacity-50"
                   >
                     {deleting ? 'Deleting...' : 'Yes, delete my account'}
                   </button>
                   <button
                     onClick={() => setShowDeleteConfirm(false)}
-                    className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                    className="rounded-control border border-border bg-surface px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-subtle"
                   >
                     Cancel
                   </button>

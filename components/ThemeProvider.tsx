@@ -68,10 +68,15 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
   }, [theme]);
 
   const setTheme = useCallback((newTheme: Theme) => {
+    const root = document.documentElement;
+    // Enable smooth transitions during theme switch
+    root.classList.add('theme-transition');
     setThemeState(newTheme);
     localStorage.setItem('content-hub-theme', newTheme);
     const resolved = applyTheme(newTheme);
     setResolvedTheme(resolved);
+    // Remove transition class after animation completes
+    setTimeout(() => root.classList.remove('theme-transition'), 250);
   }, []);
 
   // Prevent flash of wrong theme

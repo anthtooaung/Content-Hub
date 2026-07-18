@@ -8,7 +8,6 @@ import {
   LayoutGrid,
   FileText,
   Settings,
-  Heart,
   Plus,
   Menu,
   X,
@@ -17,6 +16,7 @@ import {
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useEffect, useState } from 'react';
+import Logo from '@/components/Logo';
 
 const navSections = [
   {
@@ -31,7 +31,6 @@ const navSections = [
       { href: '/templates', label: 'Templates', icon: LayoutGrid },
       { href: '/dashboard', label: 'Dashboard', icon: FileText },
       { href: '/analytics', label: 'Analytics', icon: BarChart3 },
-      { href: '#', label: 'Favorites', icon: Heart, disabled: true },
     ],
   },
 ];
@@ -70,9 +69,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </button>
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 font-semibold text-[15px] text-text-primary">
-          <Sparkles size={20} className="text-primary" />
-          Content Hub
+        <Link href="/" className="flex items-center">
+          <Logo size={24} showWordmark={true} />
         </Link>
 
         {/* Right side: ticket badge + avatar */}
@@ -97,9 +95,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           )}
 
           {/* Avatar */}
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-50 text-xs font-semibold text-primary cursor-pointer">
-            JD
-          </div>
+          <Link
+            href="/profile"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-50 text-xs font-semibold text-primary cursor-pointer hover:bg-primary-100 transition-colors"
+          >
+            {session?.user?.name
+              ? session.user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+              : 'U'}
+          </Link>
         </div>
       </header>
 
@@ -158,11 +161,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <div className="flex justify-between items-center mb-6">
                 <Link
                   href="/"
-                  className="flex items-center gap-2 text-sm font-semibold text-text-primary"
+                  className="flex items-center"
                   onClick={() => setMobileNavOpen(false)}
                 >
-                  <Sparkles size={20} className="text-primary" />
-                  Content Hub
+                  <Logo size={20} showWordmark={true} />
                 </Link>
                 <button
                   className="w-8 h-8 flex items-center justify-center rounded-control text-text-muted hover:bg-surface-subtle transition-colors"

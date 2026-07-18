@@ -1,22 +1,14 @@
 'use client';
 
 import { useSession, signOut } from 'next-auth/react';
-import { User, Sun, Moon, Monitor, Palette, LogOut } from 'lucide-react';
-import { clsx } from 'clsx';
+import { User, Palette, LogOut } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
 import Toast, { useToast } from '@/components/Toast';
-import { useTheme } from '@/components/ThemeProvider';
-
-const themes = [
-  { id: 'light', label: 'Light', icon: Sun, desc: 'Default' },
-  { id: 'dark', label: 'Dark', icon: Moon, desc: 'Easy on eyes' },
-  { id: 'system', label: 'System', icon: Monitor, desc: 'Match OS' },
-] as const;
+import ThemeSwitcher from '@/components/ThemeSwitcher';
 
 export default function SettingsPage() {
   const { data: session } = useSession();
   const { toast, showToast, hideToast } = useToast();
-  const { theme: activeTheme, setTheme: setActiveTheme } = useTheme();
 
   const userName = (session?.user?.name as string) || 'Jane Doe';
   const userEmail = (session?.user?.email as string) || 'jane@example.com';
@@ -56,30 +48,15 @@ export default function SettingsPage() {
           />
 
           <p className="mb-3 text-sm font-medium text-text-primary">Theme</p>
-          <div className="grid grid-cols-3 gap-2">
-            {themes.map((theme) => (
-              <button
-                key={theme.id}
-                onClick={() => setActiveTheme(theme.id)}
-                className={clsx(
-                  'rounded-control border-2 p-3.5 text-center transition-colors duration-150',
-                  activeTheme === theme.id
-                    ? 'border-primary bg-primary-50'
-                    : 'border-border bg-surface hover:border-border-strong'
-                )}
-              >
-                <div className="mb-1 text-text-primary">
-                  <theme.icon size={24} />
-                </div>
-                <div className="text-sm font-medium text-text-primary">{theme.label}</div>
-                <div className="text-[11px] text-text-muted">{theme.desc}</div>
-              </button>
-            ))}
-          </div>
+          <ThemeSwitcher />
         </section>
 
         {/* Logout Section */}
         <section className="rounded-panel border border-red-200 bg-error-soft p-5">
+          <h3 className="mb-1 text-base font-semibold text-text-primary">Log Out</h3>
+          <p className="mb-4 text-[13px] text-text-muted">
+            Sign out of your account. You can always log back in later.
+          </p>
           <button
             onClick={() => signOut({ callbackUrl: '/' })}
             className="flex items-center gap-2.5 rounded-control border border-error bg-surface px-5 py-2.5 text-sm font-medium text-error transition-colors duration-150 hover:bg-error hover:text-white"

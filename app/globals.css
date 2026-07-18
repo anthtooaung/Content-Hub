@@ -140,6 +140,18 @@ body {
   color: var(--color-text);
   background: var(--color-page);
   -webkit-font-smoothing: antialiased;
+  transition: background-color var(--transition-panel) ease, color var(--transition-panel) ease;
+}
+
+/* Smooth theme transitions on surfaces and text */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition: background-color var(--transition-panel) ease,
+              color var(--transition-panel) ease,
+              border-color var(--transition-panel) ease,
+              box-shadow var(--transition-panel) ease !important;
 }
 img { max-width: 100%; display: block; }
 a { text-decoration: none; }

@@ -2,11 +2,11 @@
 sketch: 012
 name: settings-page
 question: "How should the Settings page organize user data, auto-post toggles, platform connections, and preferences?"
-winner: null
+winner: A
 tags: [settings, preferences, toggles, profile]
 ---
 
-# Sketch 012: Settings Page
+# Sketch 012: Settings Page (Revised)
 
 ## Design Question
 How should the Settings page organize user data, auto-post toggles, platform connections, and preferences?
@@ -14,14 +14,12 @@ How should the Settings page organize user data, auto-post toggles, platform con
 ## How to View
 open .planning/sketches/012-settings-page/index.html
 
-## Variants
-- **A: Stacked Sections** — Full-width cards with clear section headers, generous spacing, each section in its own bordered container
-- **B: Compact Rows** — Single card with compact row-based layout, inline toggles, minimal vertical space
-- **C: Card Grid** — 2-column grid of smaller cards, each containing a focused settings category
+## Variant
+- **A: Stacked Sections with App Shell** — Full app shell (header + sidebar) with stacked settings cards. Auto-post and Connect-To combined into a single "Platforms" section with per-platform rows showing connection status + auto-post toggle together.
 
-## What to Look For
-- **Scannability** — Can you quickly find the setting you need?
-- **Toggle clarity** — Are platform toggles easy to understand at a glance?
-- **Connection state** — Is it obvious which platforms are connected vs not?
-- **Theme switcher** — Does the Light/Dark/System picker feel intuitive?
-- **Logout prominence** — Is it accessible but not accidentally clickable?
+## Key Design Decisions
+- **Combined Platforms section** — Each platform row shows: icon, name, connection status, auto-post toggle, and connect/connected button — all in one place
+- **App shell sidebar** — Uses the existing navigation sidebar (Generate, Templates, Dashboard, Analytics, Favorites, Settings)
+- **Profile section** — Avatar + name + email in a subtle card
+- **Theme switcher** — Three-column Light/Dark/System picker
+- **Logout** — Separate section with error-soft background for visibility

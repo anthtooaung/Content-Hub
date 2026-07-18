@@ -95,7 +95,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 img { max-width: 100%; display: block; }
-a { color: var(--color-primary); text-decoration: none; }
+a { text-decoration: none; }
 
 /* Animations */
 @keyframes spin {

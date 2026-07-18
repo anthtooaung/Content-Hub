@@ -209,7 +209,7 @@ function GenerateContent() {
               <div className="mt-2 text-right text-xs text-text-muted">{editModal.text.length}/280 characters</div>
             </div>
             <div className="flex justify-end gap-2 border-t border-border px-6 py-4">
-              <button onClick={() => setEditModal({ ...editModal, open: false })} className="rounded-control border border-primary-300 bg-primary-50 px-4 py-2 text-sm font-medium text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">Cancel</button>
+              <button onClick={() => setEditModal({ ...editModal, open: false })} className="rounded-control border-2 border-primary bg-primary-50 px-4 py-2 text-sm font-medium text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">Cancel</button>
               <button onClick={() => { setEditModal({ ...editModal, open: false }); showToast('Post updated!'); }} className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">Save Changes</button>
             </div>
           </div>
@@ -408,7 +408,7 @@ function GenerateContent() {
               <h2 className="text-[20px] font-semibold text-text-primary">Your content</h2>
               <button
                 onClick={handleNewGeneration}
-                className="rounded-control border border-primary-300 bg-primary-50 px-4 py-2 text-sm font-medium text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
+                className="rounded-control border-2 border-primary bg-primary-50 px-4 py-2 text-sm font-semibold text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
               >
                 + New generation
               </button>
@@ -550,7 +550,7 @@ function ResultCard({
         </div>
         <button
           onClick={copyAll}
-          className="flex items-center gap-1.5 rounded-control border border-primary-300 bg-primary-50 px-3 py-1.5 text-[13px] font-medium text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
+          className="flex items-center gap-1.5 rounded-control border-2 border-primary bg-primary-50 px-3 py-1.5 text-[13px] font-semibold text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
         >
           {copied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
         </button>
@@ -561,7 +561,7 @@ function ResultCard({
             'flex items-center gap-1.5 rounded-control border px-3 py-1.5 text-[13px] font-medium transition-all',
             saved
               ? 'border-success bg-success-soft text-success'
-              : 'border-primary-300 bg-primary-50 text-primary hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]'
+              : 'border-2 border-primary bg-primary-50 text-primary hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]'
           )}
         >
           {saving ? 'Saving...' : saved ? <><Check size={14} /> Saved</> : <><Save size={14} /> Save</>}

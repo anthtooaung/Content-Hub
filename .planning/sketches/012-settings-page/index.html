@@ -3,165 +3,242 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sketch 012: Settings Page</title>
+  <title>Sketch 012: Settings Page (Revised)</title>
   <link rel="stylesheet" href="../themes/default.css">
   <style>
-    /* Sketch-specific styles */
-    body { padding-top: 48px; }
+    body { padding-top: 0; margin: 0; }
 
-    /* Variant nav */
-    #variant-nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
-      background: var(--color-surface); border-bottom: 1px solid var(--color-border);
-      padding: 8px 16px; display: flex; gap: 8px; font-family: var(--font-sans);
-    }
-    .variant-tab {
-      padding: 6px 14px; border-radius: var(--radius-control); border: 1px solid var(--color-border);
-      background: var(--color-surface); color: var(--color-text-secondary); font-size: 13px;
-      font-weight: 500; cursor: pointer; transition: all var(--transition-fast);
-    }
-    .variant-tab:hover { background: var(--color-surface-subtle); }
-    .variant-tab.active {
-      background: var(--color-primary-soft); color: var(--color-primary);
-      border-color: var(--color-primary-border);
-    }
-    .variant { display: none; padding: 24px; }
-    .variant.active { display: block; }
+    /* App Shell */
+    .app-shell { display: flex; min-height: 100vh; }
 
-    /* Settings layout */
-    .settings-container { max-width: 800px; margin: 0 auto; }
+    /* Header */
+    .app-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 56px; background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+    }
+    .app-logo { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: var(--color-text); }
+    .app-logo svg { color: var(--color-primary); }
+    .app-avatar {
+      width: 32px; height: 32px; border-radius: 50%; background: var(--color-primary);
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+
+    /* Sidebar */
+    .app-sidebar {
+      position: fixed; top: 56px; left: 0; bottom: 0; width: 240px;
+      background: var(--color-surface); border-right: 1px solid var(--color-border);
+      padding: 24px 12px; z-index: 90; overflow-y: auto;
+    }
+    .sidebar-section { margin-bottom: 24px; }
+    .sidebar-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--color-text-muted); padding: 0 12px; margin-bottom: 8px;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-radius: var(--radius-control); font-size: 14px; font-weight: 500;
+      color: var(--color-text-secondary); cursor: pointer; transition: all 150ms;
+      text-decoration: none;
+    }
+    .sidebar-link:hover { background: var(--color-surface-subtle); color: var(--color-text); }
+    .sidebar-link.active { background: var(--color-primary-soft); color: var(--color-primary); }
+    .sidebar-link svg { width: 18px; height: 18px; }
+    .sidebar-link.disabled { color: var(--color-text-disabled); cursor: not-allowed; }
+
+    .sidebar-spacer { flex: 1; }
+    .sidebar-bottom { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--color-border); }
+
+    /* Main Content */
+    .app-main {
+      margin-left: 240px; margin-top: 56px; flex: 1; padding: 32px;
+      max-width: 800px;
+    }
+
+    /* Settings sections */
     .settings-section {
       background: var(--color-surface); border: 1px solid var(--color-border);
       border-radius: var(--radius-panel); padding: 24px; margin-bottom: 20px;
     }
-    .section-title {
-      font-size: 16px; font-weight: 600; color: var(--color-text);
-      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    .section-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
     }
-    .section-title svg { color: var(--color-primary); }
+    .section-icon {
+      width: 36px; height: 36px; border-radius: var(--radius-control);
+      background: var(--color-primary-soft); display: flex; align-items: center; justify-content: center;
+      color: var(--color-primary);
+    }
+    .section-title { font-size: 16px; font-weight: 600; color: var(--color-text); }
+    .section-desc { font-size: 13px; color: var(--color-text-muted); margin-top: 2px; }
 
-    /* Profile card */
-    .profile-card {
+    /* Profile */
+    .profile-row {
       display: flex; align-items: center; gap: 16px; padding: 16px;
       background: var(--color-surface-subtle); border-radius: var(--radius-card);
     }
-    .avatar {
-      width: 64px; height: 64px; border-radius: 50%; background: var(--color-primary);
+    .profile-avatar {
+      width: 56px; height: 56px; border-radius: 50%; background: var(--color-primary);
       display: flex; align-items: center; justify-content: center;
-      color: white; font-size: 24px; font-weight: 600;
+      color: white; font-size: 20px; font-weight: 600;
     }
-    .profile-info h3 { font-size: 18px; font-weight: 600; color: var(--color-text); }
-    .profile-info p { font-size: 14px; color: var(--color-text-muted); }
+    .profile-info h3 { font-size: 16px; font-weight: 600; color: var(--color-text); }
+    .profile-info p { font-size: 13px; color: var(--color-text-muted); }
 
-    /* Toggle row */
-    .toggle-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 0; border-bottom: 1px solid var(--color-border);
+    /* Combined Platform Row */
+    .platform-row {
+      display: flex; align-items: center; padding: 16px; border-radius: var(--radius-card);
+      border: 1px solid var(--color-border); margin-bottom: 12px;
+      transition: all 150ms;
     }
-    .toggle-row:last-child { border-bottom: none; }
-    .toggle-label { display: flex; align-items: center; gap: 12px; }
-    .toggle-icon {
-      width: 32px; height: 32px; border-radius: var(--radius-control);
+    .platform-row:last-child { margin-bottom: 0; }
+    .platform-row:hover { border-color: var(--color-border-strong); }
+
+    .platform-icon {
+      width: 40px; height: 40px; border-radius: var(--radius-control);
       display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: 700; color: white;
+      font-size: 14px; font-weight: 700; color: white; margin-right: 14px; flex-shrink: 0;
     }
-    .toggle-icon.tiktok { background: var(--color-tiktok); }
-    .toggle-icon.instagram { background: var(--color-instagram); }
-    .toggle-icon.facebook { background: var(--color-facebook); }
-    .toggle-text h4 { font-size: 14px; font-weight: 500; color: var(--color-text); }
-    .toggle-text p { font-size: 12px; color: var(--color-text-muted); }
+    .platform-icon.tiktok { background: var(--color-tiktok); }
+    .platform-icon.instagram { background: var(--color-instagram); }
+    .platform-icon.facebook { background: var(--color-facebook); }
+
+    .platform-details { flex: 1; min-width: 0; }
+    .platform-name { font-size: 14px; font-weight: 600; color: var(--color-text); }
+    .platform-status { font-size: 12px; color: var(--color-text-muted); margin-top: 2px; }
+    .platform-status.connected { color: var(--color-success); }
+
+    .platform-actions { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 
     /* Toggle switch */
+    .toggle-label { font-size: 12px; color: var(--color-text-muted); white-space: nowrap; }
     .toggle-switch {
       width: 44px; height: 24px; border-radius: 12px; background: var(--color-border-strong);
-      position: relative; cursor: pointer; transition: background var(--transition-fast);
+      position: relative; cursor: pointer; transition: background 150ms;
     }
     .toggle-switch.on { background: var(--color-primary); }
     .toggle-switch::after {
       content: ''; position: absolute; top: 2px; left: 2px;
       width: 20px; height: 20px; border-radius: 50%; background: white;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.15); transition: transform var(--transition-fast);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15); transition: transform 150ms;
     }
     .toggle-switch.on::after { transform: translateX(20px); }
 
     /* Connect button */
     .connect-btn {
-      display: flex; align-items: center; gap: 8px; padding: 8px 16px;
-      border-radius: var(--radius-control); border: 1px solid var(--color-border);
-      background: var(--color-surface); font-size: 13px; font-weight: 500;
-      color: var(--color-text-secondary); cursor: pointer; transition: all var(--transition-fast);
+      padding: 6px 14px; border-radius: var(--radius-control); border: 1px solid var(--color-border);
+      background: var(--color-surface); font-size: 12px; font-weight: 500;
+      color: var(--color-text-secondary); cursor: pointer; transition: all 150ms;
+      white-space: nowrap;
     }
     .connect-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
     .connect-btn.connected {
-      background: var(--color-success-soft); border-color: var(--color-success);
-      color: var(--color-success);
+      background: var(--color-success-soft); border-color: var(--color-success); color: var(--color-success);
     }
 
     /* Theme switcher */
     .theme-options { display: flex; gap: 8px; }
     .theme-option {
-      flex: 1; padding: 12px; border-radius: var(--radius-control);
+      flex: 1; padding: 14px; border-radius: var(--radius-control);
       border: 2px solid var(--color-border); background: var(--color-surface);
-      text-align: center; cursor: pointer; transition: all var(--transition-fast);
+      text-align: center; cursor: pointer; transition: all 150ms;
     }
     .theme-option:hover { border-color: var(--color-border-strong); }
     .theme-option.active { border-color: var(--color-primary); background: var(--color-primary-soft); }
-    .theme-option h5 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
-    .theme-option p { font-size: 11px; color: var(--color-text-muted); }
+    .theme-option h5 { font-size: 20px; margin-bottom: 4px; }
+    .theme-option span { font-size: 13px; font-weight: 500; color: var(--color-text); display: block; }
+    .theme-option small { font-size: 11px; color: var(--color-text-muted); }
 
     /* Logout */
+    .logout-section {
+      background: var(--color-error-soft); border: 1px solid #FECACA;
+      border-radius: var(--radius-panel); padding: 20px;
+    }
     .logout-btn {
-      display: flex; align-items: center; gap: 8px; padding: 12px 20px;
+      display: flex; align-items: center; gap: 10px; padding: 10px 20px;
       border-radius: var(--radius-control); border: 1px solid var(--color-error);
-      background: var(--color-error-soft); color: var(--color-error);
-      font-size: 14px; font-weight: 500; cursor: pointer; transition: all var(--transition-fast);
+      background: var(--color-surface); color: var(--color-error);
+      font-size: 14px; font-weight: 500; cursor: pointer; transition: all 150ms;
     }
     .logout-btn:hover { background: var(--color-error); color: white; }
 
-    /* Variant B: Compact layout */
-    .compact-section { padding: 16px; }
-    .compact-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 12px; border-radius: var(--radius-control);
-      transition: background var(--transition-fast);
+    /* Sketch toolbar */
+    #sketch-tools {
+      position: fixed; bottom: 12px; right: 12px; z-index: 9999;
+      font-family: system-ui; font-size: 12px; background: rgba(0,0,0,0.7);
+      color: white; padding: 8px 12px; border-radius: 8px; opacity: 0.4; transition: opacity 0.2s;
     }
-    .compact-row:hover { background: var(--color-surface-subtle); }
-
-    /* Variant C: Card grid */
-    .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-    .setting-card {
-      background: var(--color-surface); border: 1px solid var(--color-border);
-      border-radius: var(--radius-panel); padding: 20px;
-    }
-    .setting-card h4 {
-      font-size: 14px; font-weight: 600; color: var(--color-text);
-      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-    }
+    #sketch-tools:hover { opacity: 1; }
   </style>
 </head>
 <body>
-  <!-- Variant Navigation -->
-  <div id="variant-nav">
-    <button class="variant-tab active" onclick="showVariant('a')">A: Stacked Sections</button>
-    <button class="variant-tab" onclick="showVariant('b')">B: Compact Rows</button>
-    <button class="variant-tab" onclick="showVariant('c')">C: Card Grid</button>
-  </div>
+  <div class="app-shell">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="app-logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Content Hub
+      </div>
+      <div class="app-avatar">JD</div>
+    </header>
 
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- VARIANT A: Stacked Sections -->
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <div id="variant-a" class="variant active">
-    <div class="settings-container">
+    <!-- Sidebar -->
+    <aside class="app-sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Create</div>
+        <a class="sidebar-link" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          Generate
+        </a>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Library</div>
+        <a class="sidebar-link" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Templates
+        </a>
+        <a class="sidebar-link" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Dashboard
+        </a>
+        <a class="sidebar-link" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+          Analytics
+        </a>
+        <a class="sidebar-link disabled">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          Favorites
+        </a>
+      </div>
+
+      <div style="flex: 1;"></div>
+
+      <div class="sidebar-section" style="border-top: 1px solid var(--color-border); padding-top: 16px; margin-top: 16px;">
+        <a class="sidebar-link active" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="app-main">
       <h1 style="font-size: 24px; font-weight: 600; margin-bottom: 24px; color: var(--color-text);">Settings</h1>
 
       <!-- Profile Section -->
       <div class="settings-section">
-        <div class="section-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          Profile
+        <div class="section-header">
+          <div class="section-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div>
+            <div class="section-title">Profile</div>
+            <div class="section-desc">Your account information</div>
+          </div>
         </div>
-        <div class="profile-card">
-          <div class="avatar">JD</div>
+        <div class="profile-row">
+          <div class="profile-avatar">JD</div>
           <div class="profile-info">
             <h3>Jane Doe</h3>
             <p>jane@example.com</p>
@@ -169,377 +246,135 @@
         </div>
       </div>
 
-      <!-- Auto-Post Section -->
+      <!-- Combined Platform Section -->
       <div class="settings-section">
-        <div class="section-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
-          Auto-Post
-        </div>
-        <p style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 16px;">
-          Automatically publish generated content to your connected platforms.
-        </p>
-
-        <div class="toggle-row">
-          <div class="toggle-label">
-            <div class="toggle-icon tiktok">TT</div>
-            <div class="toggle-text">
-              <h4>TikTok</h4>
-              <p>Post when content is generated</p>
-            </div>
+        <div class="section-header">
+          <div class="section-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
           </div>
-          <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+          <div>
+            <div class="section-title">Platforms</div>
+            <div class="section-desc">Connect accounts and configure auto-posting</div>
+          </div>
         </div>
 
-        <div class="toggle-row">
-          <div class="toggle-label">
-            <div class="toggle-icon instagram">IG</div>
-            <div class="toggle-text">
-              <h4>Instagram</h4>
-              <p>Post when content is generated</p>
-            </div>
+        <!-- TikTok Row -->
+        <div class="platform-row">
+          <div class="platform-icon tiktok">TT</div>
+          <div class="platform-details">
+            <div class="platform-name">TikTok</div>
+            <div class="platform-status connected">@janedoe_business · Connected</div>
           </div>
-          <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+          <div class="platform-actions">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="toggle-label">Auto-post</span>
+              <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <button class="connect-btn connected">Connected</button>
+          </div>
         </div>
 
-        <div class="toggle-row">
-          <div class="toggle-label">
-            <div class="toggle-icon facebook">FB</div>
-            <div class="toggle-text">
-              <h4>Facebook</h4>
-              <p>Post when content is generated</p>
-            </div>
+        <!-- Instagram Row -->
+        <div class="platform-row">
+          <div class="platform-icon instagram">IG</div>
+          <div class="platform-details">
+            <div class="platform-name">Instagram</div>
+            <div class="platform-status">Not connected</div>
           </div>
-          <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+          <div class="platform-actions">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="toggle-label">Auto-post</span>
+              <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <button class="connect-btn">Connect</button>
+          </div>
+        </div>
+
+        <!-- Facebook Row -->
+        <div class="platform-row">
+          <div class="platform-icon facebook">FB</div>
+          <div class="platform-details">
+            <div class="platform-name">Facebook</div>
+            <div class="platform-status connected">Jane's Business Page · Connected</div>
+          </div>
+          <div class="platform-actions">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="toggle-label">Auto-post</span>
+              <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <button class="connect-btn connected">Connected</button>
+          </div>
         </div>
       </div>
 
-      <!-- Platform Connections -->
+      <!-- Preferences Section -->
       <div class="settings-section">
-        <div class="section-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-          Connect To
-        </div>
-
-        <div class="toggle-row">
-          <div class="toggle-label">
-            <div class="toggle-icon tiktok">TT</div>
-            <div class="toggle-text">
-              <h4>TikTok</h4>
-              <p>@janedoe_business</p>
-            </div>
+        <div class="section-header">
+          <div class="section-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m8.66-15l-5.2 3m-6.92 4l-5.2 3M22.66 18l-5.2-3m-6.92-4l-5.2-3"/></svg>
           </div>
-          <button class="connect-btn connected">Connected</button>
-        </div>
-
-        <div class="toggle-row">
-          <div class="toggle-label">
-            <div class="toggle-icon instagram">IG</div>
-            <div class="toggle-text">
-              <h4>Instagram</h4>
-              <p>Not connected</p>
-            </div>
+          <div>
+            <div class="section-title">Preferences</div>
+            <div class="section-desc">Customize your experience</div>
           </div>
-          <button class="connect-btn">Connect</button>
         </div>
 
-        <div class="toggle-row">
-          <div class="toggle-label">
-            <div class="toggle-icon facebook">FB</div>
-            <div class="toggle-text">
-              <h4>Facebook</h4>
-              <p>Not connected</p>
-            </div>
-          </div>
-          <button class="connect-btn">Connect</button>
-        </div>
-      </div>
-
-      <!-- Preferences -->
-      <div class="settings-section">
-        <div class="section-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m8.66-15l-5.2 3m-6.92 4l-5.2 3M22.66 18l-5.2-3m-6.92-4l-5.2-3"/></svg>
-          Preferences
-        </div>
-
-        <div style="margin-bottom: 16px;">
-          <p style="font-size: 13px; font-weight: 500; color: var(--color-text); margin-bottom: 8px;">Theme</p>
+        <div style="margin-bottom: 0;">
+          <p style="font-size: 14px; font-weight: 500; color: var(--color-text); margin-bottom: 12px;">Theme</p>
           <div class="theme-options">
             <div class="theme-option" onclick="selectTheme(this)">
-              <h5>☀️ Light</h5>
-              <p>Default</p>
+              <h5>☀️</h5>
+              <span>Light</span>
+              <small>Default</small>
             </div>
             <div class="theme-option" onclick="selectTheme(this)">
-              <h5>🌙 Dark</h5>
-              <p>Easy on eyes</p>
+              <h5>🌙</h5>
+              <span>Dark</span>
+              <small>Easy on eyes</small>
             </div>
             <div class="theme-option active" onclick="selectTheme(this)">
-              <h5>💻 System</h5>
-              <p>Match OS</p>
+              <h5>💻</h5>
+              <span>System</span>
+              <small>Match OS</small>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Logout -->
-      <div class="settings-section" style="border-color: var(--color-error); background: var(--color-error-soft);">
+      <!-- Logout Section -->
+      <div class="logout-section">
         <button class="logout-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           Log Out
         </button>
       </div>
-    </div>
+    </main>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- VARIANT B: Compact Rows -->
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <div id="variant-b" class="variant" style="display:none">
-    <div class="settings-container">
-      <h1 style="font-size: 24px; font-weight: 600; margin-bottom: 24px; color: var(--color-text);">Settings</h1>
-
-      <div class="settings-section compact-section">
-        <!-- Profile inline -->
-        <div class="compact-row" style="border-bottom: 1px solid var(--color-border); padding-bottom: 16px; margin-bottom: 8px;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--color-primary); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; font-weight: 600;">JD</div>
-            <div>
-              <div style="font-size: 14px; font-weight: 500;">Jane Doe</div>
-              <div style="font-size: 12px; color: var(--color-text-muted);">jane@example.com</div>
-            </div>
-          </div>
-          <button style="font-size: 12px; color: var(--color-primary); background: none; border: none; cursor: pointer;">Edit profile</button>
-        </div>
-
-        <!-- Auto-post toggles -->
-        <div class="compact-row">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <div class="toggle-icon tiktok" style="width: 28px; height: 28px; font-size: 11px;">TT</div>
-            <span style="font-size: 14px;">Auto-post to TikTok</span>
-          </div>
-          <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
-        </div>
-
-        <div class="compact-row">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <div class="toggle-icon instagram" style="width: 28px; height: 28px; font-size: 11px;">IG</div>
-            <span style="font-size: 14px;">Auto-post to Instagram</span>
-          </div>
-          <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
-        </div>
-
-        <div class="compact-row">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <div class="toggle-icon facebook" style="width: 28px; height: 28px; font-size: 11px;">FB</div>
-            <span style="font-size: 14px;">Auto-post to Facebook</span>
-          </div>
-          <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
-        </div>
-
-        <div style="height: 1px; background: var(--color-border); margin: 8px 0;"></div>
-
-        <!-- Connections -->
-        <div class="compact-row">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <div class="toggle-icon tiktok" style="width: 28px; height: 28px; font-size: 11px;">TT</div>
-            <div>
-              <span style="font-size: 14px;">TikTok</span>
-              <span style="font-size: 12px; color: var(--color-success); margin-left: 8px;">Connected</span>
-            </div>
-          </div>
-          <button style="font-size: 12px; color: var(--color-text-muted); background: none; border: none; cursor: pointer;">Disconnect</button>
-        </div>
-
-        <div class="compact-row">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <div class="toggle-icon instagram" style="width: 28px; height: 28px; font-size: 11px;">IG</div>
-            <div>
-              <span style="font-size: 14px;">Instagram</span>
-              <span style="font-size: 12px; color: var(--color-text-muted); margin-left: 8px;">Not connected</span>
-            </div>
-          </div>
-          <button class="connect-btn" style="padding: 4px 12px; font-size: 12px;">Connect</button>
-        </div>
-
-        <div class="compact-row">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <div class="toggle-icon facebook" style="width: 28px; height: 28px; font-size: 11px;">FB</div>
-            <div>
-              <span style="font-size: 14px;">Facebook</span>
-              <span style="font-size: 12px; color: var(--color-text-muted); margin-left: 8px;">Not connected</span>
-            </div>
-          </div>
-          <button class="connect-btn" style="padding: 4px 12px; font-size: 12px;">Connect</button>
-        </div>
-
-        <div style="height: 1px; background: var(--color-border); margin: 8px 0;"></div>
-
-        <!-- Theme inline -->
-        <div class="compact-row">
-          <span style="font-size: 14px;">Theme</span>
-          <div class="theme-options" style="gap: 4px;">
-            <div class="theme-option" style="padding: 6px 12px; flex: none;" onclick="selectTheme(this)">
-              <span style="font-size: 12px;">Light</span>
-            </div>
-            <div class="theme-option" style="padding: 6px 12px; flex: none;" onclick="selectTheme(this)">
-              <span style="font-size: 12px;">Dark</span>
-            </div>
-            <div class="theme-option active" style="padding: 6px 12px; flex: none;" onclick="selectTheme(this)">
-              <span style="font-size: 12px;">System</span>
-            </div>
-          </div>
-        </div>
-
-        <div style="height: 1px; background: var(--color-border); margin: 8px 0;"></div>
-
-        <!-- Logout -->
-        <div class="compact-row">
-          <span style="font-size: 14px; color: var(--color-error);">Log Out</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-error)" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- VARIANT C: Card Grid -->
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <div id="variant-c" class="variant" style="display:none">
-    <div class="settings-container">
-      <h1 style="font-size: 24px; font-weight: 600; margin-bottom: 24px; color: var(--color-text);">Settings</h1>
-
-      <div class="card-grid">
-        <!-- Profile Card -->
-        <div class="setting-card">
-          <h4>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            Profile
-          </h4>
-          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-            <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--color-primary); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: 600;">JD</div>
-            <div>
-              <div style="font-size: 14px; font-weight: 500;">Jane Doe</div>
-              <div style="font-size: 12px; color: var(--color-text-muted);">jane@example.com</div>
-            </div>
-          </div>
-          <button style="width: 100%; padding: 8px; border-radius: var(--radius-control); border: 1px solid var(--color-border); background: var(--color-surface); font-size: 13px; cursor: pointer;">Edit Profile</button>
-        </div>
-
-        <!-- Auto-Post Card -->
-        <div class="setting-card">
-          <h4>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-            Auto-Post
-          </h4>
-          <div class="toggle-row" style="padding: 8px 0;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <div class="toggle-icon tiktok" style="width: 24px; height: 24px; font-size: 10px;">TT</div>
-              <span style="font-size: 13px;">TikTok</span>
-            </div>
-            <div class="toggle-switch on" style="width: 36px; height: 20px;" onclick="this.classList.toggle('on')"><span style="display:none"></span></div>
-          </div>
-          <div class="toggle-row" style="padding: 8px 0;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <div class="toggle-icon instagram" style="width: 24px; height: 24px; font-size: 10px;">IG</div>
-              <span style="font-size: 13px;">Instagram</span>
-            </div>
-            <div class="toggle-switch" style="width: 36px; height: 20px;" onclick="this.classList.toggle('on')"></div>
-          </div>
-          <div class="toggle-row" style="padding: 8px 0; border: none;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <div class="toggle-icon facebook" style="width: 24px; height: 24px; font-size: 10px;">FB</div>
-              <span style="font-size: 13px;">Facebook</span>
-            </div>
-            <div class="toggle-switch on" style="width: 36px; height: 20px;" onclick="this.classList.toggle('on')"></div>
-          </div>
-        </div>
-
-        <!-- Connections Card -->
-        <div class="setting-card">
-          <h4>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-            Connections
-          </h4>
-          <div style="display: flex; flex-direction: column; gap: 8px;">
-            <button class="connect-btn connected" style="justify-content: center;">
-              <div class="toggle-icon tiktok" style="width: 20px; height: 20px; font-size: 9px;">TT</div>
-              TikTok Connected
-            </button>
-            <button class="connect-btn" style="justify-content: center;">
-              <div class="toggle-icon instagram" style="width: 20px; height: 20px; font-size: 9px;">IG</div>
-              Connect Instagram
-            </button>
-            <button class="connect-btn" style="justify-content: center;">
-              <div class="toggle-icon facebook" style="width: 20px; height: 20px; font-size: 9px;">FB</div>
-              Connect Facebook
-            </button>
-          </div>
-        </div>
-
-        <!-- Preferences Card -->
-        <div class="setting-card">
-          <h4>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            Preferences
-          </h4>
-          <div class="theme-options" style="margin-bottom: 16px;">
-            <div class="theme-option" onclick="selectTheme(this)">
-              <h5>☀️</h5>
-              <p>Light</p>
-            </div>
-            <div class="theme-option" onclick="selectTheme(this)">
-              <h5>🌙</h5>
-              <p>Dark</p>
-            </div>
-            <div class="theme-option active" onclick="selectTheme(this)">
-              <h5>💻</h5>
-              <p>System</p>
-            </div>
-          </div>
-          <button class="logout-btn" style="width: 100%; justify-content: center;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            Log Out
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════════ -->
   <!-- Sketch Toolbar -->
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <div id="sketch-tools" style="position:fixed;bottom:12px;right:12px;z-index:9999;font-family:system-ui;font-size:12px;background:rgba(0,0,0,0.7);color:white;padding:8px 12px;border-radius:8px;opacity:0.4;transition:opacity 0.2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.4'">
+  <div id="sketch-tools">
     <div style="display:flex;gap:8px;align-items:center;">
       <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'" style="background:transparent;color:white;border:1px solid rgba(255,255,255,0.3);border-radius:4px;padding:2px 6px;font-size:11px;">
         <option value="default">Default</option>
       </select>
       <span style="opacity:0.5">|</span>
       <button onclick="setViewport('phone')" style="background:transparent;color:white;border:none;cursor:pointer;font-size:11px;">📱</button>
-      <button onclick="setViewport('tablet')" style="background:transparent;color:white;border:none;cursor:pointer;font-size:11px;"> tablet</button>
+      <button onclick="setViewport('tablet')" style="background:transparent;color:white;border:none;cursor:pointer;font-size:11px;">📱</button>
       <button onclick="setViewport('desktop')" style="background:transparent;color:white;border:none;cursor:pointer;font-size:11px;">🖥️</button>
     </div>
   </div>
 
   <script>
-    // Variant switching
-    function showVariant(id) {
-      document.querySelectorAll('.variant').forEach(v => v.style.display = 'none');
-      document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
-      document.getElementById('variant-' + id).style.display = 'block';
-      event.target.classList.add('active');
-    }
-
-    // Theme selection
     function selectTheme(el) {
-      el.parentElement.querySelectorAll('.theme-option').forEach(o => o.classList.remove('active'));
+      document.querySelectorAll('.theme-option').forEach(o => o.classList.remove('active'));
       el.classList.add('active');
     }
 
-    // Viewport switching
     function setViewport(size) {
-      const container = document.querySelector('.settings-container');
-      if (size === 'phone') container.style.maxWidth = '375px';
-      else if (size === 'tablet') container.style.maxWidth = '768px';
-      else container.style.maxWidth = '800px';
+      const main = document.querySelector('.app-main');
+      if (size === 'phone') { main.style.maxWidth = '375px'; main.style.marginLeft = '0'; }
+      else if (size === 'tablet') { main.style.maxWidth = '768px'; main.style.marginLeft = '0'; }
+      else { main.style.maxWidth = '800px'; main.style.marginLeft = '240px'; }
     }
   </script>
 </body>

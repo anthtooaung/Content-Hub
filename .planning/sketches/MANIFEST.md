@@ -31,3 +31,5 @@ Calm, modern, helpful AI content generation workspace. Blue controls the AI syst
 | 018 | facebook-post-card | What does a pixel-perfect Facebook post card look like with generated content and user images? | B | facebook, post-card, pixel-perfect, social-media |
 | 019 | tiktok-post-card | What does a pixel-perfect TikTok post card look like with generated content and user images? | B | tiktok, post-card, pixel-perfect, social-media, dark-mode |
 | 020 | instagram-post-card | What does a pixel-perfect Instagram post card look like with generated content and user images? | B | instagram, post-card, pixel-perfect, social-media, feed |
+| 021 | profile-page | How should the profile page display user info, ticket balance, and reset timer? | | profile, tickets, account, navigation |
+| 022 | generate-ticket-flow | How should the generate page show ticket cost and low-ticket warnings? | | generate, tickets, cost, warning, rate-limit |

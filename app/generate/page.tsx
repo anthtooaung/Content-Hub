@@ -282,189 +282,116 @@ function GenerateContent() {
         </div>
       )}
 
-      {/* Workspace: flex column filling available height */}
-      <div className="flex h-[calc(100vh-64px)] flex-col">
-
-        {/* Scrollable content area */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-[860px] px-8 pt-8 pb-6 max-md:px-4 max-md:pt-6 max-md:pb-4">
-            {/* Wizard Progress */}
-            <div className="mb-8 flex items-stretch gap-2 w-full">
-              {[
-                { num: 1, label: 'Campaign details' },
-                { num: 2, label: 'Generating' },
-                { num: 3, label: 'Results' },
-              ].map((s, i) => (
-                <div key={s.num} className="flex items-center gap-2 flex-1">
+      {/* Workspace: scrollable area */}
+      <div className="min-h-[calc(100vh-64px)]">
+        <div className="mx-auto max-w-[860px] px-8 py-8 max-md:px-4 max-md:py-6">
+          {/* Wizard Progress */}
+          <div className="mb-8 flex items-stretch gap-2 w-full">
+            {[
+              { num: 1, label: 'Campaign details' },
+              { num: 2, label: 'Generating' },
+              { num: 3, label: 'Results' },
+            ].map((s, i) => (
+              <div key={s.num} className="flex items-center gap-2 flex-1">
+                <div
+                  className={clsx(
+                    'flex items-center gap-2 text-sm whitespace-nowrap',
+                    step === 'form' && i === 0 && 'font-semibold text-primary',
+                    step === 'loading' && i === 1 && 'font-semibold text-primary',
+                    step === 'results' && i === 2 && 'font-semibold text-primary',
+                    i > 0 && step === 'form' && 'text-text-disabled',
+                    i > 1 && step === 'loading' && 'text-text-disabled',
+                    i === 0 && step !== 'form' && 'text-success',
+                    i === 1 && step === 'results' && 'text-success'
+                  )}
+                >
                   <div
                     className={clsx(
-                      'flex items-center gap-2 text-sm whitespace-nowrap',
-                      step === 'form' && i === 0 && 'font-semibold text-primary',
-                      step === 'loading' && i === 1 && 'font-semibold text-primary',
-                      step === 'results' && i === 2 && 'font-semibold text-primary',
-                      i > 0 && step === 'form' && 'text-text-disabled',
-                      i > 1 && step === 'loading' && 'text-text-disabled',
-                      i === 0 && step !== 'form' && 'text-success',
-                      i === 1 && step === 'results' && 'text-success'
+                      'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold',
+                      step === 'form' && i === 0 && 'border-primary bg-primary-50 text-primary',
+                      step === 'loading' && i === 1 && 'border-primary bg-primary-50 text-primary',
+                      step === 'results' && i === 2 && 'border-primary bg-primary-50 text-primary',
+                      i === 0 && step !== 'form' && 'border-success bg-success-soft text-success',
+                      i === 1 && step === 'results' && 'border-success bg-success-soft text-success',
+                      i > 0 && step === 'form' && 'border-border bg-surface text-text-disabled',
+                      i > 1 && step === 'loading' && 'border-border bg-surface text-text-disabled'
                     )}
                   >
-                    <div
-                      className={clsx(
-                        'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold',
-                        step === 'form' && i === 0 && 'border-primary bg-primary-50 text-primary',
-                        step === 'loading' && i === 1 && 'border-primary bg-primary-50 text-primary',
-                        step === 'results' && i === 2 && 'border-primary bg-primary-50 text-primary',
-                        i === 0 && step !== 'form' && 'border-success bg-success-soft text-success',
-                        i === 1 && step === 'results' && 'border-success bg-success-soft text-success',
-                        i > 0 && step === 'form' && 'border-border bg-surface text-text-disabled',
-                        i > 1 && step === 'loading' && 'border-border bg-surface text-text-disabled'
-                      )}
-                    >
-                      {i === 0 && step !== 'form' ? '✓' : i === 1 && step === 'results' ? '✓' : s.num}
-                    </div>
-                    <span className="max-md:hidden">{s.label}</span>
+                    {i === 0 && step !== 'form' ? '✓' : i === 1 && step === 'results' ? '✓' : s.num}
                   </div>
-                  {i < 2 && (
-                    <div
-                      className={clsx(
-                        'h-0.5 flex-1 min-w-[20px]',
-                        (i === 0 && step !== 'form') || (i === 1 && step === 'results')
-                          ? 'bg-success'
-                          : 'bg-border'
-                      )}
-                    />
-                  )}
+                  <span className="max-md:hidden">{s.label}</span>
                 </div>
-              ))}
-            </div>
-
-            {/* Step 2: Loading */}
-            {step === 'loading' && (
-              <div className="relative rounded-panel border border-border bg-surface p-6 shadow-card">
-                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-panel bg-page/85">
-                  <div className="h-9 w-9 rounded-full border-[3px] border-border border-t-primary [animation:spin_0.8s_linear_infinite]" />
-                  <div className="text-sm text-text-secondary">
-                    {statusMessages[currentStatus]}
-                  </div>
-                  <div className="h-1.5 w-[200px] overflow-hidden rounded-[3px] border border-border">
-                    <div
-                      className="h-full rounded-[3px] bg-primary transition-all duration-300"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-4 opacity-30">
-                  {selectedPlatforms.map((p) => (
-                    <div key={p} className="rounded-panel border border-border bg-surface p-4">
-                      <div className="mb-3 flex items-center gap-2">
-                        <div className="h-7 w-7 animate-pulse rounded-md bg-border" />
-                        <div className="h-4 w-20 animate-pulse rounded bg-border" />
-                      </div>
-                      <div className="mb-2 h-3 w-[80%] animate-pulse rounded bg-border" />
-                      <div className="mb-2 h-3 w-[60%] animate-pulse rounded bg-border" />
-                      <div className="h-3 w-[40%] animate-pulse rounded bg-border" />
-                    </div>
-                  ))}
-                </div>
+                {i < 2 && (
+                  <div
+                    className={clsx(
+                      'h-0.5 flex-1 min-w-[20px]',
+                      (i === 0 && step !== 'form') || (i === 1 && step === 'results')
+                        ? 'bg-success'
+                        : 'bg-border'
+                    )}
+                  />
+                )}
               </div>
-            )}
-
-            {/* Step 3: Results */}
-            {step === 'results' && (
-              <div>
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-[20px] font-semibold text-text-primary">Your content</h2>
-                  <button
-                    onClick={handleNewGeneration}
-                    className="rounded-control border-2 border-primary-200 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
-                  >
-                    + New generation
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  {results.map((r, i) => {
-                    if (r.status === 'loading') {
-                      return (
-                        <div key={r.platform} className="rounded-panel border border-border bg-surface overflow-hidden">
-                          <div className="h-20 bg-surface-subtle animate-pulse" />
-                          <div className="p-5">
-                            <div className="mb-3 flex items-center gap-2">
-                              <div className="h-4 w-4 animate-pulse rounded bg-border" />
-                              <div className="h-4 w-24 animate-pulse rounded bg-border" />
-                            </div>
-                            <div className="mb-2 h-3 w-[85%] animate-pulse rounded bg-border" />
-                            <div className="mb-2 h-3 w-[65%] animate-pulse rounded bg-border" />
-                            <div className="h-3 w-[45%] animate-pulse rounded bg-border" />
-                          </div>
-                        </div>
-                      );
-                    }
-                    if (r.status === 'error') {
-                      return (
-                        <div key={r.platform} className="rounded-panel border border-warning bg-warning-soft p-4">
-                          <div className="mb-2 flex items-center gap-2 text-sm text-warning">
-                            <AlertTriangle size={16} />
-                            {r.error}
-                          </div>
-                          <button
-                            onClick={() => handleRetry(r.platform)}
-                            className="mt-2 flex items-center gap-1.5 rounded-control border border-warning bg-surface px-3 py-1.5 text-[13px] font-medium text-warning transition-colors duration-150 hover:bg-warning-soft"
-                          >
-                            <RefreshCw size={14} />
-                            Retry
-                          </button>
-                        </div>
-                      );
-                    }
-                    if (r.platform === 'Facebook') {
-                      return <FacebookPostCard key={r.platform} content={r.content} images={images} index={i} />;
-                    }
-                    if (r.platform === 'TikTok') {
-                      return <TikTokPostCard key={r.platform} content={r.content} images={images} index={i} />;
-                    }
-                    if (r.platform === 'Instagram') {
-                      return <InstagramPostCard key={r.platform} content={r.content} images={images} index={i} />;
-                    }
-                    return null;
-                  })}
-                </div>
-              </div>
-            )}
+            ))}
           </div>
-        </div>
 
-        {/* Bottom-pinned input panel */}
-        {step === 'form' && (
-          <div className="shrink-0 border-t border-border bg-surface shadow-[0_-4px_20px_rgba(15,23,42,0.06)]">
-            <div className="mx-auto max-w-[860px] px-8 py-5 max-md:px-4 max-md:py-4">
-              {/* Row 1: Business + Campaign + Image */}
-              <div className="mb-4 grid grid-cols-[1fr_1.5fr_auto] gap-4 items-end max-md:grid-cols-1 max-md:items-stretch">
-                <div>
-                  <label className="mb-1.5 block text-[13px] font-semibold text-text-primary">
-                    Business or brand
-                  </label>
-                  <input
-                    type="text"
-                    value={businessName}
-                    onChange={(e) => setBusinessName(e.target.value)}
-                    placeholder="e.g. Bloom & Brew Coffee"
-                    className="h-10 w-full rounded-control border border-border-strong px-3 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
-                  />
+          {/* Step 1: Form — Centered Card */}
+          {step === 'form' && (
+            <div className="mx-auto max-w-[640px]">
+              <div className="rounded-panel border border-border bg-surface p-8 shadow-card max-md:p-6">
+                {/* Header */}
+                <div className="mb-8 text-center">
+                  <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50">
+                    <Sparkles size={22} className="text-primary" />
+                  </div>
+                  <h2 className="mb-1.5 text-[20px] font-semibold text-text-primary">
+                    Create your content
+                  </h2>
+                  <p className="text-[14px] text-text-muted">
+                    Tell us about your brand and what you want to promote
+                  </p>
                 </div>
-                <div>
-                  <label className="mb-1.5 block text-[13px] font-semibold text-text-primary">
-                    What are you promoting?
-                  </label>
-                  <input
-                    type="text"
-                    value={campaign}
-                    onChange={(e) => setCampaign(e.target.value)}
-                    placeholder="Describe your campaign, product, or event..."
-                    className="h-10 w-full rounded-control border border-border-strong px-3 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
-                  />
+
+                {/* Section: About */}
+                <div className="mb-6">
+                  <div className="mb-3 flex items-center gap-2">
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">About</div>
+                    <div className="h-px flex-1 bg-border" />
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="mb-1.5 block text-[13px] font-semibold text-text-primary">
+                        Business or brand
+                      </label>
+                      <input
+                        type="text"
+                        value={businessName}
+                        onChange={(e) => setBusinessName(e.target.value)}
+                        placeholder="e.g. Bloom & Brew Coffee"
+                        className="h-11 w-full rounded-control border border-border-strong px-3.5 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-[13px] font-semibold text-text-primary">
+                        What are you promoting?
+                      </label>
+                      <textarea
+                        value={campaign}
+                        onChange={(e) => setCampaign(e.target.value)}
+                        placeholder="Describe your campaign, product, or event..."
+                        rows={3}
+                        className="min-h-[88px] w-full resize-y rounded-control border border-border-strong px-3.5 py-2.5 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div>
+
+                {/* Section: Media */}
+                <div className="mb-6">
+                  <div className="mb-3 flex items-center gap-2">
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">Media</div>
+                    <div className="h-px flex-1 bg-border" />
+                  </div>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -476,114 +403,212 @@ function GenerateContent() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="inline-flex items-center gap-2 rounded-control border border-dashed border-border-strong bg-surface-subtle px-4 py-2.5 text-[13px] font-medium text-text-secondary transition-all duration-150 hover:border-primary hover:bg-primary-50 hover:text-primary"
+                    className="flex w-full items-center justify-center gap-2 rounded-control border border-dashed border-border-strong bg-surface-subtle py-6 text-[13px] font-medium text-text-secondary transition-all duration-150 hover:border-primary hover:bg-primary-50 hover:text-primary"
                   >
-                    <ImagePlus size={16} />
-                    Image
+                    <ImagePlus size={18} />
+                    Add images — product photos, promo graphics, etc.
                   </button>
-                </div>
-              </div>
-
-              {/* Image thumbnails */}
-              {images.length > 0 && (
-                <div className="mb-4 flex flex-wrap gap-2">
-                  {images.map((img) => (
-                    <div key={img.id} className="group relative h-14 w-14 overflow-hidden rounded-lg border border-border">
-                      <img src={img.url} alt={img.name} className="h-full w-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(img.id)}
-                        className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
-                      >
-                        <X size={10} />
-                      </button>
+                  {images.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {images.map((img) => (
+                        <div key={img.id} className="group relative h-16 w-16 overflow-hidden rounded-lg border border-border">
+                          <img src={img.url} alt={img.name} className="h-full w-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(img.id)}
+                            className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
 
-              {/* Row 2: Emotion tags + Age Group + Platforms + Generate */}
-              <div className="flex items-end gap-4 max-md:flex-col max-md:items-stretch">
-                {/* Emotion — tag group */}
-                <div className="flex-1">
-                  <label className="mb-1.5 block text-[13px] font-semibold text-text-primary">
-                    Emotion
-                  </label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {emotions.map((e) => (
-                      <button
-                        key={e.id}
-                        onClick={() => setEmotion(emotion === e.id ? '' : e.id)}
-                        className={clsx(
-                          'flex items-center gap-1 rounded-full border px-3 py-1.5 text-[12px] font-medium transition-all duration-150',
-                          emotion === e.id
-                            ? 'border-primary bg-primary-50 text-primary shadow-[0_0_0_2px_rgba(37,99,235,0.12)]'
-                            : 'border-border bg-surface text-text-secondary hover:border-border-strong hover:bg-surface-subtle'
-                        )}
+                {/* Section: Audience */}
+                <div className="mb-6">
+                  <div className="mb-3 flex items-center gap-2">
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">Audience</div>
+                    <div className="h-px flex-1 bg-border" />
+                  </div>
+                  <div className="space-y-4">
+                    {/* Emotion */}
+                    <div>
+                      <label className="mb-2 block text-[13px] font-semibold text-text-primary">
+                        Emotional tone
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {emotions.map((e) => (
+                          <button
+                            key={e.id}
+                            onClick={() => setEmotion(emotion === e.id ? '' : e.id)}
+                            className={clsx(
+                              'flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] font-medium transition-all duration-150',
+                              emotion === e.id
+                                ? 'border-primary bg-primary-50 text-primary shadow-[0_0_0_2px_rgba(37,99,235,0.12)]'
+                                : 'border-border bg-surface text-text-secondary hover:border-border-strong hover:bg-surface-subtle'
+                            )}
+                          >
+                            <span className="text-base">{e.emoji}</span>
+                            <span>{e.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Age Group */}
+                    <div>
+                      <label className="mb-1.5 block text-[13px] font-semibold text-text-primary">
+                        Target age group
+                      </label>
+                      <select
+                        value={ageGroup}
+                        onChange={(e) => setAgeGroup(e.target.value)}
+                        className="h-11 w-full rounded-control border border-border-strong px-3.5 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
                       >
-                        <span>{e.emoji}</span>
-                        <span>{e.label}</span>
-                      </button>
-                    ))}
+                        <option value="">Any age</option>
+                        {ageGroups.map((ag) => (
+                          <option key={ag.id} value={ag.id}>{ag.label} — {ag.range}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
 
-                {/* Age Group */}
-                <div className="w-[180px] shrink-0 max-md:w-full">
-                  <label className="mb-1.5 block text-[13px] font-semibold text-text-primary">
-                    Age group
-                  </label>
-                  <select
-                    value={ageGroup}
-                    onChange={(e) => setAgeGroup(e.target.value)}
-                    className="h-10 w-full rounded-control border border-border-strong px-3 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
-                  >
-                    <option value="">Any age</option>
-                    {ageGroups.map((ag) => (
-                      <option key={ag.id} value={ag.id}>{ag.label} ({ag.range})</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Platforms */}
-                <div className="shrink-0">
-                  <label className="mb-1.5 block text-[13px] font-semibold text-text-primary">
-                    Platforms
-                  </label>
-                  <div className="flex gap-1.5">
+                {/* Section: Platforms */}
+                <div className="mb-8">
+                  <div className="mb-3 flex items-center gap-2">
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">Platforms</div>
+                    <div className="h-px flex-1 bg-border" />
+                  </div>
+                  <div className="flex gap-2">
                     {platforms.map((p) => (
                       <button
                         key={p.id}
                         onClick={() => togglePlatform(p.id)}
                         className={clsx(
-                          'flex items-center gap-1.5 rounded-control border px-3 py-2 text-[13px] font-medium transition-colors duration-150',
+                          'flex flex-1 items-center justify-center gap-2 rounded-control border px-4 py-3 text-sm font-medium transition-colors duration-150',
                           selectedPlatforms.includes(p.id)
                             ? 'border-primary bg-primary-50 text-primary'
                             : 'border-border bg-surface text-text-secondary hover:border-border-strong'
                         )}
                       >
-                        <div className={clsx('h-2 w-2 rounded-full', p.color)} />
+                        <div className={clsx('h-2.5 w-2.5 rounded-full', p.color)} />
                         {p.label}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Generate button */}
+                {/* Generate Button */}
                 <button
                   onClick={handleGenerate}
                   disabled={!businessName || !campaign || selectedPlatforms.length === 0}
-                  className="flex h-10 shrink-0 items-center justify-center gap-2 rounded-control bg-primary px-6 text-sm font-semibold text-white transition-colors duration-150 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:bg-primary-700 disabled:pointer-events-none disabled:opacity-50"
+                  className="flex h-12 w-full items-center justify-center gap-2.5 rounded-control bg-primary text-[15px] font-semibold text-white transition-all duration-150 hover:bg-primary-600 hover:shadow-[0_4px_16px_rgba(37,99,235,0.3)] active:bg-primary-700 disabled:pointer-events-none disabled:opacity-50"
                 >
-                  <Sparkles size={16} />
+                  <Sparkles size={18} />
                   {session
                     ? `Generate ${selectedPlatforms.length} post${selectedPlatforms.length !== 1 ? 's' : ''}`
                     : 'Sign in to generate'}
                 </button>
               </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Step 2: Loading */}
+          {step === 'loading' && (
+            <div className="relative rounded-panel border border-border bg-surface p-6 shadow-card">
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-panel bg-page/85">
+                <div className="h-9 w-9 rounded-full border-[3px] border-border border-t-primary [animation:spin_0.8s_linear_infinite]" />
+                <div className="text-sm text-text-secondary">
+                  {statusMessages[currentStatus]}
+                </div>
+                <div className="h-1.5 w-[200px] overflow-hidden rounded-[3px] border border-border">
+                  <div
+                    className="h-full rounded-[3px] bg-primary transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+              <div className="space-y-4 opacity-30">
+                {selectedPlatforms.map((p) => (
+                  <div key={p} className="rounded-panel border border-border bg-surface p-4">
+                    <div className="mb-3 flex items-center gap-2">
+                      <div className="h-7 w-7 animate-pulse rounded-md bg-border" />
+                      <div className="h-4 w-20 animate-pulse rounded bg-border" />
+                    </div>
+                    <div className="mb-2 h-3 w-[80%] animate-pulse rounded bg-border" />
+                    <div className="mb-2 h-3 w-[60%] animate-pulse rounded bg-border" />
+                    <div className="h-3 w-[40%] animate-pulse rounded bg-border" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Results */}
+          {step === 'results' && (
+            <div>
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-[20px] font-semibold text-text-primary">Your content</h2>
+                <button
+                  onClick={handleNewGeneration}
+                  className="rounded-control border-2 border-primary-200 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
+                >
+                  + New generation
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {results.map((r, i) => {
+                  if (r.status === 'loading') {
+                    return (
+                      <div key={r.platform} className="rounded-panel border border-border bg-surface overflow-hidden">
+                        <div className="h-20 bg-surface-subtle animate-pulse" />
+                        <div className="p-5">
+                          <div className="mb-3 flex items-center gap-2">
+                            <div className="h-4 w-4 animate-pulse rounded bg-border" />
+                            <div className="h-4 w-24 animate-pulse rounded bg-border" />
+                          </div>
+                          <div className="mb-2 h-3 w-[85%] animate-pulse rounded bg-border" />
+                          <div className="mb-2 h-3 w-[65%] animate-pulse rounded bg-border" />
+                          <div className="h-3 w-[45%] animate-pulse rounded bg-border" />
+                        </div>
+                      </div>
+                    );
+                  }
+                  if (r.status === 'error') {
+                    return (
+                      <div key={r.platform} className="rounded-panel border border-warning bg-warning-soft p-4">
+                        <div className="mb-2 flex items-center gap-2 text-sm text-warning">
+                          <AlertTriangle size={16} />
+                          {r.error}
+                        </div>
+                        <button
+                          onClick={() => handleRetry(r.platform)}
+                          className="mt-2 flex items-center gap-1.5 rounded-control border border-warning bg-surface px-3 py-1.5 text-[13px] font-medium text-warning transition-colors duration-150 hover:bg-warning-soft"
+                        >
+                          <RefreshCw size={14} />
+                          Retry
+                        </button>
+                      </div>
+                    );
+                  }
+                  if (r.platform === 'Facebook') {
+                    return <FacebookPostCard key={r.platform} content={r.content} images={images} index={i} />;
+                  }
+                  if (r.platform === 'TikTok') {
+                    return <TikTokPostCard key={r.platform} content={r.content} images={images} index={i} />;
+                  }
+                  if (r.platform === 'Instagram') {
+                    return <InstagramPostCard key={r.platform} content={r.content} images={images} index={i} />;
+                  }
+                  return null;
+                })}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </AppLayout>
   );

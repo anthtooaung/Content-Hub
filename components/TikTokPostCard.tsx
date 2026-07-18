@@ -9,7 +9,6 @@ import {
   Save,
   ChevronDown,
   ChevronUp,
-  Heart,
   MessageCircle,
   Bookmark,
   Share2,
@@ -109,14 +108,6 @@ export default function TikTokPostCard({
             <div className="absolute -bottom-2 left-1/2 flex h-5 w-5 -translate-x-1/2 items-center justify-center rounded-full border-2 border-white bg-[#FE2C55] text-[14px] font-bold text-white">
               +
             </div>
-          </div>
-
-          {/* Like */}
-          <div className="flex flex-col items-center gap-1 cursor-pointer">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition-all hover:scale-110 hover:bg-white/20">
-              <Heart size={24} className="fill-[#FE2C55] text-[#FE2C55]" />
-            </div>
-            <span className="text-[12px] font-medium text-white">45.2K</span>
           </div>
 
           {/* Comment */}

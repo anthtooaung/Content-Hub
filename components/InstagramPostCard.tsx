@@ -9,7 +9,6 @@ import {
   Save,
   ChevronDown,
   ChevronUp,
-  Heart,
   MessageCircle,
   Send,
   Bookmark,
@@ -133,9 +132,6 @@ export default function InstagramPostCard({
 
       {/* Actions */}
       <div className="flex items-center px-3 py-2 gap-3">
-        <button className="text-[#262626] transition-opacity hover:opacity-60">
-          <Heart size={24} />
-        </button>
         <button className="text-[#262626] transition-opacity hover:opacity-60">
           <MessageCircle size={24} />
         </button>

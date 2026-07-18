@@ -62,17 +62,16 @@ export default function SettingsPage() {
                 key={theme.id}
                 onClick={() => setActiveTheme(theme.id)}
                 className={clsx(
-                  'rounded-control border-2 p-3.5 text-center transition-colors duration-150',
+                  'rounded-control border-2 px-3 py-2.5 text-center transition-colors duration-150',
                   activeTheme === theme.id
                     ? 'border-primary bg-primary-50'
                     : 'border-border bg-surface hover:border-border-strong'
                 )}
               >
-                <div className="mb-1 text-text-primary">
-                  <theme.icon size={24} />
+                <div className="flex items-center justify-center gap-2">
+                  <theme.icon size={16} className="text-text-primary" />
+                  <div className="text-sm font-medium text-text-primary">{theme.label}</div>
                 </div>
-                <div className="text-sm font-medium text-text-primary">{theme.label}</div>
-                <div className="text-[11px] text-text-muted">{theme.desc}</div>
               </button>
             ))}
           </div>

@@ -7,14 +7,15 @@ import {
   LayoutGrid,
   FileText,
   Settings,
-  Heart,
   Plus,
   Menu,
   X,
   BarChart3,
+  User,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useState } from 'react';
+import Logo from '@/components/Logo';
 
 const navSections = [
   {
@@ -29,7 +30,6 @@ const navSections = [
       { href: '/templates', label: 'Templates', icon: LayoutGrid },
       { href: '/dashboard', label: 'Dashboard', icon: FileText },
       { href: '/analytics', label: 'Analytics', icon: BarChart3 },
-      { href: '#', label: 'Favorites', icon: Heart, disabled: true },
     ],
   },
 ];
@@ -56,15 +56,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </button>
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 font-semibold text-[15px] text-text-primary">
-          <Sparkles size={20} className="text-primary" />
-          Content Hub
+        <Link href="/" className="flex items-center">
+          <Logo size={24} />
         </Link>
 
-        {/* Avatar */}
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-50 text-xs font-semibold text-primary cursor-pointer">
-          JD
-        </div>
+        {/* Avatar → Profile */}
+        <Link href="/profile" className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-50 text-xs font-semibold text-primary cursor-pointer hover:bg-primary-100 transition-colors">
+          <User size={16} />
+        </Link>
       </header>
 
       <div className="flex min-h-[calc(100vh-56px)]">

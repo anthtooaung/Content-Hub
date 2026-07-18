@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Sparkles, User, Trash2, ExternalLink, Check, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Clock, Ticket, Trash2, ExternalLink, Check, AlertCircle, AlertTriangle } from 'lucide-react';
 
 interface SocialConnection {
   id: string;
@@ -13,6 +13,16 @@ interface SocialConnection {
   is_active: boolean;
 }
 
+interface TicketInfo {
+  remaining: number;
+  total: number;
+  usedToday: number;
+  resetAt: string;
+  canGenerate: boolean;
+  generationsLeft: number;
+  nextRefreshAt: string;
+}
+
 interface UserProfile {
   id: string;
   email: string;
@@ -20,6 +30,25 @@ interface UserProfile {
   avatar_url: string | null;
   created_at: string;
   social_connections: SocialConnection[];
+  tickets: TicketInfo;
+}
+
+function formatTimeUntil(dateStr: string): string {
+  const now = new Date();
+  const target = new Date(dateStr);
+  const diff = target.getTime() - now.getTime();
+  if (diff <= 0) return 'now';
+
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+}
+
+function formatRefreshTime(dateStr: string): string {
+  const d = new Date(dateStr);
+  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 }
 
 export default function ProfilePage() {
@@ -32,12 +61,20 @@ export default function ProfilePage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // Tick every minute for live countdown
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Force re-render to update countdown
+      setProfile(p => p ? { ...p } : null);
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/auth/signin');
       return;
     }
-
     if (status === 'authenticated') {
       fetchProfile();
     }
@@ -49,7 +86,7 @@ export default function ProfilePage() {
       if (!res.ok) throw new Error('Failed to load profile');
       const data = await res.json();
       setProfile(data);
-    } catch (err) {
+    } catch {
       setError('Failed to load profile');
     } finally {
       setLoading(false);
@@ -63,12 +100,10 @@ export default function ProfilePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'disconnect', connectionId }),
       });
-
       if (!res.ok) throw new Error('Failed to disconnect');
-
       setSuccess('Account disconnected');
       fetchProfile();
-    } catch (err) {
+    } catch {
       setError('Failed to disconnect account');
     }
   };
@@ -76,18 +111,18 @@ export default function ProfilePage() {
   const handleDeleteAccount = async () => {
     setDeleting(true);
     try {
-      const res = await fetch('/api/profile', {
-        method: 'DELETE',
-      });
-
+      const res = await fetch('/api/profile', { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete account');
-
-      // Sign out and redirect to home
       window.location.href = '/';
-    } catch (err) {
+    } catch {
       setError('Failed to delete account');
       setDeleting(false);
     }
+  };
+
+  const getInitials = (name: string | null, email: string) => {
+    if (name) return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    return email[0].toUpperCase();
   };
 
   const getProviderIcon = (provider: string) => {
@@ -112,173 +147,301 @@ export default function ProfilePage() {
     }
   };
 
-  const getProviderName = (provider: string) => {
-    switch (provider) {
-      case 'google': return 'Google';
-      case 'facebook': return 'Facebook';
-      default: return provider;
-    }
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-page flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
       </div>
     );
   }
 
+  const tickets = profile?.tickets;
+  const ticketPercent = tickets ? Math.round((tickets.remaining / tickets.total) * 100) : 100;
+  const isLow = tickets && tickets.remaining <= 4 && tickets.remaining > 0;
+  const isCritical = tickets && tickets.remaining === 0;
+  const resetTimeLeft = tickets ? formatTimeUntil(tickets.nextRefreshAt) : '';
+  const refreshTime = tickets ? formatRefreshTime(tickets.nextRefreshAt) : '';
+
   return (
-    <div className="min-h-screen bg-page">
-      <div className="mx-auto max-w-[600px] px-4 py-12">
-        {/* Profile Header */}
-        <div className="mb-8 text-center">
-          <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
-            {profile?.avatar_url ? (
-              <img
-                src={profile.avatar_url}
-                alt={profile.name || 'Profile'}
-                className="h-20 w-20 rounded-full object-cover"
-              />
-            ) : (
-              <User size={32} className="text-primary" />
-            )}
-          </div>
-          <h1 className="text-xl font-bold text-text-primary">
-            {profile?.name || 'User'}
-          </h1>
-          <p className="text-sm text-text-muted">{profile?.email}</p>
-          <p className="mt-1 text-xs text-text-muted">
-            Member since {new Date(profile?.created_at || '').toLocaleDateString()}
-          </p>
-        </div>
+    <div className="min-h-screen bg-slate-50">
+      <div className="mx-auto max-w-[640px] px-4 py-6">
+        <div className="flex flex-col gap-4">
+          {/* Back Button */}
+          <button
+            onClick={() => router.push('/generate')}
+            className="inline-flex items-center gap-1.5 self-start rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:border-slate-300"
+          >
+            <ArrowLeft size={16} />
+            Back to Generate
+          </button>
 
-        {/* Messages */}
-        {error && (
-          <div className="mb-6 flex items-center gap-2 rounded-control bg-error-soft px-4 py-3 text-sm text-error">
-            <AlertCircle size={16} />
-            {error}
-          </div>
-        )}
-        {success && (
-          <div className="mb-6 flex items-center gap-2 rounded-control bg-success-soft px-4 py-3 text-sm text-success">
-            <Check size={16} />
-            {success}
-          </div>
-        )}
-
-        {/* Connected Accounts */}
-        <div className="rounded-xl border border-border bg-surface p-6">
-          <h2 className="mb-4 text-lg font-semibold text-text-primary">Connected Accounts</h2>
-          <p className="mb-6 text-sm text-text-muted">
-            Connect your social accounts to publish content directly to your platforms.
-          </p>
-
-          <div className="space-y-3">
-            {/* Google */}
-            <div className="flex items-center justify-between rounded-control border border-border p-4">
-              <div className="flex items-center gap-3">
-                {getProviderIcon('google')}
-                <div>
-                  <p className="font-medium text-text-primary">Google</p>
-                  {profile?.social_connections.find(c => c.provider === 'google') ? (
-                    <p className="text-xs text-success">
-                      Connected as {profile.social_connections.find(c => c.provider === 'google')?.provider_username || 'account'}
-                    </p>
-                  ) : (
-                    <p className="text-xs text-text-muted">Not connected</p>
-                  )}
-                </div>
-              </div>
-              {profile?.social_connections.find(c => c.provider === 'google') ? (
-                <button
-                  onClick={() => {
-                    const conn = profile.social_connections.find(c => c.provider === 'google');
-                    if (conn) handleDisconnect(conn.id);
-                  }}
-                  className="text-sm font-medium text-error hover:underline"
-                >
-                  Disconnect
-                </button>
+          {/* Profile Header */}
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="flex items-center gap-4 px-6 py-6 border-b border-slate-100">
+              {profile?.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt={profile.name || 'Profile'}
+                  className="h-[72px] w-[72px] rounded-full object-cover border-2 border-blue-200"
+                />
               ) : (
-                <button
-                  onClick={() => signIn('google', { callbackUrl: '/profile' })}
-                  className="text-sm font-medium text-primary hover:underline"
-                >
-                  Connect
-                </button>
-              )}
-            </div>
-
-            {/* Facebook */}
-            <div className="flex items-center justify-between rounded-control border border-border p-4">
-              <div className="flex items-center gap-3">
-                {getProviderIcon('facebook')}
-                <div>
-                  <p className="font-medium text-text-primary">Facebook</p>
-                  {profile?.social_connections.find(c => c.provider === 'facebook') ? (
-                    <p className="text-xs text-success">
-                      Connected as {profile.social_connections.find(c => c.provider === 'facebook')?.provider_username || 'account'}
-                    </p>
-                  ) : (
-                    <p className="text-xs text-text-muted">Not connected</p>
-                  )}
+                <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-blue-50 border-2 border-blue-200 text-2xl font-bold text-blue-600">
+                  {getInitials(profile?.name || null, profile?.email || '')}
                 </div>
-              </div>
-              {profile?.social_connections.find(c => c.provider === 'facebook') ? (
-                <button
-                  onClick={() => {
-                    const conn = profile.social_connections.find(c => c.provider === 'facebook');
-                    if (conn) handleDisconnect(conn.id);
-                  }}
-                  className="text-sm font-medium text-error hover:underline"
-                >
-                  Disconnect
-                </button>
-              ) : (
-                <button
-                  onClick={() => signIn('facebook', { callbackUrl: '/profile' })}
-                  className="text-sm font-medium text-primary hover:underline"
-                >
-                  Connect
-                </button>
               )}
+              <div>
+                <h1 className="text-xl font-semibold text-slate-900">
+                  {profile?.name || 'User'}
+                </h1>
+                <p className="text-sm text-slate-500">
+                  {profile?.email} · Member since {new Date(profile?.created_at || '').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Danger Zone */}
-        <div className="mt-8 rounded-xl border border-error/20 bg-surface p-6">
-          <h2 className="mb-2 text-lg font-semibold text-error">Danger Zone</h2>
-          <p className="mb-4 text-sm text-text-muted">
-            Permanently delete your account and all associated data. This action cannot be undone.
-          </p>
-
-          {!showDeleteConfirm ? (
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="flex items-center gap-2 rounded-control border border-error/30 px-4 py-2 text-sm font-medium text-error transition-colors hover:bg-error/5"
-            >
-              <Trash2 size={16} />
-              Delete Account
-            </button>
-          ) : (
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleDeleteAccount}
-                disabled={deleting}
-                className="rounded-control bg-error px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-error/90 disabled:opacity-50"
-              >
-                {deleting ? 'Deleting...' : 'Yes, delete my account'}
-              </button>
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="rounded-control border border-primary-300 bg-primary-50 px-4 py-2 text-sm font-medium text-primary transition-colors duration-150 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
-              >
-                Cancel
-              </button>
+          {/* Messages */}
+          {error && (
+            <div className="flex items-center gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+              <AlertCircle size={16} />
+              {error}
             </div>
           )}
+          {success && (
+            <div className="flex items-center gap-2 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">
+              <Check size={16} />
+              {success}
+            </div>
+          )}
+
+          {/* Low Ticket Warning */}
+          {isLow && (
+            <div className="flex items-center gap-3 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
+              <AlertTriangle size={16} className="shrink-0" />
+              <span>
+                Only <strong>{tickets.remaining} tickets</strong> left — enough for {tickets.generationsLeft} more generation{tickets.generationsLeft !== 1 ? 's' : ''}
+              </span>
+            </div>
+          )}
+
+          {/* Critical: No tickets */}
+          {isCritical && (
+            <div className="flex items-center gap-3 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+              <AlertCircle size={16} className="shrink-0" />
+              <span>
+                <strong>No tickets remaining</strong> — resets in {resetTimeLeft}
+              </span>
+            </div>
+          )}
+
+          {/* Ticket Dashboard */}
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <Ticket size={20} className="text-blue-600" />
+                <span className="text-sm font-semibold text-slate-900">Generation Tickets</span>
+              </div>
+              <span className="text-xs text-slate-400">Resets daily</span>
+            </div>
+            <div className="px-6 py-5">
+              {/* Progress Bar */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-lg font-bold text-slate-900">
+                    {tickets?.remaining} / {tickets?.total}
+                  </span>
+                  <span className="text-sm text-slate-500">{ticketPercent}% remaining</span>
+                </div>
+                <div className="h-2.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      isCritical ? 'bg-red-500' : isLow ? 'bg-amber-500' : 'bg-blue-600'
+                    }`}
+                    style={{ width: `${ticketPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Stats Row */}
+              <div className="grid grid-cols-3 gap-4 mb-5">
+                <div className="text-left">
+                  <div className="text-lg font-bold text-slate-900">{tickets?.remaining}</div>
+                  <div className="text-xs text-slate-400">Available</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-slate-900">{tickets?.usedToday}</div>
+                  <div className="text-xs text-slate-400">Used today</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-blue-600">{tickets?.generationsLeft}</div>
+                  <div className="text-xs text-slate-400">Generations left</div>
+                </div>
+              </div>
+
+              {/* Reset Timer */}
+              <div className="flex items-center gap-2 rounded-lg bg-blue-50 border border-blue-100 px-4 py-3 text-sm text-blue-700">
+                <Clock size={16} className="shrink-0" />
+                <span>
+                  Tickets reset in <strong>{resetTimeLeft}</strong> — next refresh at <strong>{refreshTime}</strong>
+                </span>
+              </div>
+            </div>
+
+            {/* Usage Info */}
+            <div className="px-6 pb-6">
+              <div className="rounded-lg bg-slate-50 border border-slate-200 p-4">
+                <h4 className="text-sm font-semibold text-slate-700 mb-2">How tickets work</h4>
+                <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+                  Each generation costs 3 tickets
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+                  15 tickets refresh every 24 hours
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+                  Each platform counts as 1 generation
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Account Details */}
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="px-6 py-4 border-b border-slate-100">
+              <h3 className="text-sm font-semibold text-slate-900">Account Details</h3>
+            </div>
+            <div className="px-6 py-1">
+              <div className="flex justify-between items-center py-3 border-b border-slate-50">
+                <span className="text-sm text-slate-500">Email</span>
+                <span className="text-sm font-medium text-slate-900">{profile?.email}</span>
+              </div>
+              <div className="flex justify-between items-center py-3 border-b border-slate-50">
+                <span className="text-sm text-slate-500">Login method</span>
+                <span className="text-sm font-medium text-slate-900 capitalize">Email</span>
+              </div>
+              <div className="flex justify-between items-center py-3">
+                <span className="text-sm text-slate-500">Member since</span>
+                <span className="text-sm font-medium text-slate-900">
+                  {new Date(profile?.created_at || '').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Connected Accounts */}
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="px-6 py-4 border-b border-slate-100">
+              <h3 className="text-sm font-semibold text-slate-900">Connected Accounts</h3>
+            </div>
+            <div className="px-6 py-4 space-y-2">
+              {/* Google */}
+              <div className="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-3">
+                <div className="flex items-center gap-3">
+                  {getProviderIcon('google')}
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">Google</p>
+                    {profile?.social_connections.find(c => c.provider === 'google') ? (
+                      <p className="text-xs text-green-600">
+                        Connected as {profile.social_connections.find(c => c.provider === 'google')?.provider_username || 'account'}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-slate-400">Not connected</p>
+                    )}
+                  </div>
+                </div>
+                {profile?.social_connections.find(c => c.provider === 'google') ? (
+                  <button
+                    onClick={() => {
+                      const conn = profile.social_connections.find(c => c.provider === 'google');
+                      if (conn) handleDisconnect(conn.id);
+                    }}
+                    className="text-xs font-medium text-red-600 hover:underline"
+                  >
+                    Disconnect
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => signIn('google', { callbackUrl: '/profile' })}
+                    className="text-xs font-medium text-blue-600 hover:underline"
+                  >
+                    Connect
+                  </button>
+                )}
+              </div>
+
+              {/* Facebook */}
+              <div className="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-3">
+                <div className="flex items-center gap-3">
+                  {getProviderIcon('facebook')}
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">Facebook</p>
+                    {profile?.social_connections.find(c => c.provider === 'facebook') ? (
+                      <p className="text-xs text-green-600">
+                        Connected as {profile.social_connections.find(c => c.provider === 'facebook')?.provider_username || 'account'}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-slate-400">Not connected</p>
+                    )}
+                  </div>
+                </div>
+                {profile?.social_connections.find(c => c.provider === 'facebook') ? (
+                  <button
+                    onClick={() => {
+                      const conn = profile.social_connections.find(c => c.provider === 'facebook');
+                      if (conn) handleDisconnect(conn.id);
+                    }}
+                    className="text-xs font-medium text-red-600 hover:underline"
+                  >
+                    Disconnect
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => signIn('facebook', { callbackUrl: '/profile' })}
+                    className="text-xs font-medium text-blue-600 hover:underline"
+                  >
+                    Connect
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Danger Zone */}
+          <div className="rounded-xl border border-red-200 bg-white shadow-sm">
+            <div className="px-6 py-4">
+              <h3 className="text-sm font-semibold text-red-600 mb-1">Danger Zone</h3>
+              <p className="text-xs text-slate-500 mb-4">
+                Permanently delete your account and all associated data. This action cannot be undone.
+              </p>
+              {!showDeleteConfirm ? (
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                >
+                  <Trash2 size={16} />
+                  Delete Account
+                </button>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleDeleteAccount}
+                    disabled={deleting}
+                    className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+                  >
+                    {deleting ? 'Deleting...' : 'Yes, delete my account'}
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

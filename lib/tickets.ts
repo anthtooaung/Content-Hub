@@ -1,116 +1,92 @@
-import { prisma } from '@/lib/prisma';
+import { prisma } from './prisma';
 
-export const DAILY_TICKETS = 15;
-export const GENERATION_COST = 3;
-
-/** Midnight (00:00) of the given date, in server-local time. */
-export function startOfServerDay(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-}
-
-/** Midnight of the day after the given date, in server-local time. */
-function startOfNextServerDay(d: Date): Date {
-  const start = startOfServerDay(d);
-  start.setDate(start.getDate() + 1);
-  return start;
-}
+const TICKETS_PER_DAY = 15;
+const TICKETS_PER_GENERATION = 3;
+const RESET_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 export interface TicketState {
-  balance: number;
-  resetsAt: Date;
-}
-
-export interface SpendResult {
-  ok: boolean;
-  balance: number;
-  resetsAt: Date;
+  remaining: number;
+  total: number;
+  usedToday: number;
+  resetAt: Date;
+  canGenerate: boolean;
+  generationsLeft: number;
+  nextRefreshAt: Date;
 }
 
 /**
- * Read the user's ticket balance, lazily applying the daily reset if the
- * last reset predates today's midnight. Persists the reset when it fires.
+ * Get the current ticket state for a user.
+ * Auto-resets tickets if 24h have passed since last reset.
  */
 export async function getTicketState(userId: string): Promise<TicketState> {
-  const user = await prisma.users.findUniqueOrThrow({
+  const user = await prisma.users.findUnique({
     where: { id: userId },
-    select: { ticket_balance: true, tickets_reset_at: true },
+    select: {
+      tickets_remaining: true,
+      ticket_reset_at: true,
+    },
   });
 
-  const now = new Date();
-  const todayStart = startOfServerDay(now);
-
-  if (user.tickets_reset_at < todayStart) {
-    const updated = await prisma.users.update({
-      where: { id: userId },
-      data: { ticket_balance: DAILY_TICKETS, tickets_reset_at: now },
-      select: { ticket_balance: true },
-    });
-    return { balance: updated.ticket_balance, resetsAt: startOfNextServerDay(now) };
+  if (!user) {
+    throw new Error('User not found');
   }
 
-  return { balance: user.ticket_balance, resetsAt: startOfNextServerDay(now) };
+  const now = new Date();
+  let remaining = user.tickets_remaining;
+  let resetAt = new Date(user.ticket_reset_at);
+
+  // Auto-reset if 24h have passed
+  if (now.getTime() - resetAt.getTime() >= RESET_INTERVAL_MS) {
+    remaining = TICKETS_PER_DAY;
+    resetAt = now;
+
+    await prisma.users.update({
+      where: { id: userId },
+      data: {
+        tickets_remaining: TICKETS_PER_DAY,
+        ticket_reset_at: now,
+      },
+    });
+  }
+
+  const usedToday = TICKETS_PER_DAY - remaining;
+  const generationsLeft = Math.floor(remaining / TICKETS_PER_GENERATION);
+  const nextRefreshAt = new Date(resetAt.getTime() + RESET_INTERVAL_MS);
+
+  return {
+    remaining,
+    total: TICKETS_PER_DAY,
+    usedToday,
+    resetAt,
+    canGenerate: remaining >= TICKETS_PER_GENERATION,
+    generationsLeft,
+    nextRefreshAt,
+  };
 }
 
 /**
- * Atomically apply the lazy daily reset (if due) and deduct GENERATION_COST.
- * Uses a transaction with a conditional update so concurrent spends can't
- * drive the balance negative.
+ * Deduct tickets after a successful generation.
+ * Returns the updated ticket state.
  */
-export async function spendTickets(userId: string): Promise<SpendResult> {
-  return prisma.$transaction(async (tx) => {
-    const user = await tx.users.findUniqueOrThrow({
-      where: { id: userId },
-      select: { ticket_balance: true, tickets_reset_at: true },
-    });
+export async function deductTickets(userId: string): Promise<TicketState> {
+  const state = await getTicketState(userId);
 
-    const now = new Date();
-    const todayStart = startOfServerDay(now);
-    const resetsAt = startOfNextServerDay(now);
-    const resetDue = user.tickets_reset_at < todayStart;
-    const effectiveBalance = resetDue ? DAILY_TICKETS : user.ticket_balance;
+  if (!state.canGenerate) {
+    throw new Error('Insufficient tickets');
+  }
 
-    if (effectiveBalance < GENERATION_COST) {
-      // Persist the reset even if we can't afford the spend, so the
-      // reflected balance is accurate.
-      if (resetDue) {
-        await tx.users.update({
-          where: { id: userId },
-          data: { ticket_balance: DAILY_TICKETS, tickets_reset_at: now },
-        });
-      }
-      return { ok: false, balance: effectiveBalance, resetsAt };
-    }
+  const newRemaining = state.remaining - TICKETS_PER_GENERATION;
 
-    if (resetDue) {
-      // Reset and spend together in one write.
-      const updated = await tx.users.update({
-        where: { id: userId },
-        data: { ticket_balance: effectiveBalance - GENERATION_COST, tickets_reset_at: now },
-        select: { ticket_balance: true },
-      });
-      return { ok: true, balance: updated.ticket_balance, resetsAt };
-    }
-
-    // No reset due: conditional decrement guards against concurrent
-    // spends racing the balance below zero.
-    const result = await tx.users.updateMany({
-      where: { id: userId, ticket_balance: { gte: GENERATION_COST } },
-      data: { ticket_balance: { decrement: GENERATION_COST } },
-    });
-
-    if (result.count === 0) {
-      // Lost the race — someone else spent first.
-      const fresh = await tx.users.findUniqueOrThrow({
-        where: { id: userId },
-        select: { ticket_balance: true },
-      });
-      return { ok: false, balance: fresh.ticket_balance, resetsAt };
-    }
-
-    const fresh = await tx.users.findUniqueOrThrow({
-      where: { id: userId },
-      select: { ticket_balance: true },
-    });
-    return { ok: true, balance: fresh.ticket_balance, resetsAt };
+  await prisma.users.update({
+    where: { id: userId },
+    data: { tickets_remaining: newRemaining },
   });
+
+  return {
+    ...state,
+    remaining: newRemaining,
+    usedToday: TICKETS_PER_DAY - newRemaining,
+    canGenerate: newRemaining >= TICKETS_PER_GENERATION,
+    generationsLeft: Math.floor(newRemaining / TICKETS_PER_GENERATION),
+  };
 }

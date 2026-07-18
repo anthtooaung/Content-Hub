@@ -101,23 +101,28 @@ function GenerateContent() {
 
   // Ticket state
   const GENERATION_COST = 3;
-  const [ticketBalance, setTicketBalance] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!session) return;
-    fetch('/api/tickets')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data) setTicketBalance(data.balance);
-      })
-      .catch(() => {});
-  }, [session]);
+  const [tickets, setTickets] = useState<{ remaining: number; total: number; generationsLeft: number; canGenerate: boolean } | null>(null);
+  const [showLowTicketModal, setShowLowTicketModal] = useState(false);
 
   const togglePlatform = (id: string) => {
     setSelectedPlatforms((prev) =>
       prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
     );
   };
+
+  // Fetch ticket state on mount and when session changes
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetch('/api/profile')
+        .then(res => res.json())
+        .then(data => {
+          if (data.tickets) {
+            setTickets(data.tickets);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [session]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -170,8 +175,26 @@ function GenerateContent() {
         }),
       });
 
+      if (response.status === 402) {
+        const data = await response.json();
+        // Update ticket state from error response
+        if (data.remaining !== undefined) {
+          setTickets(prev => prev ? { ...prev, remaining: data.remaining, canGenerate: false, generationsLeft: Math.floor(data.remaining / 3) } : null);
+        }
+        return {
+          platform,
+          content: null,
+          error: 'No tickets remaining. Please wait for them to reset.',
+          status: 'error',
+        };
+      }
+
       if (!response.ok) throw new Error('Generation failed');
       const content = await response.json();
+      // Update ticket state from response
+      if (content.tickets) {
+        setTickets(content.tickets);
+      }
       return { platform, content, status: 'done' };
     } catch (error) {
       return {
@@ -191,27 +214,15 @@ function GenerateContent() {
       return;
     }
 
-    // Pre-flight ticket spend — charged once per submit regardless of
-    // how many platforms are selected (the actual generation fans out
-    // into N parallel requests below, which can't safely coordinate
-    // a shared decrement).
-    try {
-      const spendRes = await fetch('/api/tickets/spend', { method: 'POST' });
-      const spendData = await spendRes.json();
+    // Check tickets before generation
+    if (tickets && !tickets.canGenerate) {
+      showToast('No tickets remaining. Please wait for them to reset.');
+      return;
+    }
 
-      if (!spendRes.ok) {
-        setTicketBalance(spendData.balance ?? 0);
-        showToast(
-          spendData.error === 'Not enough tickets'
-            ? 'Not enough tickets — resets at midnight.'
-            : 'Could not check ticket balance. Please try again.'
-        );
-        return;
-      }
-
-      setTicketBalance(spendData.balance);
-    } catch {
-      showToast('Could not check ticket balance. Please try again.');
+    // Show low ticket warning if <= 4 tickets (1 generation left)
+    if (tickets && tickets.remaining <= 4 && tickets.remaining > 0) {
+      setShowLowTicketModal(true);
       return;
     }
 
@@ -535,28 +546,39 @@ function GenerateContent() {
                   </div>
                 </div>
 
+                {/* Ticket Cost Line */}
+                {session && tickets && (
+                  <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-surface-subtle border border-border mb-4">
+                    <span className="text-xs text-text-muted">Generation cost</span>
+                    <span className={`text-xs font-semibold ${tickets.canGenerate ? 'text-text-primary' : 'text-error'}`}>
+                      3 tickets
+                    </span>
+                  </div>
+                )}
+
                 {/* Generate Button */}
                 <button
                   onClick={handleGenerate}
-                  disabled={
-                    !businessName ||
-                    !campaign ||
-                    selectedPlatforms.length === 0 ||
-                    (session != null && ticketBalance !== null && ticketBalance < GENERATION_COST)
-                  }
+                  disabled={!businessName || !campaign || selectedPlatforms.length === 0 || (tickets !== null && !tickets.canGenerate)}
                   className="flex h-12 w-full items-center justify-center gap-2.5 rounded-control bg-primary text-[15px] font-semibold text-white transition-all duration-150 hover:bg-primary-600 hover:shadow-[0_4px_16px_rgba(37,99,235,0.3)] active:bg-primary-700 disabled:pointer-events-none disabled:opacity-50"
                 >
                   <Sparkles size={18} />
                   {session
-                    ? `Generate ${selectedPlatforms.length} post${selectedPlatforms.length !== 1 ? 's' : ''}`
+                    ? tickets && !tickets.canGenerate
+                      ? 'No Tickets Available'
+                      : `Generate ${selectedPlatforms.length} post${selectedPlatforms.length !== 1 ? 's' : ''}`
                     : 'Sign in to generate'}
                 </button>
-                {session && ticketBalance !== null && (
-                  <div className="text-center text-xs text-text-muted">
-                    Costs {GENERATION_COST} tickets · You have {ticketBalance} ticket{ticketBalance !== 1 ? 's' : ''}
-                    {ticketBalance < GENERATION_COST && (
-                      <span className="text-error"> — not enough to generate, resets at midnight</span>
-                    )}
+
+                {/* Ticket Badge */}
+                {session && tickets && (
+                  <div className="flex items-center justify-center gap-2 mt-3 text-xs text-text-muted">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M12 16v-4"/>
+                      <path d="M12 8h.01"/>
+                    </svg>
+                    {tickets.remaining} tickets remaining · Resets daily
                   </div>
                 )}
               </div>
@@ -658,6 +680,80 @@ function GenerateContent() {
           )}
         </div>
       </div>
+
+      {/* Low Ticket Confirmation Modal */}
+      {showLowTicketModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-lg p-6 max-w-[380px] w-[90%] text-center">
+            <h3 className="text-lg font-semibold text-text-primary mb-2">Almost out of tickets</h3>
+            <p className="text-sm text-text-muted mb-4 leading-relaxed">
+              This generation will use <strong>3 tickets</strong>, leaving you with <strong>{tickets ? tickets.remaining - 3 : 0} ticket{tickets && tickets.remaining - 3 !== 1 ? 's' : ''}</strong>.
+              {tickets && tickets.remaining - 3 <= 0 && " You won't be able to generate again until tickets reset."}
+            </p>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-50 border border-amber-200 text-sm font-semibold text-amber-700 mb-4">
+              <AlertTriangle size={16} />
+              {tickets?.remaining} → {tickets ? tickets.remaining - 3 : 0} tickets remaining
+            </div>
+            <div className="flex gap-2 justify-center">
+              <button
+                onClick={() => setShowLowTicketModal(false)}
+                className="px-5 py-2 rounded-lg border border-border bg-white text-sm font-medium text-text-secondary hover:bg-surface-subtle transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowLowTicketModal(false);
+                  setStep('loading');
+                  // Proceed with generation
+                  (async () => {
+                    const initial: PlatformResult[] = selectedPlatforms.map((p) => ({
+                      platform: p,
+                      content: null,
+                      status: 'pending',
+                    }));
+                    setResults(initial);
+                    setCurrentStatus(0);
+                    setProgress(0);
+
+                    const totalPlatforms = selectedPlatforms.length;
+                    let msgIndex = 0;
+                    const statusInterval = setInterval(() => {
+                      msgIndex++;
+                      if (msgIndex < statusMessages.length) {
+                        setCurrentStatus(msgIndex);
+                        setProgress(Math.min(((msgIndex + 1) / statusMessages.length) * 100, 90));
+                      }
+                    }, 1500);
+
+                    const promises = selectedPlatforms.map((platform, i) => {
+                      setTimeout(() => {
+                        setResults((prev) =>
+                          prev.map((r) => (r.platform === platform ? { ...r, status: 'loading' } : r))
+                        );
+                      }, i * 300);
+                      return generateForPlatform(platform);
+                    });
+
+                    const generated = await Promise.all(promises);
+                    clearInterval(statusInterval);
+                    setProgress(100);
+                    setCurrentStatus(statusMessages.length - 1);
+
+                    setTimeout(() => {
+                      setResults(generated);
+                      setStep('results');
+                    }, 400);
+                  })();
+                }}
+                className="px-5 py-2 rounded-lg bg-amber-600 text-sm font-medium text-white hover:bg-amber-700 transition-colors border border-amber-600"
+              >
+                Proceed anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppLayout>
   );
 }

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { getTicketState } from '@/lib/tickets';
 
 // GET /api/profile - Get user profile with connected accounts
 export async function GET() {
@@ -42,7 +43,10 @@ export async function GET() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json(user);
+    // Get ticket state (auto-resets if 24h passed)
+    const tickets = await getTicketState(session.user.id);
+
+    return NextResponse.json({ ...user, tickets });
   } catch (error) {
     console.error('Error fetching profile:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

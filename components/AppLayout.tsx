@@ -60,7 +60,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-page">
       {/* Top Header Strip */}
-      <header className="sticky top-0 z-[100] border-b border-border bg-surface px-6 h-14 flex items-center justify-between max-md:px-4">
+      <header className="sticky top-0 z-[9999] border-b border-border bg-surface px-6 h-14 flex items-center justify-between max-md:px-4">
         {/* Mobile hamburger */}
         <button
           className="md:hidden flex items-center justify-center w-9 h-9 rounded-control text-text-secondary transition-colors hover:bg-surface-subtle"

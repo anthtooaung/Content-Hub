@@ -11,9 +11,9 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { balance, resetsAt } = await getTicketState(session.user.id);
+    const state = await getTicketState(session.user.id);
 
-    return NextResponse.json({ balance, resetsAt });
+    return NextResponse.json(state);
   } catch (error) {
     console.error('Ticket state fetch error:', error);
     return NextResponse.json(

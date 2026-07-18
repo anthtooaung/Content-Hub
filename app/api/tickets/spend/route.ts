@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { spendTickets, GENERATION_COST } from '@/lib/tickets';
+import { deductTickets } from '@/lib/tickets';
 
 export async function POST() {
   try {
@@ -11,16 +11,9 @@ export async function POST() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { ok, balance, resetsAt } = await spendTickets(session.user.id);
+    const state = await deductTickets(session.user.id);
 
-    if (!ok) {
-      return NextResponse.json(
-        { error: 'Not enough tickets', balance, resetsAt, cost: GENERATION_COST },
-        { status: 402 }
-      );
-    }
-
-    return NextResponse.json({ balance, resetsAt, cost: GENERATION_COST });
+    return NextResponse.json(state);
   } catch (error) {
     console.error('Ticket spend error:', error);
     return NextResponse.json(

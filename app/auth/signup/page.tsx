@@ -20,6 +20,8 @@ function getPasswordStrength(pw: string): { score: number; label: string; color:
 
 export default function SignUpPage() {
   const router = useRouter();
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -49,7 +51,7 @@ export default function SignUpPage() {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, name: `${firstName} ${lastName}`.trim() }),
       });
 
       const data = await res.json();
@@ -137,8 +139,10 @@ export default function SignUpPage() {
                 <input
                   type="text"
                   placeholder="Jane"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
                   required
-                  className="h-[42px] w-full rounded-control border border-border px-3.5 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
+                  className="h-[42px] w-full rounded-control border border-border bg-surface px-3.5 text-sm text-text-primary outline-none transition-shadow focus:border-primary focus:shadow-focus"
                 />
               </div>
               <div>
@@ -146,8 +150,10 @@ export default function SignUpPage() {
                 <input
                   type="text"
                   placeholder="Smith"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
                   required
-                  className="h-[42px] w-full rounded-control border border-border px-3.5 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
+                  className="h-[42px] w-full rounded-control border border-border bg-surface px-3.5 text-sm text-text-primary outline-none transition-shadow focus:border-primary focus:shadow-focus"
                 />
               </div>
             </div>
@@ -160,7 +166,7 @@ export default function SignUpPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
-                className="h-[42px] w-full rounded-control border border-border px-3.5 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
+                className="h-[42px] w-full rounded-control border border-border bg-surface px-3.5 text-sm text-text-primary outline-none transition-shadow focus:border-primary focus:shadow-focus"
               />
             </div>
 
@@ -174,7 +180,7 @@ export default function SignUpPage() {
                   placeholder="8+ characters"
                   required
                   minLength={8}
-                  className="h-[42px] w-full rounded-control border border-border pr-10 pl-3.5 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
+                  className="h-[42px] w-full rounded-control border border-border bg-surface pr-10 pl-3.5 text-sm text-text-primary outline-none transition-shadow focus:border-primary focus:shadow-focus"
                 />
                 <button
                   type="button"

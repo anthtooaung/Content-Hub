@@ -41,12 +41,18 @@ export default function Home() {
   const { data: session } = useSession();
 
   return (
-    <div className="min-h-screen bg-page">
+    <div className="relative min-h-screen overflow-hidden bg-page">
+      {/* Ambient dot grid — spans full page */}
+      <div
+        className="pointer-events-none absolute inset-0 [background-image:radial-gradient(theme(colors.border-strong)_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_70%_50%_at_50%_0%,black_0%,transparent_70%)]"
+        aria-hidden="true"
+      />
+
       <SiteHeader />
 
       {/* Hero */}
-      <section className="px-8 py-20 max-md:px-4 max-md:py-12">
-        <div className="mx-auto grid max-w-[1200px] items-center gap-12 [grid-template-columns:1.1fr_0.9fr] max-md:[grid-template-columns:1fr]">
+      <section className="relative flex min-h-[calc(100vh-73px)] items-center px-8 py-20 max-md:px-4 max-md:py-12">
+        <div className="relative mx-auto grid w-full max-w-[1200px] items-center gap-12 [grid-template-columns:1.1fr_0.9fr] max-md:[grid-template-columns:1fr]">
           <div>
             <h1 className="text-[36px] font-semibold leading-[1.15] text-text-primary max-md:text-[28px]">
               Generate social media content in seconds
@@ -90,9 +96,9 @@ export default function Home() {
           {/* Static Mockup */}
           <div className="rounded-panel border border-border bg-surface p-5 shadow-card [transform:perspective(800px)_rotateY(-2deg)] max-md:[transform:none]">
             <div className="mb-3 flex gap-1.5">
-              <div className="h-2 w-2 rounded-full bg-border-strong" />
-              <div className="h-2 w-2 rounded-full bg-border-strong" />
-              <div className="h-2 w-2 rounded-full bg-border-strong" />
+              <div className="h-2 w-2 rounded-full bg-[#ff5f57]" />
+              <div className="h-2 w-2 rounded-full bg-[#febc2e]" />
+              <div className="h-2 w-2 rounded-full bg-[#28c840]" />
             </div>
             <div className="p-3">
               {/* Platform tabs */}

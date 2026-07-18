@@ -10,8 +10,8 @@ export default function SettingsPage() {
   const { data: session } = useSession();
   const { toast, showToast, hideToast } = useToast();
 
-  const userName = (session?.user?.name as string) || 'Jane Doe';
-  const userEmail = (session?.user?.email as string) || 'jane@example.com';
+  const userName = (session?.user?.name as string) || '';
+  const userEmail = (session?.user?.email as string) || '';
   const initials = userName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
 
   return (

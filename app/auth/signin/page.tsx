@@ -115,7 +115,7 @@ export default function SignInPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
-                className="h-[42px] w-full rounded-control border border-border px-3.5 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
+                className="h-[42px] w-full rounded-control border border-border bg-surface px-3.5 text-sm text-text-primary outline-none transition-shadow focus:border-primary focus:shadow-focus"
               />
             </div>
 
@@ -128,7 +128,7 @@ export default function SignInPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   required
-                  className="h-[42px] w-full rounded-control border border-border pr-10 pl-3.5 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
+                  className="h-[42px] w-full rounded-control border border-border bg-surface pr-10 pl-3.5 text-sm text-text-primary outline-none transition-shadow focus:border-primary focus:shadow-focus"
                 />
                 <button
                   type="button"

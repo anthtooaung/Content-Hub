@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 014: Platform Template Cards</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <style>
+    body { padding-top: 48px; background: var(--color-page); }
+
+    #variant-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+      background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+      padding: 8px 16px; display: flex; gap: 8px; font-family: var(--font-sans);
+    }
+    .variant-tab {
+      padding: 6px 14px; border-radius: var(--radius-control); border: 1px solid var(--color-border);
+      background: var(--color-surface); color: var(--color-text-secondary); font-size: 13px;
+      font-weight: 500; cursor: pointer; transition: all 150ms;
+    }
+    .variant-tab:hover { background: var(--color-surface-subtle); }
+    .variant-tab.active {
+      background: var(--color-primary-soft); color: var(--color-primary);
+      border-color: var(--color-primary-border);
+    }
+    .variant { display: none; padding: 32px; }
+    .variant.active { display: block; }
+
+    .cards-container { max-width: 1200px; margin: 0 auto; }
+    .variant-title {
+      font-size: 18px; font-weight: 600; color: var(--color-text);
+      margin-bottom: 8px;
+    }
+    .variant-desc {
+      font-size: 14px; color: var(--color-text-muted); margin-bottom: 24px;
+    }
+    .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 40px; }
+
+    /* ═══════════════════════════════════════════════════════ */
+    /* TIKTOK CARD STYLES */
+    /* ═══════════════════════════════════════════════════════ */
+    .card-tiktok {
+      background: #0F0F0F; border-radius: 16px; padding: 0;
+      overflow: hidden; position: relative; color: white;
+      border: 1px solid #2A2A2A; transition: all 200ms;
+    }
+    .card-tiktok:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.4); transform: translateY(-2px); }
+
+    .tiktok-header {
+      background: linear-gradient(135deg, #00F2EA 0%, #FF0050 50%, #000000 100%);
+      padding: 20px; position: relative;
+    }
+    .tiktok-header::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 40px; background: linear-gradient(to bottom, transparent, #0F0F0F);
+    }
+    .tiktok-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+      padding: 6px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600;
+    }
+    .tiktok-badge .icon { width: 16px; height: 16px; background: white; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: black; font-weight: 800; }
+
+    .tiktok-body { padding: 20px; }
+    .tiktok-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .tiktok-desc { font-size: 13px; color: #A0A0A0; line-height: 1.5; margin-bottom: 16px; }
+
+    .tiktok-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .tiktok-tag {
+      font-size: 11px; padding: 4px 10px; border-radius: 6px;
+      background: rgba(0, 242, 234, 0.15); color: #00F2EA; font-weight: 500;
+    }
+
+    .tiktok-cta {
+      width: 100%; padding: 12px; border-radius: 12px; border: none;
+      background: linear-gradient(90deg, #00F2EA, #FF0050); color: white;
+      font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 200ms;
+    }
+    .tiktok-cta:hover { opacity: 0.9; }
+
+    .tiktok-meta {
+      display: flex; align-items: center; gap: 12px; padding: 12px 20px;
+      border-top: 1px solid #2A2A2A; font-size: 12px; color: #666;
+    }
+    .tiktok-meta span { display: flex; align-items: center; gap: 4px; }
+
+    /* ═══════════════════════════════════════════════════════ */
+    /* INSTAGRAM CARD STYLES */
+    /* ═══════════════════════════════════════════════════════ */
+    .card-instagram {
+      background: white; border-radius: 16px; padding: 0;
+      overflow: hidden; position: relative;
+      border: 1px solid #E5E5E5; transition: all 200ms;
+    }
+    .card-instagram:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.1); transform: translateY(-2px); }
+
+    .instagram-header {
+      background: linear-gradient(45deg, #F09433, #E6683C, #DC2743, #CC2366, #BC1888);
+      padding: 20px; position: relative;
+    }
+    .instagram-header::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 40px; background: linear-gradient(to bottom, transparent, white);
+    }
+    .instagram-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.9); backdrop-filter: blur(8px);
+      padding: 6px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600;
+      color: #262626;
+    }
+    .instagram-badge .icon {
+      width: 16px; height: 16px; background: linear-gradient(45deg, #F09433, #DC2743, #BC1888);
+      border-radius: 4px; display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: white; font-weight: 800;
+    }
+
+    .instagram-body { padding: 20px; }
+    .instagram-title { font-size: 18px; font-weight: 700; color: #262626; margin-bottom: 8px; }
+    .instagram-desc { font-size: 13px; color: #737373; line-height: 1.5; margin-bottom: 16px; }
+
+    .instagram-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .instagram-tag {
+      font-size: 11px; padding: 4px 10px; border-radius: 6px;
+      background: #F3F4F6; color: #525252; font-weight: 500;
+    }
+
+    .instagram-cta {
+      width: 100%; padding: 12px; border-radius: 12px; border: none;
+      background: linear-gradient(45deg, #F09433, #DC2743, #BC1888); color: white;
+      font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 200ms;
+    }
+    .instagram-cta:hover { opacity: 0.9; }
+
+    .instagram-meta {
+      display: flex; align-items: center; gap: 12px; padding: 12px 20px;
+      border-top: 1px solid #E5E5E5; font-size: 12px; color: #A3A3A3;
+    }
+
+    /* ═══════════════════════════════════════════════════════ */
+    /* FACEBOOK CARD STYLES */
+    /* ═══════════════════════════════════════════════════════ */
+    .card-facebook {
+      background: white; border-radius: 12px; padding: 0;
+      overflow: hidden; position: relative;
+      border: 1px solid #DDD; transition: all 200ms;
+    }
+    .card-facebook:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); transform: translateY(-2px); }
+
+    .facebook-header {
+      background: #1877F2; padding: 20px; position: relative;
+    }
+    .facebook-header::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 40px; background: linear-gradient(to bottom, transparent, white);
+    }
+    .facebook-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(8px);
+      padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
+      color: #1877F2;
+    }
+    .facebook-badge .icon {
+      width: 16px; height: 16px; background: #1877F2; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: white; font-weight: 800;
+    }
+
+    .facebook-body { padding: 20px; }
+    .facebook-title { font-size: 18px; font-weight: 700; color: #050505; margin-bottom: 8px; }
+    .facebook-desc { font-size: 13px; color: #65676B; line-height: 1.5; margin-bottom: 16px; }
+
+    .facebook-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .facebook-tag {
+      font-size: 11px; padding: 4px 10px; border-radius: 6px;
+      background: #F0F2F5; color: #65676B; font-weight: 500;
+    }
+
+    .facebook-cta {
+      width: 100%; padding: 12px; border-radius: 8px; border: none;
+      background: #1877F2; color: white; font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: background 200ms;
+    }
+    .facebook-cta:hover { background: #166FE5; }
+
+    .facebook-actions {
+      display: flex; align-items: center; justify-content: space-around;
+      padding: 8px 20px; border-top: 1px solid #DDD; border-bottom: 1px solid #DDD;
+    }
+    .facebook-action {
+      display: flex; align-items: center; gap: 6px; font-size: 13px;
+      color: #65676B; font-weight: 500; padding: 6px 12px; border-radius: 6px;
+      cursor: pointer; transition: background 150ms;
+    }
+    .facebook-action:hover { background: #F0F2F5; }
+
+    .facebook-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; font-size: 12px; color: #65676B;
+    }
+
+    /* ═══════════════════════════════════════════════════════ */
+    /* VARIANT B: Minimal platform accents */
+    /* ═══════════════════════════════════════════════════════ */
+    .card-minimal {
+      background: var(--color-surface); border-radius: var(--radius-panel);
+      padding: 20px; border: 1px solid var(--color-border);
+      transition: all 200ms; position: relative; overflow: hidden;
+    }
+    .card-minimal:hover { box-shadow: var(--shadow-card-hover); }
+    .card-minimal::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    }
+    .card-minimal.tiktok::before { background: linear-gradient(90deg, #00F2EA, #FF0050); }
+    .card-minimal.instagram::before { background: linear-gradient(45deg, #F09433, #DC2743, #BC1888); }
+    .card-minimal.facebook::before { background: #1877F2; }
+
+    .minimal-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .minimal-badge.tiktok { background: #0F0F0F; color: white; }
+    .minimal-badge.instagram { background: linear-gradient(45deg, #F09433, #DC2743); color: white; }
+    .minimal-badge.facebook { background: #1877F2; color: white; }
+
+    .minimal-title { font-size: 16px; font-weight: 600; color: var(--color-text); margin-bottom: 8px; }
+    .minimal-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 12px; }
+    .minimal-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .minimal-tag {
+      font-size: 11px; padding: 4px 8px; border-radius: 6px;
+      background: var(--color-surface-subtle); color: var(--color-text-muted);
+    }
+    .minimal-cta {
+      width: 100%; padding: 10px; border-radius: var(--radius-control);
+      border: 1px solid var(--color-border); background: var(--color-surface);
+      font-size: 13px; font-weight: 600; color: var(--color-text); cursor: pointer;
+      transition: all 200ms;
+    }
+    .minimal-cta:hover { border-color: var(--color-primary); background: var(--color-primary-soft); color: var(--color-primary); }
+
+    /* ═══════════════════════════════════════════════════════ */
+    /* VARIANT C: Asymmetric layout */
+    /* ═══════════════════════════════════════════════════════ */
+    .card-asymmetric {
+      background: var(--color-surface); border-radius: var(--radius-panel);
+      overflow: hidden; border: 1px solid var(--color-border);
+      transition: all 200ms;
+    }
+    .card-asymmetric:hover { box-shadow: var(--shadow-card-hover); }
+
+    .asymmetric-visual {
+      height: 120px; display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .asymmetric-visual.tiktok { background: linear-gradient(135deg, #00F2EA, #FF0050); }
+    .asymmetric-visual.instagram { background: linear-gradient(45deg, #F09433, #DC2743, #BC1888); }
+    .asymmetric-visual.facebook { background: #1877F2; }
+    .asymmetric-visual .platform-icon {
+      font-size: 48px; font-weight: 800; color: rgba(255,255,255,0.3);
+    }
+
+    .asymmetric-content { padding: 20px; }
+    .asymmetric-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; margin-bottom: 8px;
+    }
+    .asymmetric-badge.tiktok { color: var(--color-tiktok); }
+    .asymmetric-badge.instagram { color: var(--color-instagram); }
+    .asymmetric-badge.facebook { color: var(--color-facebook); }
+    .asymmetric-badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .asymmetric-badge.tiktok .dot { background: var(--color-tiktok); }
+    .asymmetric-badge.instagram .dot { background: var(--color-instagram); }
+    .asymmetric-badge.facebook .dot { background: var(--color-facebook); }
+
+    .asymmetric-title { font-size: 16px; font-weight: 600; color: var(--color-text); margin-bottom: 8px; }
+    .asymmetric-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 12px; }
+    .asymmetric-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .asymmetric-tag {
+      font-size: 11px; padding: 4px 8px; border-radius: 6px;
+      background: var(--color-surface-subtle); color: var(--color-text-muted);
+    }
+    .asymmetric-cta {
+      width: 100%; padding: 10px; border-radius: var(--radius-control);
+      border: none; font-size: 13px; font-weight: 600; color: white; cursor: pointer;
+      transition: opacity 200ms;
+    }
+    .asymmetric-cta.tiktok { background: var(--color-tiktok); }
+    .asymmetric-cta.instagram { background: var(--color-instagram); }
+    .asymmetric-cta.facebook { background: var(--color-facebook); }
+    .asymmetric-cta:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div id="variant-nav">
+    <button class="variant-tab active" onclick="showVariant('a')">A: Full Brand Immersion</button>
+    <button class="variant-tab" onclick="showVariant('b')">B: Minimal Platform Accents</button>
+    <button class="variant-tab" onclick="showVariant('c')">C: Asymmetric Visual</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- VARIANT A: Full Brand Immersion -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="variant-a" class="variant active">
+    <div class="cards-container">
+      <div class="variant-title">Full Brand Immersion</div>
+      <div class="variant-desc">Each card fully embraces the platform's visual identity — colors, gradients, typography, and layout patterns.</div>
+
+      <div class="cards-grid">
+        <!-- TikTok Card -->
+        <div class="card-tiktok">
+          <div class="tiktok-header">
+            <div class="tiktok-badge">
+              <div class="icon">TT</div>
+              TikTok
+            </div>
+          </div>
+          <div class="tiktok-body">
+            <div class="tiktok-title">Day in the Life</div>
+            <div class="tiktok-desc">Hook viewers with a behind-the-scenes look at your business day. High engagement format.</div>
+            <div class="tiktok-tags">
+              <span class="tiktok-tag">Viral Hook</span>
+              <span class="tiktok-tag">Behind the Scenes</span>
+            </div>
+            <button class="tiktok-cta">✨ Use Template</button>
+          </div>
+          <div class="tiktok-meta">
+            <span>⏱ 15-60s</span>
+            <span>📈 High engagement</span>
+          </div>
+        </div>
+
+        <!-- Instagram Card -->
+        <div class="card-instagram">
+          <div class="instagram-header">
+            <div class="instagram-badge">
+              <div class="icon">IG</div>
+              Instagram
+            </div>
+          </div>
+          <div class="instagram-body">
+            <div class="instagram-title">Carousel Slide Hook</div>
+            <div class="instagram-desc">Multi-slide carousel caption that hooks on slide 1 and delivers value across slides.</div>
+            <div class="instagram-tags">
+              <span class="instagram-tag">Carousel</span>
+              <span class="instagram-tag">High Save Rate</span>
+            </div>
+            <button class="instagram-cta">✨ Use Template</button>
+          </div>
+          <div class="instagram-meta">
+            <span>📸 10 slides max</span>
+            <span>💾 High saves</span>
+          </div>
+        </div>
+
+        <!-- Facebook Card -->
+        <div class="card-facebook">
+          <div class="facebook-header">
+            <div class="facebook-badge">
+              <div class="icon">f</div>
+              Facebook
+            </div>
+          </div>
+          <div class="facebook-body">
+            <div class="facebook-title">Event / Launch Promo</div>
+            <div class="facebook-desc">Build anticipation for an upcoming event, sale, or product launch. Drives RSVPs.</div>
+            <div class="facebook-tags">
+              <span class="facebook-tag">Event</span>
+              <span class="facebook-tag">Anticipation</span>
+            </div>
+            <button class="facebook-cta">✨ Use Template</button>
+          </div>
+          <div class="facebook-actions">
+            <div class="facebook-action">👍 Like</div>
+            <div class="facebook-action">💬 Comment</div>
+            <div class="facebook-action">↗️ Share</div>
+          </div>
+          <div class="facebook-meta">
+            <span>3 friends liked this</span>
+            <span>2 hours ago</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- VARIANT B: Minimal Platform Accents -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="variant-b" class="variant" style="display:none">
+    <div class="cards-container">
+      <div class="variant-title">Minimal Platform Accents</div>
+      <div class="variant-desc">Clean, consistent card layout with subtle platform-colored accents — gradient top borders and branded badges.</div>
+
+      <div class="cards-grid">
+        <div class="card-minimal tiktok">
+          <div class="minimal-badge tiktok">TT TikTok</div>
+          <div class="minimal-title">Day in the Life</div>
+          <div class="minimal-desc">Hook viewers with a behind-the-scenes look at your business day.</div>
+          <div class="minimal-tags">
+            <span class="minimal-tag">Viral Hook</span>
+            <span class="minimal-tag">Behind the Scenes</span>
+          </div>
+          <button class="minimal-cta">✨ Use Template →</button>
+        </div>
+
+        <div class="card-minimal instagram">
+          <div class="minimal-badge instagram">IG Instagram</div>
+          <div class="minimal-title">Carousel Slide Hook</div>
+          <div class="minimal-desc">Multi-slide carousel caption that hooks on slide 1 and delivers value.</div>
+          <div class="minimal-tags">
+            <span class="minimal-tag">Carousel</span>
+            <span class="minimal-tag">High Save Rate</span>
+          </div>
+          <button class="minimal-cta">✨ Use Template →</button>
+        </div>
+
+        <div class="card-minimal facebook">
+          <div class="minimal-badge facebook">FB Facebook</div>
+          <div class="minimal-title">Event / Launch Promo</div>
+          <div class="minimal-desc">Build anticipation for an upcoming event, sale, or product launch.</div>
+          <div class="minimal-tags">
+            <span class="minimal-tag">Event</span>
+            <span class="minimal-tag">Anticipation</span>
+          </div>
+          <button class="minimal-cta">✨ Use Template →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- VARIANT C: Asymmetric Visual -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="variant-c" class="variant" style="display:none">
+    <div class="cards-container">
+      <div class="variant-title">Asymmetric Visual</div>
+      <div class="variant-desc">Large platform-branded visual header with clean content area below — balances brand identity with readability.</div>
+
+      <div class="cards-grid">
+        <div class="card-asymmetric">
+          <div class="asymmetric-visual tiktok">
+            <div class="platform-icon">TT</div>
+          </div>
+          <div class="asymmetric-content">
+            <div class="asymmetric-badge tiktok"><span class="dot"></span> TikTok</div>
+            <div class="asymmetric-title">Day in the Life</div>
+            <div class="asymmetric-desc">Hook viewers with a behind-the-scenes look at your business day.</div>
+            <div class="asymmetric-tags">
+              <span class="asymmetric-tag">Viral Hook</span>
+              <span class="asymmetric-tag">Behind the Scenes</span>
+            </div>
+            <button class="asymmetric-cta tiktok">✨ Use Template</button>
+          </div>
+        </div>
+
+        <div class="card-asymmetric">
+          <div class="asymmetric-visual instagram">
+            <div class="platform-icon">IG</div>
+          </div>
+          <div class="asymmetric-content">
+            <div class="asymmetric-badge instagram"><span class="dot"></span> Instagram</div>
+            <div class="asymmetric-title">Carousel Slide Hook</div>
+            <div class="asymmetric-desc">Multi-slide carousel caption that hooks on slide 1.</div>
+            <div class="asymmetric-tags">
+              <span class="asymmetric-tag">Carousel</span>
+              <span class="asymmetric-tag">High Save Rate</span>
+            </div>
+            <button class="asymmetric-cta instagram">✨ Use Template</button>
+          </div>
+        </div>
+
+        <div class="card-asymmetric">
+          <div class="asymmetric-visual facebook">
+            <div class="platform-icon">FB</div>
+          </div>
+          <div class="asymmetric-content">
+            <div class="asymmetric-badge facebook"><span class="dot"></span> Facebook</div>
+            <div class="asymmetric-title">Event / Launch Promo</div>
+            <div class="asymmetric-desc">Build anticipation for an upcoming event or launch.</div>
+            <div class="asymmetric-tags">
+              <span class="asymmetric-tag">Event</span>
+              <span class="asymmetric-tag">Anticipation</span>
+            </div>
+            <button class="asymmetric-cta facebook">✨ Use Template</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sketch Toolbar -->
+  <div id="sketch-tools" style="position:fixed;bottom:12px;right:12px;z-index:9999;font-family:system-ui;font-size:12px;background:rgba(0,0,0,0.7);color:white;padding:8px 12px;border-radius:8px;opacity:0.4;transition:opacity 0.2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.4'">
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'" style="background:transparent;color:white;border:1px solid rgba(255,255,255,0.3);border-radius:4px;padding:2px 6px;font-size:11px;">
+        <option value="default">Default</option>
+      </select>
+      <span style="opacity:0.5">|</span>
+      <button onclick="setViewport('phone')" style="background:transparent;color:white;border:none;cursor:pointer;font-size:11px;">📱</button>
+      <button onclick="setViewport('tablet')" style="background:transparent;color:white;border:none;cursor:pointer;font-size:11px;">📱</button>
+      <button onclick="setViewport('desktop')" style="background:transparent;color:white;border:none;cursor:pointer;font-size:11px;">🖥️</button>
+    </div>
+  </div>
+
+  <script>
+    function showVariant(id) {
+      document.querySelectorAll('.variant').forEach(v => v.style.display = 'none');
+      document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('variant-' + id).style.display = 'block';
+      event.target.classList.add('active');
+    }
+
+    function setViewport(size) {
+      const container = document.querySelector('.cards-container');
+      if (size === 'phone') container.style.maxWidth = '375px';
+      else if (size === 'tablet') container.style.maxWidth = '768px';
+      else container.style.maxWidth = '1200px';
+    }
+  </script>
+</body>
+</html>

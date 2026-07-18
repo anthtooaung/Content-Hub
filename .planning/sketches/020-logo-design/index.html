@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 020: Logo Design</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-page);
+      color: var(--color-text);
+      min-height: 100vh;
+    }
+
+    /* Variant Navigation */
+    #variant-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      padding: 10px 16px;
+      display: flex; gap: 8px; align-items: center;
+      font-family: system-ui; font-size: 13px;
+    }
+    .variant-tab {
+      padding: 6px 14px; border-radius: var(--radius-pill);
+      border: 1px solid var(--color-border); background: transparent;
+      cursor: pointer; font-family: inherit; font-size: inherit;
+      font-weight: 500; color: var(--color-text-secondary);
+      transition: all 0.15s ease;
+    }
+    .variant-tab:hover { background: var(--color-surface-subtle); color: var(--color-text); }
+    .variant-tab.active {
+      background: var(--color-primary); color: white; border-color: var(--color-primary);
+    }
+    .variant { display: none; padding-top: 56px; }
+    .variant.active { display: block; }
+
+    /* Sketch Toolbar */
+    #sketch-tools {
+      position: fixed; bottom: 12px; right: 12px; z-index: 9999;
+      font-family: system-ui; font-size: 12px;
+      background: rgba(0,0,0,0.75); color: white;
+      padding: 8px 12px; border-radius: 8px;
+      opacity: 0.4; transition: opacity 0.2s;
+      display: flex; gap: 8px; align-items: center;
+    }
+    #sketch-tools:hover { opacity: 1; }
+    #sketch-tools select {
+      background: rgba(255,255,255,0.15); color: white; border: none;
+      font-size: 11px; padding: 2px 4px; border-radius: 4px; cursor: pointer;
+    }
+    #sketch-tools button {
+      background: rgba(255,255,255,0.15); color: white; border: none;
+      font-size: 11px; padding: 3px 8px; border-radius: 4px; cursor: pointer;
+      transition: background 0.15s;
+    }
+    #sketch-tools button:hover { background: rgba(255,255,255,0.3); }
+
+    /* === LOGO SHARED === */
+    .logo-showcase {
+      min-height: calc(100vh - 56px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 48px; padding: 40px 24px;
+    }
+    .logo-stage {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-panel);
+      box-shadow: var(--shadow-card);
+      padding: 48px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 32px;
+      width: 100%; max-width: 720px;
+    }
+    .logo-stage h2 {
+      font-size: 14px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--color-text-muted);
+    }
+    .logo-row {
+      display: flex; gap: 48px; align-items: center;
+      flex-wrap: wrap; justify-content: center;
+    }
+    .logo-box {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 16px;
+    }
+    .logo-box .label {
+      font-size: 12px; font-weight: 500; color: var(--color-text-muted);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .logo-mark { display: flex; align-items: center; gap: 10px; }
+    .logo-wordmark {
+      font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
+      color: var(--color-text);
+    }
+
+    /* Context demos */
+    .context-row {
+      display: flex; gap: 24px; flex-wrap: wrap; justify-content: center;
+      width: 100%; max-width: 720px;
+    }
+    .context-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-card);
+      padding: 24px; flex: 1; min-width: 200px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 12px;
+    }
+    .context-card .ctx-label {
+      font-size: 11px; font-weight: 600; color: var(--color-text-muted);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    /* Dark card for dark bg test */
+    .context-card.dark {
+      background: #111827; border-color: #1f2937;
+    }
+    .context-card.dark .logo-wordmark { color: #f9fafb; }
+
+    /* SVG animation on hover */
+    .logo-mark svg { transition: transform 0.3s ease; }
+    .logo-mark:hover svg { transform: scale(1.05); }
+  </style>
+</head>
+<body>
+
+<!-- Variant Navigation -->
+<div id="variant-nav">
+  <button class="variant-tab active" onclick="showVariant('a')">A: Connected Nodes</button>
+  <button class="variant-tab" onclick="showVariant('b')">B: Stacked Layers</button>
+  <button class="variant-tab" onclick="showVariant('c')">C: Orbit Ring</button>
+  <button class="variant-tab" onclick="showVariant('d')">D: The Overlap</button>
+  <button class="variant-tab" onclick="showVariant('e')">E: Lettermark</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- VARIANT A: Connected Nodes                     -->
+<!-- ═══════════════════════════════════════════════ -->
+<div id="variant-a" class="variant active">
+  <div class="logo-showcase">
+
+    <div class="logo-stage">
+      <h2>Concept — Connected Nodes</h2>
+      <p style="text-align:center;max-width:480px;color:var(--color-text-secondary);font-size:14px;">
+        A central hub with platform-colored satellites connected by curved lines. Represents Content Hub as the central point connecting TikTok, Instagram, and Facebook.
+      </p>
+
+      <!-- Primary: Dark on light -->
+      <div class="logo-box">
+        <span class="label">Primary (light bg)</span>
+        <div class="logo-mark">
+          <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Central hub -->
+            <circle cx="22" cy="22" r="10" fill="#2563EB"/>
+            <circle cx="22" cy="22" r="5" fill="white" opacity="0.9"/>
+            <!-- Satellite dots -->
+            <circle cx="8" cy="10" r="4" fill="#111827"/><!-- TikTok -->
+            <circle cx="36" cy="10" r="4" fill="#E1306C"/><!-- Instagram -->
+            <circle cx="22" cy="38" r="4" fill="#1877F2"/><!-- Facebook -->
+            <!-- Connection lines -->
+            <line x1="14" y1="14" x2="18" y2="18" stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="30" y1="14" x2="26" y2="18" stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="22" y1="32" x2="22" y2="28" stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <span class="logo-wordmark">Content Hub</span>
+        </div>
+      </div>
+
+      <!-- Monochrome -->
+      <div class="logo-row">
+        <div class="logo-box">
+          <span class="label">Mono Light</span>
+          <div class="logo-mark">
+            <svg width="32" height="32" viewBox="0 0 44 44" fill="none">
+              <circle cx="22" cy="22" r="10" fill="#94A3B8"/>
+              <circle cx="22" cy="22" r="5" fill="white"/>
+              <circle cx="8" cy="10" r="4" fill="#64748B"/>
+              <circle cx="36" cy="10" r="4" fill="#64748B"/>
+              <circle cx="22" cy="38" r="4" fill="#64748B"/>
+              <line x1="14" y1="14" x2="18" y2="18" stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="30" y1="14" x2="26" y2="18" stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="22" y1="32" x2="22" y2="28" stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span class="logo-wordmark" style="color:#64748B;">Content Hub</span>
+          </div>
+        </div>
+        <div class="logo-box">
+          <span class="label">Mono Dark</span>
+          <div class="logo-mark">
+            <svg width="32" height="32" viewBox="0 0 44 44" fill="none">
+              <circle cx="22" cy="22" r="10" fill="#334155"/>
+              <circle cx="22" cy="22" r="5" fill="white"/>
+              <circle cx="8" cy="10" r="4" fill="#475569"/>
+              <circle cx="36" cy="10" r="4" fill="#475569"/>
+              <circle cx="22" cy="38" r="4" fill="#475569"/>
+              <line x1="14" y1="14" x2="18" y2="18" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="30" y1="14" x2="26" y2="18" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="22" y1="32" x2="22" y2="28" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span class="logo-wordmark" style="color:#334155;">Content Hub</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Context demos -->
+    <div class="context-row">
+      <div class="context-card">
+        <span class="ctx-label">Favicon (16px)</span>
+        <svg width="16" height="16" viewBox="0 0 44 44" fill="none">
+          <circle cx="22" cy="22" r="20" fill="#2563EB"/>
+          <circle cx="22" cy="22" r="8" fill="white"/>
+          <circle cx="8" cy="10" r="4" fill="#111827"/>
+          <circle cx="36" cy="10" r="4" fill="#E1306C"/>
+          <circle cx="22" cy="38" r="4" fill="#1877F2"/>
+        </svg>
+      </div>
+      <div class="context-card">
+        <span class="ctx-label">App Header</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
+            <circle cx="22" cy="22" r="18" fill="#2563EB"/>
+            <circle cx="22" cy="22" r="7" fill="white"/>
+            <circle cx="10" cy="12" r="3.5" fill="#111827"/>
+            <circle cx="34" cy="12" r="3.5" fill="#E1306C"/>
+            <circle cx="22" cy="36" r="3.5" fill="#1877F2"/>
+          </svg>
+          <span class="logo-wordmark" style="font-size:18px;">Content Hub</span>
+        </div>
+      </div>
+      <div class="context-card dark">
+        <span class="ctx-label" style="color:#94A3B8;">Dark Background</span>
+        <div class="logo-mark">
+          <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
+            <circle cx="22" cy="22" r="18" fill="#3B82F6"/>
+            <circle cx="22" cy="22" r="7" fill="#111827"/>
+            <circle cx="10" cy="12" r="3.5" fill="#f9fafb"/>
+            <circle cx="34" cy="12" r="3.5" fill="#f9fafb"/>
+            <circle cx="22" cy="36" r="3.5" fill="#f9fafb"/>
+          </svg>
+          <span class="logo-wordmark" style="font-size:18px;">Content Hub</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- VARIANT B: Stacked Layers                      -->
+<!-- ═══════════════════════════════════════════════ -->
+<div id="variant-b" class="variant" style="display:none;">
+  <div class="logo-showcase">
+
+    <div class="logo-stage">
+      <h2>Concept — Stacked Layers</h2>
+      <p style="text-align:center;max-width:480px;color:var(--color-text-secondary);font-size:14px;">
+        Three overlapping rounded rectangles in platform colors, fanning out from a center point. Represents the content cards flowing together through Content Hub.
+      </p>
+
+      <!-- Primary -->
+      <div class="logo-box">
+        <span class="label">Primary (light bg)</span>
+        <div class="logo-mark">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Back layer — Facebook -->
+            <rect x="6" y="10" width="28" height="28" rx="6" fill="#1877F2" transform="rotate(-12 20 24)"/>
+            <!-- Middle layer — Instagram -->
+            <rect x="10" y="8" width="28" height="28" rx="6" fill="#E1306C" transform="rotate(-4 24 22)"/>
+            <!-- Front layer — TikTok -->
+            <rect x="14" y="6" width="28" height="28" rx="6" fill="#111827"/>
+            <!-- Content icon inside front card -->
+            <rect x="20" y="14" width="16" height="2" rx="1" fill="white" opacity="0.6"/>
+            <rect x="20" y="19" width="12" height="2" rx="1" fill="white" opacity="0.4"/>
+            <rect x="20" y="24" width="14" height="2" rx="1" fill="white" opacity="0.3"/>
+            <circle cx="30" cy="30" r="4" fill="white" opacity="0.15"/>
+          </svg>
+          <span class="logo-wordmark">Content Hub</span>
+        </div>
+      </div>
+
+      <!-- Variations -->
+      <div class="logo-row">
+        <div class="logo-box">
+          <span class="label">Compact</span>
+          <div class="logo-mark">
+            <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+              <rect x="6" y="10" width="28" height="28" rx="6" fill="#1877F2" transform="rotate(-12 20 24)"/>
+              <rect x="10" y="8" width="28" height="28" rx="6" fill="#E1306C" transform="rotate(-4 24 22)"/>
+              <rect x="14" y="6" width="28" height="28" rx="6" fill="#111827"/>
+              <rect x="20" y="14" width="16" height="2" rx="1" fill="white" opacity="0.6"/>
+              <rect x="20" y="19" width="12" height="2" rx="1" fill="white" opacity="0.4"/>
+              <rect x="20" y="24" width="14" height="2" rx="1" fill="white" opacity="0.3"/>
+            </svg>
+            <span class="logo-wordmark" style="font-size:16px;">Content Hub</span>
+          </div>
+        </div>
+        <div class="logo-box">
+          <span class="label">Icon Only</span>
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <rect x="6" y="10" width="28" height="28" rx="6" fill="#1877F2" transform="rotate(-12 20 24)"/>
+            <rect x="10" y="8" width="28" height="28" rx="6" fill="#E1306C" transform="rotate(-4 24 22)"/>
+            <rect x="14" y="6" width="28" height="28" rx="6" fill="#111827"/>
+            <rect x="20" y="14" width="16" height="2" rx="1" fill="white" opacity="0.6"/>
+            <rect x="20" y="19" width="12" height="2" rx="1" fill="white" opacity="0.4"/>
+            <rect x="20" y="24" width="14" height="2" rx="1" fill="white" opacity="0.3"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Context demos -->
+    <div class="context-row">
+      <div class="context-card">
+        <span class="ctx-label">Favicon</span>
+        <svg width="16" height="16" viewBox="0 0 48 48" fill="none">
+          <rect x="6" y="10" width="28" height="28" rx="6" fill="#1877F2" transform="rotate(-12 20 24)"/>
+          <rect x="10" y="8" width="28" height="28" rx="6" fill="#E1306C" transform="rotate(-4 24 22)"/>
+          <rect x="14" y="6" width="28" height="28" rx="6" fill="#111827"/>
+        </svg>
+      </div>
+      <div class="context-card">
+        <span class="ctx-label">App Header</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+            <rect x="6" y="10" width="28" height="28" rx="6" fill="#1877F2" transform="rotate(-12 20 24)"/>
+            <rect x="10" y="8" width="28" height="28" rx="6" fill="#E1306C" transform="rotate(-4 24 22)"/>
+            <rect x="14" y="6" width="28" height="28" rx="6" fill="#111827"/>
+          </svg>
+          <span class="logo-wordmark" style="font-size:18px;">Content Hub</span>
+        </div>
+      </div>
+      <div class="context-card dark">
+        <span class="ctx-label" style="color:#94A3B8;">Dark Background</span>
+        <div class="logo-mark">
+          <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+            <rect x="6" y="10" width="28" height="28" rx="6" fill="#1877F2" transform="rotate(-12 20 24)" opacity="0.7"/>
+            <rect x="10" y="8" width="28" height="28" rx="6" fill="#E1306C" transform="rotate(-4 24 22)" opacity="0.8"/>
+            <rect x="14" y="6" width="28" height="28" rx="6" fill="white" opacity="0.9"/>
+          </svg>
+          <span class="logo-wordmark" style="font-size:18px;">Content Hub</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- VARIANT C: Orbit Ring                          -->
+<!-- ═══════════════════════════════════════════════ -->
+<div id="variant-c" class="variant" style="display:none;">
+  <div class="logo-showcase">
+
+    <div class="logo-stage">
+      <h2>Concept — Orbit Ring</h2>
+      <p style="text-align:center;max-width:480px;color:var(--color-text-secondary);font-size:14px;">
+        A central hub mark with a playful orbit ring and platform-colored dots circling it. Friendly, dynamic, and techy — like a solar system of content.
+      </p>
+
+      <!-- Primary -->
+      <div class="logo-box">
+        <span class="label">Primary (light bg)</span>
+        <div class="logo-mark">
+          <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Orbit ring -->
+            <ellipse cx="26" cy="26" rx="22" ry="12" fill="none" stroke="#CBD5E1" stroke-width="1.5" transform="rotate(-20 26 26)"/>
+            <!-- Central hub -->
+            <circle cx="26" cy="26" r="9" fill="#2563EB"/>
+            <!-- "CH" letters inside -->
+            <text x="26" y="30" text-anchor="middle" fill="white" font-family="Inter, sans-serif" font-size="11" font-weight="700">CH</text>
+            <!-- Orbiting dots -->
+            <circle cx="8" cy="20" r="3.5" fill="#111827"/><!-- TikTok — left of orbit -->
+            <circle cx="42" cy="14" r="3.5" fill="#E1306C"/><!-- Instagram — top right -->
+            <circle cx="38" cy="40" r="3.5" fill="#1877F2"/><!-- Facebook — bottom right -->
+          </svg>
+          <span class="logo-wordmark">Content Hub</span>
+        </div>
+      </div>
+
+      <!-- Variations -->
+      <div class="logo-row">
+        <div class="logo-box">
+          <span class="label">Compact</span>
+          <div class="logo-mark">
+            <svg width="36" height="36" viewBox="0 0 52 52" fill="none">
+              <ellipse cx="26" cy="26" rx="22" ry="12" fill="none" stroke="#CBD5E1" stroke-width="1.5" transform="rotate(-20 26 26)"/>
+              <circle cx="26" cy="26" r="9" fill="#2563EB"/>
+              <text x="26" y="30" text-anchor="middle" fill="white" font-family="Inter, sans-serif" font-size="11" font-weight="700">CH</text>
+              <circle cx="8" cy="20" r="3.5" fill="#111827"/>
+              <circle cx="42" cy="14" r="3.5" fill="#E1306C"/>
+              <circle cx="38" cy="40" r="3.5" fill="#1877F2"/>
+            </svg>
+            <span class="logo-wordmark" style="font-size:16px;">Content Hub</span>
+          </div>
+        </div>
+        <div class="logo-box">
+          <span class="label">Icon Only</span>
+          <svg width="48" height="48" viewBox="0 0 52 52" fill="none">
+            <ellipse cx="26" cy="26" rx="22" ry="12" fill="none" stroke="#CBD5E1" stroke-width="1.5" transform="rotate(-20 26 26)"/>
+            <circle cx="26" cy="26" r="9" fill="#2563EB"/>
+            <text x="26" y="30" text-anchor="middle" fill="white" font-family="Inter, sans-serif" font-size="11" font-weight="700">CH</text>
+            <circle cx="8" cy="20" r="3.5" fill="#111827"/>
+            <circle cx="42" cy="14" r="3.5" fill="#E1306C"/>
+            <circle cx="38" cy="40" r="3.5" fill="#1877F2"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Context demos -->
+    <div class="context-row">
+      <div class="context-card">
+        <span class="ctx-label">Favicon</span>
+        <svg width="16" height="16" viewBox="0 0 52 52" fill="none">
+          <ellipse cx="26" cy="26" rx="22" ry="12" fill="none" stroke="#CBD5E1" stroke-width="2" transform="rotate(-20 26 26)"/>
+          <circle cx="26" cy="26" r="9" fill="#2563EB"/>
+          <circle cx="8" cy="20" r="3.5" fill="#111827"/>
+          <circle cx="42" cy="14" r="3.5" fill="#E1306C"/>
+          <circle cx="38" cy="40" r="3.5" fill="#1877F2"/>
+        </svg>
+      </div>
+      <div class="context-card">
+        <span class="ctx-label">App Header</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <svg width="30" height="30" viewBox="0 0 52 52" fill="none">
+            <ellipse cx="26" cy="26" rx="22" ry="12" fill="none" stroke="#CBD5E1" stroke-width="1.5" transform="rotate(-20 26 26)"/>
+            <circle cx="26" cy="26" r="9" fill="#2563EB"/>
+            <text x="26" y="30" text-anchor="middle" fill="white" font-family="Inter, sans-serif" font-size="11" font-weight="700">CH</text>
+            <circle cx="8" cy="20" r="3.5" fill="#111827"/>
+            <circle cx="42" cy="14" r="3.5" fill="#E1306C"/>
+            <circle cx="38" cy="40" r="3.5" fill="#1877F2"/>
+          </svg>
+          <span class="logo-wordmark" style="font-size:18px;">Content Hub</span>
+        </div>
+      </div>
+      <div class="context-card dark">
+        <span class="ctx-label" style="color:#94A3B8;">Dark Background</span>
+        <div class="logo-mark">
+          <svg width="30" height="30" viewBox="0 0 52 52" fill="none">
+            <ellipse cx="26" cy="26" rx="22" ry="12" fill="none" stroke="#475569" stroke-width="1.5" transform="rotate(-20 26 26)"/>
+            <circle cx="26" cy="26" r="9" fill="#3B82F6"/>
+            <text x="26" y="30" text-anchor="middle" fill="#111827" font-family="Inter, sans-serif" font-size="11" font-weight="700">CH</text>
+            <circle cx="8" cy="20" r="3.5" fill="#f9fafb"/>
+            <circle cx="42" cy="14" r="3.5" fill="#f9fafb"/>
+            <circle cx="38" cy="40" r="3.5" fill="#f9fafb"/>
+          </svg>
+          <span class="logo-wordmark" style="font-size:18px;">Content Hub</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- VARIANT D: The Overlap                         -->
+<!-- ═══════════════════════════════════════════════ -->
+<div id="variant-d" class="variant" style="display:none;">
+  <div class="logo-showcase">
+
+    <div class="logo-stage">
+      <h2>Concept — The Overlap</h2>
+      <p style="text-align:center;max-width:480px;color:var(--color-text-secondary);font-size:14px;">
+        Three semi-transparent platform-colored circles overlapping in a triangular arrangement. Where they intersect becomes the Content Hub — the meeting point of all your platforms.
+      </p>
+
+      <!-- Primary -->
+      <div class="logo-box">
+        <span class="label">Primary (light bg)</span>
+        <div class="logo-mark">
+          <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Three overlapping circles -->
+            <circle cx="20" cy="18" r="14" fill="#111827" opacity="0.75"/><!-- TikTok — top left -->
+            <circle cx="32" cy="18" r="14" fill="#E1306C" opacity="0.75"/><!-- Instagram — top right -->
+            <circle cx="26" cy="30" r="14" fill="#1877F2" opacity="0.75"/><!-- Facebook — bottom -->
+            <!-- Center hub dot -->
+            <circle cx="26" cy="22" r="4" fill="white"/>
+          </svg>
+          <span class="logo-wordmark">Content Hub</span>
+        </div>
+      </div>
+
+      <!-- Variations -->
+      <div class="logo-row">
+        <div class="logo-box">
+          <span class="label">Mono</span>
+          <div class="logo-mark">
+            <svg width="36" height="36" viewBox="0 0 52 52" fill="none">
+              <circle cx="20" cy="18" r="14" fill="#94A3B8" opacity="0.7"/>
+              <circle cx="32" cy="18" r="14" fill="#64748B" opacity="0.7"/>
+              <circle cx="26" cy="30" r="14" fill="#475569" opacity="0.7"/>
+              <circle cx="26" cy="22" r="4" fill="white"/>
+            </svg>
+            <span class="logo-wordmark" style="color:#64748B;">Content Hub</span>
+          </div>
+        </div>
+        <div class="logo-box">
+          <span class="label">Icon Only</span>
+          <svg width="48" height="48" viewBox="0 0 52 52" fill="none">
+            <circle cx="20" cy="18" r="14" fill="#111827" opacity="0.75"/>
+            <circle cx="32" cy="18" r="14" fill="#E1306C" opacity="0.75"/>
+            <circle cx="26" cy="30" r="14" fill="#1877F2" opacity="0.75"/>
+            <circle cx="26" cy="22" r="4" fill="white"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Context demos -->
+    <div class="context-row">
+      <div class="context-card">
+        <span class="ctx-label">Favicon (16px)</span>
+        <svg width="16" height="16" viewBox="0 0 52 52" fill="none">
+          <circle cx="20" cy="18" r="14" fill="#111827" opacity="0.8"/>
+          <circle cx="32" cy="18" r="14" fill="#E1306C" opacity="0.8"/>
+          <circle cx="26" cy="30" r="14" fill="#1877F2" opacity="0.8"/>
+          <circle cx="26" cy="22" r="3" fill="white"/>
+        </svg>
+      </div>
+      <div class="context-card">
+        <span class="ctx-label">App Header</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <svg width="28" height="28" viewBox="0 0 52 52" fill="none">
+            <circle cx="20" cy="18" r="14" fill="#111827" opacity="0.75"/>
+            <circle cx="32" cy="18" r="14" fill="#E1306C" opacity="0.75"/>
+            <circle cx="26" cy="30" r="14" fill="#1877F2" opacity="0.75"/>
+            <circle cx="26" cy="22" r="4" fill="white"/>
+          </svg>
+          <span class="logo-wordmark" style="font-size:18px;">Content Hub</span>
+        </div>
+      </div>
+      <div class="context-card dark">
+        <span class="ctx-label" style="color:#94A3B8;">Dark Background</span>
+        <div class="logo-mark">
+          <svg width="28" height="28" viewBox="0 0 52 52" fill="none">
+            <circle cx="20" cy="18" r="14" fill="#6B7280" opacity="0.6"/>
+            <circle cx="32" cy="18" r="14" fill="#F472B6" opacity="0.6"/>
+            <circle cx="26" cy="30" r="14" fill="#60A5FA" opacity="0.6"/>
+            <circle cx="26" cy="22" r="4" fill="#111827"/>
+          </svg>
+          <span class="logo-wordmark" style="font-size:18px;">Content Hub</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- VARIANT E: Lettermark                          -->
+<!-- ═══════════════════════════════════════════════ -->
+<div id="variant-e" class="variant" style="display:none;">
+  <div class="logo-showcase">
+
+    <div class="logo-stage">
+      <h2>Concept — Lettermark</h2>
+      <p style="text-align:center;max-width:480px;color:var(--color-text-secondary);font-size:14px;">
+        A custom "CH" monogram where the letters share a vertical stroke. Platform-colored dots accent the letter terminals. Classic, clean, and unmistakably "Content Hub."
+      </p>
+
+      <!-- Primary -->
+      <div class="logo-box">
+        <span class="label">Primary (light bg)</span>
+        <div class="logo-mark">
+          <svg width="52" height="44" viewBox="0 0 52 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- "C" letterform -->
+            <path d="M20 8 C12 8 6 14 6 22 C6 30 12 36 20 36" stroke="#2563EB" stroke-width="5" stroke-linecap="round" fill="none"/>
+            <!-- "H" letterform — shares the right curve of C as its left stroke -->
+            <line x1="20" y1="8" x2="20" y2="36" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/>
+            <line x1="20" y1="22" x2="38" y2="22" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/>
+            <line x1="38" y1="8" x2="38" y2="36" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/>
+            <!-- Platform color dots on terminals -->
+            <circle cx="6" cy="22" r="3" fill="#111827"/><!-- TikTok — left of C -->
+            <circle cx="20" cy="6" r="3" fill="#E1306C"/><!-- Instagram — top of shared stroke -->
+            <circle cx="38" cy="6" r="3" fill="#1877F2"/><!-- Facebook — top right of H -->
+          </svg>
+          <span class="logo-wordmark">Content Hub</span>
+        </div>
+      </div>
+
+      <!-- Variations -->
+      <div class="logo-row">
+        <div class="logo-box">
+          <span class="label">Mono</span>
+          <div class="logo-mark">
+            <svg width="40" height="34" viewBox="0 0 52 44" fill="none">
+              <path d="M20 8 C12 8 6 14 6 22 C6 30 12 36 20 36" stroke="#64748B" stroke-width="5" stroke-linecap="round" fill="none"/>
+              <line x1="20" y1="8" x2="20" y2="36" stroke="#64748B" stroke-width="5" stroke-linecap="round"/>
+              <line x1="20" y1="22" x2="38" y2="22" stroke="#64748B" stroke-width="5" stroke-linecap="round"/>
+              <line x1="38" y1="8" x2="38" y2="36" stroke="#64748B" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="6" cy="22" r="3" fill="#94A3B8"/>
+              <circle cx="20" cy="6" r="3" fill="#94A3B8"/>
+              <circle cx="38" cy="6" r="3" fill="#94A3B8"/>
+            </svg>
+            <span class="logo-wordmark" style="color:#64748B;">Content Hub</span>
+          </div>
+        </div>
+        <div class="logo-box">
+          <span class="label">Icon Only</span>
+          <svg width="44" height="38" viewBox="0 0 52 44" fill="none">
+            <path d="M20 8 C12 8 6 14 6 22 C6 30 12 36 20 36" stroke="#2563EB" stroke-width="5" stroke-linecap="round" fill="none"/>
+            <line x1="20" y1="8" x2="20" y2="36" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/>
+            <line x1="20" y1="22" x2="38" y2="22" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/>
+            <line x1="38" y1="8" x2="38" y2="36" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="6" cy="22" r="3" fill="#111827"/>
+            <circle cx="20" cy="6" r="3" fill="#E1306C"/>
+            <circle cx="38" cy="6" r="3" fill="#1877F2"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Context demos -->
+    <div class="context-row">
+      <div class="context-card">
+        <span class="ctx-label">Favicon (16px)</span>
+        <svg width="16" height="14" viewBox="0 0 52 44" fill="none">
+          <path d="M20 8 C12 8 6 14 6 22 C6 30 12 36 20 36" stroke="#2563EB" stroke-width="6" stroke-linecap="round" fill="none"/>
+          <line x1="20" y1="8" x2="20" y2="36" stroke="#2563EB" stroke-width="6" stroke-linecap="round"/>
+          <line x1="20" y1="22" x2="38" y2="22" stroke="#2563EB" stroke-width="6" stroke-linecap="round"/>
+          <line x1="38" y1="8" x2="38" y2="36" stroke="#2563EB" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="context-card">
+        <span class="ctx-label">App Header</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <svg width="28" height="24" viewBox="0 0 52 44" fill="none">
+            <path d="M20 8 C12 8 6 14 6 22 C6 30 12 36 20 36" stroke="#2563EB" stroke-width="5" stroke-linecap="round" fill="none"/>
+            <line x1="20" y1="8" x2="20" y2="36" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/>
+            <line x1="20" y1="22" x2="38" y2="22" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/>
+            <line x1="38" y1="8" x2="38" y2="36" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="6" cy="22" r="3" fill="#111827"/>
+            <circle cx="20" cy="6" r="3" fill="#E1306C"/>
+            <circle cx="38" cy="6" r="3" fill="#1877F2"/>
+          </svg>
+          <span class="logo-wordmark" style="font-size:18px;">Content Hub</span>
+        </div>
+      </div>
+      <div class="context-card dark">
+        <span class="ctx-label" style="color:#94A3B8;">Dark Background</span>
+        <div class="logo-mark">
+          <svg width="28" height="24" viewBox="0 0 52 44" fill="none">
+            <path d="M20 8 C12 8 6 14 6 22 C6 30 12 36 20 36" stroke="#60A5FA" stroke-width="5" stroke-linecap="round" fill="none"/>
+            <line x1="20" y1="8" x2="20" y2="36" stroke="#60A5FA" stroke-width="5" stroke-linecap="round"/>
+            <line x1="20" y1="22" x2="38" y2="22" stroke="#60A5FA" stroke-width="5" stroke-linecap="round"/>
+            <line x1="38" y1="8" x2="38" y2="36" stroke="#60A5FA" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="6" cy="22" r="3" fill="#f9fafb"/>
+            <circle cx="20" cy="6" r="3" fill="#f9fafb"/>
+            <circle cx="38" cy="6" r="3" fill="#f9fafb"/>
+          </svg>
+          <span class="logo-wordmark" style="font-size:18px;">Content Hub</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Sketch Toolbar -->
+<div id="sketch-tools">
+  <select id="theme-switcher" onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'">
+    <option value="default">Default</option>
+  </select>
+  <button onclick="setViewport('375px')" title="Phone">📱</button>
+  <button onclick="setViewport('768px')" title="Tablet">📟</button>
+  <button onclick="setViewport('100%')" title="Desktop">🖥️</button>
+  <button onclick="toggleAnnotations()" title="Annotations">📏</button>
+</div>
+
+<script>
+// Variant switching
+function showVariant(id) {
+  document.querySelectorAll('.variant').forEach(v => {
+    v.style.display = 'none';
+    v.classList.remove('active');
+  });
+  document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+  const target = document.getElementById('variant-' + id);
+  if (target) {
+    target.style.display = 'block';
+    target.classList.add('active');
+  }
+  // Find and activate the clicked tab
+  const map = { a: 0, b: 1, c: 2, d: 3, e: 4 };
+  const tabs = document.querySelectorAll('.variant-tab');
+  if (tabs[map[id]]) tabs[map[id]].classList.add('active');
+}
+
+// Viewport preview
+let currentViewport = '100%';
+function setViewport(width) {
+  currentViewport = currentViewport === width ? '100%' : width;
+  document.body.style.maxWidth = currentViewport === '100%' ? 'none' : currentViewport;
+  document.body.style.margin = currentViewport === '100%' ? '0' : '0 auto';
+}
+
+// Annotation mode
+let annotationsOn = false;
+function toggleAnnotations() {
+  annotationsOn = !annotationsOn;
+  document.querySelectorAll('.logo-mark').forEach(el => {
+    if (annotationsOn) {
+      el.style.outline = '1px dashed rgba(37,99,235,0.4)';
+      el.style.outlineOffset = '4px';
+    } else {
+      el.style.outline = 'none';
+    }
+  });
+}
+
+// Subtle orbit animation on Variant C
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes orbit { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  #variant-c .logo-mark svg { transition: transform 0.3s ease; }
+  #variant-c .logo-mark:hover svg { animation: orbit 8s linear infinite; }
+`;
+document.head.appendChild(style);
+</script>
+
+</body>
+</html>

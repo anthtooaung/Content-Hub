@@ -1,4 +1,11 @@
 {
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "vercel@claude-plugins-official": true
+  },
+  "worktree": {
+    "bgIsolation": "none"
+  },
   "permissions": {
     "allow": [
       "Bash(npx gsd-core *)",
@@ -14,7 +21,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"/home/pc/.nvm/versions/node/v26.2.0/bin/node\" \"/home/pc/.claude/hooks/gsd-check-update.js\""
+            "command": "\"/home/pc/.nvm/versions/node/v24.16.0/bin/node\" \"/home/pc/.claude/hooks/gsd-check-update.js\""
           }
         ]
       },
@@ -33,7 +40,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"/home/pc/.nvm/versions/node/v26.2.0/bin/node\" \"/home/pc/.claude/hooks/gsd-context-monitor.js\"",
+            "command": "\"/home/pc/.nvm/versions/node/v24.16.0/bin/node\" \"/home/pc/.claude/hooks/gsd-context-monitor.js\"",
             "timeout": 10
           }
         ]
@@ -43,7 +50,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"/home/pc/.nvm/versions/node/v26.2.0/bin/node\" \"/home/pc/.claude/hooks/gsd-read-injection-scanner.js\"",
+            "command": "\"/home/pc/.nvm/versions/node/v24.16.0/bin/node\" \"/home/pc/.claude/hooks/gsd-read-injection-scanner.js\"",
             "timeout": 5
           }
         ]
@@ -75,7 +82,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"/home/pc/.nvm/versions/node/v26.2.0/bin/node\" \"/home/pc/.claude/hooks/gsd-prompt-guard.js\"",
+            "command": "\"/home/pc/.nvm/versions/node/v24.16.0/bin/node\" \"/home/pc/.claude/hooks/gsd-prompt-guard.js\"",
             "timeout": 5
           }
         ]
@@ -85,7 +92,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"/home/pc/.nvm/versions/node/v26.2.0/bin/node\" \"/home/pc/.claude/hooks/gsd-read-guard.js\"",
+            "command": "\"/home/pc/.nvm/versions/node/v24.16.0/bin/node\" \"/home/pc/.claude/hooks/gsd-read-guard.js\"",
             "timeout": 5
           }
         ]
@@ -95,7 +102,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"/home/pc/.nvm/versions/node/v26.2.0/bin/node\" \"/home/pc/.claude/hooks/gsd-workflow-guard.js\"",
+            "command": "\"/home/pc/.nvm/versions/node/v24.16.0/bin/node\" \"/home/pc/.claude/hooks/gsd-workflow-guard.js\"",
             "timeout": 5
           }
         ]
@@ -105,7 +112,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"/home/pc/.nvm/versions/node/v26.2.0/bin/node\" \"/home/pc/.claude/hooks/gsd-worktree-path-guard.js\"",
+            "command": "\"/home/pc/.nvm/versions/node/v24.16.0/bin/node\" \"/home/pc/.claude/hooks/gsd-worktree-path-guard.js\"",
             "timeout": 5
           }
         ]
@@ -126,7 +133,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"/home/pc/.nvm/versions/node/v26.2.0/bin/node\" \"/home/pc/.claude/hooks/gsd-context-monitor.js\"",
+            "command": "\"/home/pc/.nvm/versions/node/v24.16.0/bin/node\" \"/home/pc/.claude/hooks/gsd-context-monitor.js\"",
             "timeout": 10
           }
         ]
@@ -137,7 +144,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"/home/pc/.nvm/versions/node/v26.2.0/bin/node\" \"/home/pc/.claude/hooks/gsd-context-monitor.js\"",
+            "command": "\"/home/pc/.nvm/versions/node/v24.16.0/bin/node\" \"/home/pc/.claude/hooks/gsd-context-monitor.js\"",
             "timeout": 10
           }
         ]
@@ -148,7 +155,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"/home/pc/.nvm/versions/node/v26.2.0/bin/node\" \"/home/pc/.claude/hooks/gsd-context-monitor.js\"",
+            "command": "\"/home/pc/.nvm/versions/node/v24.16.0/bin/node\" \"/home/pc/.claude/hooks/gsd-context-monitor.js\"",
             "timeout": 10
           }
         ]
@@ -160,7 +167,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"/home/pc/.nvm/versions/node/v26.2.0/bin/node\" \"/home/pc/.claude/hooks/gsd-config-reload.js\"",
+            "command": "\"/home/pc/.nvm/versions/node/v24.16.0/bin/node\" \"/home/pc/.claude/hooks/gsd-config-reload.js\"",
             "timeout": 8
           }
         ]
@@ -169,6 +176,6 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "\"/home/pc/.nvm/versions/node/v26.2.0/bin/node\" \"/home/pc/.claude/hooks/gsd-statusline.js\""
+    "command": "\"/home/pc/.nvm/versions/node/v24.16.0/bin/node\" \"/home/pc/.claude/hooks/gsd-statusline.js\""
   }
 }

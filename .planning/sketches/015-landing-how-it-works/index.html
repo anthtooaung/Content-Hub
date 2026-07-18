@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 015: How It Works Redesign</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <style>
+    /* Sketch-specific overrides */
+    body { background: var(--color-page); }
+
+    /* Variant Tab Nav */
+    #variant-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+      background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+      padding: 8px 16px; display: flex; gap: 8px; font-family: var(--font-sans);
+    }
+    .variant-tab {
+      padding: 6px 14px; border-radius: var(--radius-control); border: 1px solid var(--color-border);
+      background: var(--color-surface); color: var(--color-text-secondary); font-size: 13px;
+      font-weight: 500; cursor: pointer; transition: all 0.15s ease;
+    }
+    .variant-tab:hover { border-color: var(--color-border-strong); color: var(--color-text); }
+    .variant-tab.active { background: var(--color-primary-soft); border-color: var(--color-primary-border); color: var(--color-primary); }
+    .variant { padding-top: 56px; }
+
+    /* Section shared */
+    .section-header { text-align: center; margin-bottom: 48px; }
+    .section-header h2 { font-size: 28px; font-weight: 700; color: var(--color-text); }
+    .section-header p { font-size: 16px; color: var(--color-text-secondary); margin-top: 8px; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+    /* ======================== VARIANT A: Vertical Timeline ======================== */
+    .timeline-container { max-width: 700px; margin: 0 auto; padding: 0 24px; position: relative; }
+    .timeline-line {
+      position: absolute; left: 39px; top: 24px; bottom: 24px; width: 2px;
+      background: linear-gradient(to bottom, var(--color-primary-border), var(--color-primary), var(--color-primary-border));
+    }
+    .timeline-step {
+      display: flex; gap: 24px; margin-bottom: 48px; position: relative;
+      opacity: 0; transform: translateY(20px);
+      animation: fadeUp 0.5s ease forwards;
+    }
+    .timeline-step:nth-child(1) { animation-delay: 0.1s; }
+    .timeline-step:nth-child(2) { animation-delay: 0.3s; }
+    .timeline-step:nth-child(3) { animation-delay: 0.5s; }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    .timeline-icon {
+      width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      background: var(--color-primary); color: white; font-size: 18px; font-weight: 700;
+      flex-shrink: 0; position: relative; z-index: 2;
+      box-shadow: 0 0 0 4px var(--color-page), 0 0 0 6px var(--color-primary-border);
+    }
+    .timeline-content {
+      flex: 1; background: var(--color-surface); border: 1px solid var(--color-border);
+      border-radius: var(--radius-panel); padding: 24px; transition: all 0.2s ease;
+    }
+    .timeline-content:hover {
+      border-color: var(--color-primary-border); box-shadow: var(--shadow-card-hover);
+      transform: translateX(4px);
+    }
+    .timeline-content h3 { font-size: 18px; font-weight: 600; color: var(--color-text); margin-bottom: 8px; }
+    .timeline-content p { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; }
+    .timeline-visual {
+      margin-top: 16px; background: var(--color-surface-subtle); border-radius: var(--radius-control);
+      padding: 16px; display: flex; align-items: center; gap: 12px;
+    }
+    .timeline-visual-icon { width: 40px; height: 40px; border-radius: var(--radius-control); background: var(--color-primary-soft); display: flex; align-items: center; justify-content: center; color: var(--color-primary); }
+
+    /* ======================== VARIANT B: Interactive Cards ======================== */
+    .cards-grid { max-width: 1000px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .step-card {
+      background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-panel);
+      padding: 32px 24px; text-align: center; position: relative; overflow: hidden;
+      transition: all 0.3s ease; cursor: default;
+    }
+    .step-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: var(--color-primary); transform: scaleX(0); transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+    .step-card:hover::before { transform: scaleX(1); }
+    .step-card:hover { border-color: var(--color-primary-border); box-shadow: var(--shadow-card-hover); transform: translateY(-4px); }
+
+    .step-number {
+      width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 20px;
+      background: var(--color-primary-soft); color: var(--color-primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: 700; transition: all 0.3s ease;
+    }
+    .step-card:hover .step-number { background: var(--color-primary); color: white; transform: scale(1.1); }
+
+    .step-card h3 { font-size: 18px; font-weight: 600; color: var(--color-text); margin-bottom: 10px; }
+    .step-card p { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; }
+
+    .step-card .step-visual {
+      margin-top: 20px; height: 80px; border-radius: var(--radius-control);
+      background: var(--color-surface-subtle); display: flex; align-items: center; justify-content: center;
+      transition: background 0.3s ease;
+    }
+    .step-card:hover .step-visual { background: var(--color-primary-soft); }
+    .step-visual-placeholder { display: flex; gap: 8px; }
+    .step-visual-bar { height: 8px; border-radius: 4px; background: var(--color-border); transition: background 0.3s ease; }
+    .step-card:hover .step-visual-bar { background: var(--color-primary-border); }
+    .step-visual-bar:nth-child(1) { width: 40px; }
+    .step-visual-bar:nth-child(2) { width: 60px; }
+    .step-visual-bar:nth-child(3) { width: 30px; }
+
+    /* Arrow connectors between cards */
+    .cards-grid { position: relative; }
+    .card-arrow {
+      position: absolute; top: 50%; color: var(--color-primary-border); font-size: 20px;
+      transform: translateY(-50%); z-index: 2;
+    }
+    .card-arrow-1 { left: calc(33.33% - 12px); }
+    .card-arrow-2 { left: calc(66.66% - 12px); }
+
+    /* ======================== VARIANT C: Horizontal Process Flow ======================== */
+    .process-flow { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+    .process-steps { display: flex; gap: 0; align-items: stretch; }
+    .process-step {
+      flex: 1; position: relative; padding: 32px 24px; text-align: center;
+      background: var(--color-surface); border: 1px solid var(--color-border);
+      transition: all 0.3s ease;
+    }
+    .process-step:first-child { border-radius: var(--radius-panel) 0 0 var(--radius-panel); }
+    .process-step:last-child { border-radius: 0 var(--radius-panel) var(--radius-panel) 0; }
+    .process-step:not(:last-child) { border-right: none; }
+
+    .process-step:hover { background: var(--color-primary-soft); border-color: var(--color-primary-border); z-index: 2; }
+
+    .process-step .step-badge {
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px;
+      border-radius: var(--radius-pill); background: var(--color-primary-soft);
+      color: var(--color-primary); font-size: 12px; font-weight: 600; margin-bottom: 16px;
+    }
+    .process-step h3 { font-size: 16px; font-weight: 600; color: var(--color-text); margin-bottom: 8px; }
+    .process-step p { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+
+    /* Arrow between steps */
+    .process-step:not(:last-child)::after {
+      content: '→'; position: absolute; right: -12px; top: 50%; transform: translateY(-50%);
+      width: 24px; height: 24px; border-radius: 50%; background: var(--color-surface);
+      border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: var(--color-primary); z-index: 3;
+    }
+
+    /* ======================== SHARED: CTA ======================== */
+    .cta-section { text-align: center; margin-top: 48px; }
+    .cta-button {
+      display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px;
+      border-radius: var(--radius-control); background: var(--color-primary); color: white;
+      font-size: 16px; font-weight: 600; border: none; cursor: pointer;
+      transition: all 0.2s ease; text-decoration: none;
+    }
+    .cta-button:hover { background: var(--color-primary-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+
+    /* ======================== RESPONSIVE ======================== */
+    @media (max-width: 768px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .card-arrow { display: none; }
+      .process-steps { flex-direction: column; }
+      .process-step { border-radius: 0 !important; border-right: 1px solid var(--color-border) !important; border-bottom: none !important; }
+      .process-step:first-child { border-radius: var(--radius-panel) var(--radius-panel) 0 0 !important; }
+      .process-step:last-child { border-radius: 0 0 var(--radius-panel) var(--radius-panel) !important; border-bottom: 1px solid var(--color-border) !important; }
+      .process-step:not(:last-child)::after { display: none; }
+    }
+
+    /* Sketch toolbar */
+    #sketch-tools {
+      position: fixed; bottom: 12px; right: 12px; z-index: 9999; font-family: system-ui;
+      font-size: 12px; background: rgba(0,0,0,0.7); color: white; padding: 8px 12px;
+      border-radius: 8px; opacity: 0.4; transition: opacity 0.2s;
+    }
+    #sketch-tools:hover { opacity: 1; }
+    #sketch-tools select { background: transparent; color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; padding: 2px 4px; font-size: 11px; }
+  </style>
+</head>
+<body>
+
+  <!-- Variant Tab Nav -->
+  <div id="variant-nav">
+    <button class="variant-tab active" onclick="showVariant('a')">A: Vertical Timeline</button>
+    <button class="variant-tab" onclick="showVariant('b')">B: Interactive Cards</button>
+    <button class="variant-tab" onclick="showVariant('c')">C: Horizontal Flow</button>
+  </div>
+
+  <!-- ======================== VARIANT A: Vertical Timeline ======================== -->
+  <div id="variant-a" class="variant">
+    <section style="padding: 60px 24px;">
+      <div class="section-header">
+        <h2>How it works</h2>
+        <p>Three simple steps to transform your campaign ideas into ready-to-post social content.</p>
+      </div>
+
+      <div class="timeline-container">
+        <div class="timeline-line"></div>
+
+        <div class="timeline-step">
+          <div class="timeline-icon">1</div>
+          <div class="timeline-content">
+            <h3>Describe your campaign</h3>
+            <p>Tell us about your business, what you're promoting, and the tone you want. One form, that's it.</p>
+            <div class="timeline-visual">
+              <div class="timeline-visual-icon">📝</div>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--color-text)">Campaign Form</div>
+                <div style="font-size:12px;color:var(--color-text-muted)">Business type, topic, tone, keywords</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-step">
+          <div class="timeline-icon">2</div>
+          <div class="timeline-content">
+            <h3>Generate content</h3>
+            <p>Our AI creates platform-specific posts, captions, hashtags, and CTAs — optimized for each network.</p>
+            <div class="timeline-visual">
+              <div class="timeline-visual-icon">⚡</div>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--color-text)">AI Generation</div>
+                <div style="font-size:12px;color:var(--color-text-muted)">TikTok, Instagram, Facebook — all at once</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-step">
+          <div class="timeline-icon">3</div>
+          <div class="timeline-content">
+            <h3>Copy and post</h3>
+            <p>Review your content, copy what you need, and paste directly into your scheduling tool or post manually.</p>
+            <div class="timeline-visual">
+              <div class="timeline-visual-icon">📋</div>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--color-text)">Ready to Publish</div>
+                <div style="font-size:12px;color:var(--color-text-muted)">One-click copy for each platform</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-section">
+        <a href="/auth/signup" class="cta-button">Get started free →</a>
+      </div>
+    </section>
+  </div>
+
+  <!-- ======================== VARIANT B: Interactive Cards ======================== -->
+  <div id="variant-b" class="variant" style="display:none">
+    <section style="padding: 60px 24px;">
+      <div class="section-header">
+        <h2>How it works</h2>
+        <p>From idea to published content in three clicks.</p>
+      </div>
+
+      <div class="cards-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>Describe your campaign</h3>
+          <p>Tell us about your business, what you're promoting, and the tone you want.</p>
+          <div class="step-visual">
+            <div class="step-visual-placeholder">
+              <div class="step-visual-bar"></div>
+              <div class="step-visual-bar"></div>
+              <div class="step-visual-bar"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>Generate content</h3>
+          <p>AI creates platform-specific posts, captions, hashtags, and CTAs optimized for each network.</p>
+          <div class="step-visual">
+            <div class="step-visual-placeholder">
+              <div class="step-visual-bar"></div>
+              <div class="step-visual-bar"></div>
+              <div class="step-visual-bar"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>Copy and post</h3>
+          <p>Review, copy, and paste directly into your scheduling tool or post manually.</p>
+          <div class="step-visual">
+            <div class="step-visual-placeholder">
+              <div class="step-visual-bar"></div>
+              <div class="step-visual-bar"></div>
+              <div class="step-visual-bar"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-section">
+        <a href="/auth/signup" class="cta-button">Start generating →</a>
+      </div>
+    </section>
+  </div>
+
+  <!-- ======================== VARIANT C: Horizontal Process Flow ======================== -->
+  <div id="variant-c" class="variant" style="display:none">
+    <section style="padding: 60px 24px;">
+      <div class="section-header">
+        <h2>How it works</h2>
+        <p>One form. Three platforms. Zero guesswork.</p>
+      </div>
+
+      <div class="process-flow">
+        <div class="process-steps">
+          <div class="process-step">
+            <div class="step-badge">Step 1</div>
+            <h3>Describe</h3>
+            <p>Fill out one simple form with your business details, campaign topic, and preferred tone.</p>
+          </div>
+
+          <div class="process-step">
+            <div class="step-badge">Step 2</div>
+            <h3>Generate</h3>
+            <p>AI creates tailored posts for TikTok, Instagram, and Facebook — each optimized for the platform.</p>
+          </div>
+
+          <div class="process-step">
+            <div class="step-badge">Step 3</div>
+            <h3>Publish</h3>
+            <p>Copy your content with one click and paste it into your scheduling tool or post right away.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-section">
+        <a href="/auth/signup" class="cta-button">Try it now — it's free →</a>
+      </div>
+    </section>
+  </div>
+
+  <!-- Sketch Toolbar -->
+  <div id="sketch-tools">
+    <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'">
+      <option value="default">Default</option>
+    </select>
+    <span style="margin:0 6px;opacity:0.4">|</span>
+    <span>Sketch 015</span>
+  </div>
+
+  <script>
+    function showVariant(id) {
+      document.querySelectorAll('.variant').forEach(v => v.style.display = 'none');
+      document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('variant-' + id).style.display = 'block';
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>

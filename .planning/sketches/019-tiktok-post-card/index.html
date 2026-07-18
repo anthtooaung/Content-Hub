@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 019: TikTok Post Card</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --tt-black: #111827;
+      --tt-dark: #161823;
+      --tt-surface: #1E1E2E;
+      --tt-white: #FFFFFF;
+      --tt-gray: #8A8B91;
+      --tt-pink: #FE2C55;
+      --tt-cyan: #25F4EE;
+      --tt-blue: #3B82F6;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #000; color: var(--tt-white); }
+
+    /* Variant nav */
+    #variant-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+      background: var(--tt-dark); border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 8px 16px; display: flex; gap: 8px; font-family: system-ui; align-items: center;
+    }
+    .variant-tab {
+      padding: 6px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15);
+      background: transparent; color: rgba(255,255,255,0.6);
+      font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s ease;
+    }
+    .variant-tab:hover { border-color: var(--tt-pink); color: var(--tt-pink); }
+    .variant-tab.active { background: var(--tt-pink); color: white; border-color: var(--tt-pink); }
+    .variant { display: none; padding: 72px 24px 24px; max-width: 400px; margin: 0 auto; }
+    .variant.active { display: block; }
+
+    /* ========== TIKTOK POST CARD ========== */
+    .tt-card {
+      background: var(--tt-dark);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+      max-width: 360px;
+      margin: 0 auto;
+    }
+
+    /* Video area */
+    .tt-video-area {
+      width: 100%;
+      aspect-ratio: 9/16;
+      background: var(--tt-surface);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .tt-video-placeholder {
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      color: rgba(255,255,255,0.4);
+    }
+    .tt-video-placeholder svg { width: 48px; height: 48px; }
+    .tt-video-placeholder span { font-size: 13px; }
+
+    /* User's image in video area */
+    .tt-video-image {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+
+    /* Right sidebar actions */
+    .tt-sidebar {
+      position: absolute; right: 12px; bottom: 120px;
+      display: flex; flex-direction: column; align-items: center; gap: 20px;
+    }
+    .tt-action {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      cursor: pointer;
+    }
+    .tt-action-icon {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.1); transition: all 0.15s;
+    }
+    .tt-action-icon:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
+    .tt-action-icon svg { width: 24px; height: 24px; }
+    .tt-action-count { font-size: 12px; font-weight: 500; }
+
+    /* Avatar */
+    .tt-avatar-wrap {
+      position: absolute; left: 12px; bottom: 100px;
+    }
+    .tt-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      border: 2px solid white; overflow: hidden;
+    }
+    .tt-avatar-placeholder {
+      width: 100%; height: 100%; background: linear-gradient(135deg, var(--tt-pink), #FF6B6B);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 18px;
+    }
+    .tt-follow-btn {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--tt-pink); border: 2px solid white;
+      position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: white; cursor: pointer;
+    }
+
+    /* Bottom info */
+    .tt-bottom {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 16px; background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    }
+    .tt-username {
+      font-size: 16px; font-weight: 700; margin-bottom: 6px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .tt-username .tt-verified {
+      width: 14px; height: 14px; background: var(--tt-cyan);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+    .tt-username .tt-verified svg { width: 8px; height: 8px; }
+    .tt-caption {
+      font-size: 14px; line-height: 1.5; color: rgba(255,255,255,0.9);
+      margin-bottom: 8px; max-height: 80px; overflow: hidden;
+    }
+    .tt-music {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; color: rgba(255,255,255,0.8);
+    }
+    .tt-music-icon {
+      width: 16px; height: 16px; animation: spin 3s linear infinite;
+    }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* Hashtags */
+    .tt-hashtag { color: var(--tt-white); font-weight: 600; }
+
+    /* ========== INSTAGRAM-STYLE CARD (in TikTok sketch for comparison) ========== */
+
+    /* ========== SKETCH TOOLBAR ========== */
+    #sketch-tools {
+      position: fixed; bottom: 12px; right: 12px; z-index: 9999;
+      font-family: system-ui; font-size: 12px; background: rgba(0,0,0,0.7);
+      color: white; padding: 8px 12px; border-radius: 8px; opacity: 0.4;
+      transition: opacity 0.2s; display: flex; gap: 8px; align-items: center;
+    }
+    #sketch-tools:hover { opacity: 1; }
+    .viewport-btn {
+      padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2);
+      background: transparent; color: white; font-size: 11px; cursor: pointer;
+    }
+    .viewport-btn:hover, .viewport-btn.active { background: rgba(255,255,255,0.2); }
+
+    /* State labels */
+    .state-label {
+      font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.4);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;
+      text-align: center;
+    }
+
+    /* Generated badge */
+    .tt-generated-badge {
+      position: absolute; top: 12px; left: 12px; z-index: 10;
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(37,99,235,0.9); color: white; font-size: 10px; font-weight: 600;
+      padding: 4px 8px; border-radius: 6px; backdrop-filter: blur(4px);
+    }
+
+    /* Sound disc */
+    .tt-sound-disc {
+      position: absolute; right: 12px; bottom: 16px;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--tt-dark); border: 2px solid rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      animation: spin 3s linear infinite;
+    }
+    .tt-sound-disc-inner {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--tt-pink), #FF6B6B);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Variant Nav -->
+  <div id="variant-nav">
+    <button class="variant-tab active" onclick="showVariant('a')">A: With Image</button>
+    <button class="variant-tab" onclick="showVariant('b')">B: No Image (Prompt)</button>
+    <button class="variant-tab" onclick="showVariant('c')">C: Compact Feed View</button>
+  </div>
+
+  <!-- ==================== VARIANT A: With Image ==================== -->
+  <div id="variant-a" class="variant active">
+    <div class="state-label">TikTok Post — With User Image</div>
+
+    <div class="tt-card">
+      <!-- Generated badge -->
+      <div class="tt-generated-badge">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21"/></svg>
+        Content Hub
+      </div>
+
+      <!-- Video area with user image -->
+      <div class="tt-video-area">
+        <img class="tt-video-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='640'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0.5' y2='1'%3E%3Cstop offset='0%25' stop-color='%23111827'/%3E%3Cstop offset='50%25' stop-color='%231E293B'/%3E%3Cstop offset='100%25' stop-color='%230F172A'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23g)' width='360' height='640'/%3E%3Ctext x='180' y='280' text-anchor='middle' fill='%23FE2C55' font-size='32' font-family='system-ui' font-weight='700'%3E☕%3C/text%3E%3Ctext x='180' y='320' text-anchor='middle' fill='white' font-size='18' font-family='system-ui'%3EIced Latte Collection%3C/text%3E%3Ctext x='180' y='350' text-anchor='middle' fill='%238A8B91' font-size='14' font-family='system-ui'%3EBuy One Get One Free%3C/text%3E%3C/svg%3E" alt="TikTok video">
+
+        <!-- Right sidebar -->
+        <div class="tt-sidebar">
+          <!-- Profile -->
+          <div class="tt-action">
+            <div class="tt-avatar" style="position:relative;">
+              <div class="tt-avatar-placeholder">B</div>
+              <div class="tt-follow-btn">+</div>
+            </div>
+          </div>
+          <!-- Like -->
+          <div class="tt-action">
+            <div class="tt-action-icon">
+              <svg viewBox="0 0 24 24" fill="var(--tt-pink)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </div>
+            <span class="tt-action-count">45.2K</span>
+          </div>
+          <!-- Comment -->
+          <div class="tt-action">
+            <div class="tt-action-icon">
+              <svg viewBox="0 0 24 24" fill="white"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <span class="tt-action-count">1,832</span>
+          </div>
+          <!-- Bookmark -->
+          <div class="tt-action">
+            <div class="tt-action-icon">
+              <svg viewBox="0 0 24 24" fill="white"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <span class="tt-action-count">12.1K</span>
+          </div>
+          <!-- Share -->
+          <div class="tt-action">
+            <div class="tt-action-icon">
+              <svg viewBox="0 0 24 24" fill="white"><path d="M18 8A3 3 0 1 0 18 2a3 3 0 0 0 0 6zm-6 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="white" stroke-width="1.5"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="white" stroke-width="1.5"/></svg>
+            </div>
+            <span class="tt-action-count">3,421</span>
+          </div>
+        </div>
+
+        <!-- Sound disc -->
+        <div class="tt-sound-disc">
+          <div class="tt-sound-disc-inner"></div>
+        </div>
+
+        <!-- Bottom info -->
+        <div class="tt-bottom">
+          <div class="tt-username">
+            bloomandbrew
+            <span class="tt-verified">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--tt-dark)" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg>
+            </span>
+          </div>
+          <div class="tt-caption">
+            Summer just got cooler! ☀️🍦 Our new Iced Latte Collection is here — single-origin beans + real fruit flavors 🥭🍓
+
+            This weekend only: BOGO free on all iced lattes! 🎉
+
+            #IcedLatte #SummerVibes #CoffeeLover #BloomAndBrew #BOGO
+          </div>
+          <div class="tt-music">
+            <svg class="tt-music-icon" viewBox="0 0 24 24" fill="white"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3" fill="white"/><circle cx="18" cy="16" r="3" fill="white"/></svg>
+            <span>Original Sound — bloomandbrew</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== VARIANT B: No Image ==================== -->
+  <div id="variant-b" class="variant">
+    <div class="state-label">TikTok Post — No Image (Add Image Prompt)</div>
+
+    <div class="tt-card">
+      <div class="tt-generated-badge">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21"/></svg>
+        Content Hub
+      </div>
+
+      <!-- Video area — empty state -->
+      <div class="tt-video-area" style="background: linear-gradient(135deg, #1E1E2E, #2D1B4E);">
+        <div class="tt-video-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="m21 15-5-5L5 21"/>
+          </svg>
+          <span>Add a video thumbnail or image</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.3);">Tap to upload</span>
+        </div>
+
+        <!-- Right sidebar -->
+        <div class="tt-sidebar">
+          <div class="tt-action">
+            <div class="tt-avatar" style="position:relative;">
+              <div class="tt-avatar-placeholder">B</div>
+              <div class="tt-follow-btn">+</div>
+            </div>
+          </div>
+          <div class="tt-action">
+            <div class="tt-action-icon">
+              <svg viewBox="0 0 24 24" fill="var(--tt-pink)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </div>
+            <span class="tt-action-count">12.8K</span>
+          </div>
+          <div class="tt-action">
+            <div class="tt-action-icon">
+              <svg viewBox="0 0 24 24" fill="white"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <span class="tt-action-count">892</span>
+          </div>
+          <div class="tt-action">
+            <div class="tt-action-icon">
+              <svg viewBox="0 0 24 24" fill="white"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <span class="tt-action-count">4.2K</span>
+          </div>
+          <div class="tt-action">
+            <div class="tt-action-icon">
+              <svg viewBox="0 0 24 24" fill="white"><path d="M18 8A3 3 0 1 0 18 2a3 3 0 0 0 0 6zm-6 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="white" stroke-width="1.5"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="white" stroke-width="1.5"/></svg>
+            </div>
+            <span class="tt-action-count">1.1K</span>
+          </div>
+        </div>
+
+        <div class="tt-sound-disc">
+          <div class="tt-sound-disc-inner"></div>
+        </div>
+
+        <div class="tt-bottom">
+          <div class="tt-username">
+            bloomandbrew
+            <span class="tt-verified">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--tt-dark)" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg>
+            </span>
+          </div>
+          <div class="tt-caption">
+            Summer just got cooler! ☀️🍦 Our new Iced Latte Collection is here — single-origin beans + real fruit flavors 🥭🍓
+
+            This weekend only: BOGO free on all iced lattes! 🎉
+
+            #IcedLatte #SummerVibes #CoffeeLover #BloomAndBrew #BOGO
+          </div>
+          <div class="tt-music">
+            <svg class="tt-music-icon" viewBox="0 0 24 24" fill="white"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3" fill="white"/><circle cx="18" cy="16" r="3" fill="white"/></svg>
+            <span>Original Sound — bloomandbrew</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== VARIANT C: Compact Feed View ==================== -->
+  <div id="variant-c" class="variant">
+    <div class="state-label">TikTok Post — Compact Card (for dashboard/results list)</div>
+
+    <!-- This variant shows a compact card format for listing multiple posts -->
+    <div style="max-width: 360px; margin: 0 auto;">
+      <!-- Card 1: With image -->
+      <div style="background:var(--tt-dark);border-radius:12px;overflow:hidden;margin-bottom:16px;border:1px solid rgba(255,255,255,0.1);">
+        <div style="position:relative;">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='200'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23111827'/%3E%3Cstop offset='100%25' stop-color='%231E293B'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23g)' width='360' height='200'/%3E%3Ctext x='180' y='95' text-anchor='middle' fill='%23FE2C55' font-size='24' font-family='system-ui'%3E☕%3C/text%3E%3Ctext x='180' y='125' text-anchor='middle' fill='white' font-size='14' font-family='system-ui'%3EIced Latte Collection%3C/text%3E%3C/svg%3E" style="width:100%;aspect-ratio:16/9;object-fit:cover;" alt="">
+          <div style="position:absolute;bottom:8px;left:8px;right:8px;display:flex;align-items:flex-end;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--tt-pink),#FF6B6B);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">B</div>
+              <span style="font-size:13px;font-weight:600;">bloomandbrew</span>
+            </div>
+            <div style="display:flex;gap:8px;font-size:11px;color:rgba(255,255,255,0.8);">
+              <span>❤️ 45.2K</span>
+              <span>💬 1.8K</span>
+            </div>
+          </div>
+        </div>
+        <div style="padding:12px;">
+          <div style="font-size:13px;line-height:1.4;color:rgba(255,255,255,0.9);">
+            Summer just got cooler! ☀️🍦 BOGO free on all iced lattes this weekend!
+          </div>
+          <div style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap;">
+            <span style="font-size:12px;color:var(--tt-cyan);">#IcedLatte</span>
+            <span style="font-size:12px;color:var(--tt-cyan);">#SummerVibes</span>
+            <span style="font-size:12px;color:var(--tt-cyan);">#BOGO</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: No image -->
+      <div style="background:var(--tt-dark);border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);">
+        <div style="position:relative;">
+          <div style="width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#1E1E2E,#2D1B4E);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:rgba(255,255,255,0.4);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            <span style="font-size:12px;">Add image</span>
+          </div>
+          <div style="position:absolute;bottom:8px;left:8px;right:8px;display:flex;align-items:flex-end;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--tt-pink),#FF6B6B);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">B</div>
+              <span style="font-size:13px;font-weight:600;">bloomandbrew</span>
+            </div>
+            <div style="display:flex;gap:8px;font-size:11px;color:rgba(255,255,255,0.8);">
+              <span>❤️ 12.8K</span>
+              <span>💬 892</span>
+            </div>
+          </div>
+        </div>
+        <div style="padding:12px;">
+          <div style="font-size:13px;line-height:1.4;color:rgba(255,255,255,0.9);">
+            New collection dropping Friday! Stay tuned 👀✨
+          </div>
+          <div style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap;">
+            <span style="font-size:12px;color:var(--tt-cyan);">#NewDrop</span>
+            <span style="font-size:12px;color:var(--tt-cyan);">#ComingSoon</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sketch Toolbar -->
+  <div id="sketch-tools">
+    <button class="viewport-btn" onclick="setViewport('375px')" title="Phone">📱</button>
+    <button class="viewport-btn" onclick="setViewport('400px')" title="Narrow">Narrow</button>
+    <button class="viewport-btn active" onclick="setViewport('100%')" title="Full">Full</button>
+  </div>
+
+  <script>
+    function showVariant(id) {
+      document.querySelectorAll('.variant').forEach(v => v.style.display = 'none');
+      document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('variant-' + id).style.display = 'block';
+      event.target.classList.add('active');
+    }
+
+    function setViewport(width) {
+      document.querySelectorAll('.variant').forEach(v => v.style.maxWidth = width);
+      document.querySelectorAll('.viewport-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>

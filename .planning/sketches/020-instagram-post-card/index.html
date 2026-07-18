@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 020: Instagram Post Card</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ig-blue: #3897F0;
+      --ig-gradient: linear-gradient(45deg, #F09433, #E6683C, #DC2743, #CC2366, #BC1888);
+      --ig-dark: #262626;
+      --ig-gray: #8E8E8E;
+      --ig-light-gray: #DBDBDB;
+      --ig-bg: #FAFAFA;
+      --ig-surface: #FFFFFF;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--ig-bg); color: var(--ig-dark); }
+
+    /* Variant nav */
+    #variant-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+      background: var(--ig-surface); border-bottom: 1px solid var(--ig-light-gray);
+      padding: 8px 16px; display: flex; gap: 8px; font-family: system-ui; align-items: center;
+    }
+    .variant-tab {
+      padding: 6px 14px; border-radius: 8px; border: 1px solid var(--ig-light-gray);
+      background: var(--ig-surface); color: var(--ig-gray);
+      font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s ease;
+    }
+    .variant-tab:hover { border-color: var(--ig-blue); color: var(--ig-blue); }
+    .variant-tab.active { background: var(--ig-blue); color: white; border-color: var(--ig-blue); }
+    .variant { display: none; padding: 72px 24px 24px; max-width: 470px; margin: 0 auto; }
+    .variant.active { display: block; }
+
+    /* ========== INSTAGRAM POST CARD ========== */
+    .ig-post {
+      background: var(--ig-surface);
+      border: 1px solid var(--ig-light-gray);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .ig-post-header {
+      display: flex; align-items: center; padding: 10px 12px; gap: 10px;
+    }
+    .ig-avatar {
+      width: 32px; height: 32px; border-radius: 50%; overflow: hidden;
+      background: var(--ig-light-gray); flex-shrink: 0;
+    }
+    .ig-avatar-gradient {
+      width: 100%; height: 100%; border-radius: 50%;
+      padding: 2px; background: var(--ig-gradient);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ig-avatar-inner {
+      width: 100%; height: 100%; border-radius: 50%;
+      background: white; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px; color: var(--ig-dark);
+    }
+    .ig-post-meta { flex: 1; }
+    .ig-post-author {
+      font-size: 14px; font-weight: 600; line-height: 1.3;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .ig-post-author:hover { cursor: pointer; }
+    .ig-verified {
+      width: 12px; height: 12px; background: var(--ig-blue);
+      border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .ig-verified svg { width: 8px; height: 8px; }
+    .ig-post-location {
+      font-size: 12px; color: var(--ig-gray); line-height: 1.3;
+    }
+    .ig-more-btn {
+      width: 24px; height: 24px; border: none; background: none;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--ig-dark);
+    }
+
+    /* Post image */
+    .ig-post-image {
+      width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block;
+      cursor: pointer;
+    }
+    .ig-post-image-placeholder {
+      width: 100%; aspect-ratio: 1/1;
+      background: linear-gradient(135deg, #FDF2F8, #FCE7F3, #FBCFE8);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; color: var(--ig-gray); cursor: pointer;
+    }
+    .ig-post-image-placeholder svg { width: 40px; height: 40px; opacity: 0.5; }
+    .ig-post-image-placeholder span { font-size: 13px; font-weight: 500; opacity: 0.7; }
+
+    /* Action buttons */
+    .ig-actions {
+      display: flex; align-items: center; padding: 8px 12px 0; gap: 12px;
+    }
+    .ig-action-btn {
+      border: none; background: none; cursor: pointer; padding: 4px;
+      color: var(--ig-dark); transition: opacity 0.15s;
+    }
+    .ig-action-btn:hover { opacity: 0.6; }
+    .ig-action-btn svg { width: 24px; height: 24px; }
+    .ig-action-spacer { flex: 1; }
+    .ig-action-btn.bookmark-btn { margin-left: auto; }
+
+    /* Likes */
+    .ig-likes {
+      padding: 4px 12px; font-size: 14px; font-weight: 600;
+    }
+
+    /* Caption */
+    .ig-caption {
+      padding: 0 12px; font-size: 14px; line-height: 1.5;
+    }
+    .ig-caption-author { font-weight: 600; margin-right: 4px; }
+    .ig-hashtag { color: #00376B; font-weight: 500; }
+    .ig-more-text { color: var(--ig-gray); cursor: pointer; }
+
+    /* View comments */
+    .ig-view-comments {
+      padding: 4px 12px; font-size: 14px; color: var(--ig-gray); cursor: pointer;
+    }
+
+    /* Add comment */
+    .ig-add-comment {
+      display: flex; align-items: center; padding: 10px 12px; gap: 8px;
+      border-top: 1px solid var(--ig-light-gray);
+    }
+    .ig-comment-avatar {
+      width: 24px; height: 24px; border-radius: 50%; background: var(--ig-light-gray);
+      flex-shrink: 0;
+    }
+    .ig-comment-input {
+      flex: 1; border: none; outline: none; font-size: 14px; color: var(--ig-dark);
+      background: transparent;
+    }
+    .ig-comment-input::placeholder { color: var(--ig-gray); }
+    .ig-post-btn {
+      border: none; background: none; color: var(--ig-blue);
+      font-size: 14px; font-weight: 600; cursor: pointer; opacity: 0.5;
+    }
+    .ig-post-btn.active { opacity: 1; }
+
+    /* Timestamp */
+    .ig-timestamp {
+      padding: 4px 12px 12px; font-size: 10px; color: var(--ig-gray);
+      text-transform: uppercase; letter-spacing: 0.2px;
+    }
+
+    /* Generated badge */
+    .ig-generated-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #EFF6FF; color: #2563EB; font-size: 11px; font-weight: 600;
+      padding: 3px 8px; border-radius: 6px; margin-bottom: 8px;
+    }
+
+    /* ========== SKETCH TOOLBAR ========== */
+    #sketch-tools {
+      position: fixed; bottom: 12px; right: 12px; z-index: 9999;
+      font-family: system-ui; font-size: 12px; background: rgba(0,0,0,0.7);
+      color: white; padding: 8px 12px; border-radius: 8px; opacity: 0.4;
+      transition: opacity 0.2s; display: flex; gap: 8px; align-items: center;
+    }
+    #sketch-tools:hover { opacity: 1; }
+    .viewport-btn {
+      padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2);
+      background: transparent; color: white; font-size: 11px; cursor: pointer;
+    }
+    .viewport-btn:hover, .viewport-btn.active { background: rgba(255,255,255,0.2); }
+
+    .state-label {
+      font-size: 11px; font-weight: 600; color: var(--ig-gray);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;
+      text-align: center;
+    }
+
+    /* Story ring (for variant C) */
+    .ig-story-ring {
+      width: 40px; height: 40px; border-radius: 50%;
+      padding: 2px; background: var(--ig-gradient);
+    }
+    .ig-story-ring-inner {
+      width: 100%; height: 100%; border-radius: 50%;
+      background: white; padding: 2px;
+    }
+    .ig-story-avatar {
+      width: 100%; height: 100%; border-radius: 50%;
+      background: linear-gradient(135deg, #F472B6, #EC4899);
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Variant Nav -->
+  <div id="variant-nav">
+    <button class="variant-tab active" onclick="showVariant('a')">A: With Image</button>
+    <button class="variant-tab" onclick="showVariant('b')">B: No Image (Prompt)</button>
+    <button class="variant-tab" onclick="showVariant('c')">C: Feed Context</button>
+  </div>
+
+  <!-- ==================== VARIANT A: With Image ==================== -->
+  <div id="variant-a" class="variant active">
+    <div class="state-label">Instagram Post — With User Image</div>
+
+    <div class="ig-post">
+      <!-- Header -->
+      <div class="ig-post-header">
+        <div class="ig-avatar">
+          <div class="ig-avatar-gradient">
+            <div class="ig-avatar-inner">B</div>
+          </div>
+        </div>
+        <div class="ig-post-meta">
+          <div class="ig-post-author">
+            bloomandbrew
+            <span class="ig-verified">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg>
+            </span>
+          </div>
+          <div class="ig-post-location">Bloom & Brew Coffee</div>
+        </div>
+        <button class="ig-more-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="6" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="18" r="1.5"/></svg>
+        </button>
+      </div>
+
+      <!-- Post image -->
+      <img class="ig-post-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='470' height='470'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23FDF2F8'/%3E%3Cstop offset='50%25' stop-color='%23FCE7F3'/%3E%3Cstop offset='100%25' stop-color='%23FBCFE8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23g)' width='470' height='470'/%3E%3Ctext x='235' y='210' text-anchor='middle' fill='%23EC4899' font-size='48' font-family='system-ui'%3E☕%3C/text%3E%3Ctext x='235' y='260' text-anchor='middle' fill='%23DB2777' font-size='24' font-family='system-ui' font-weight='600'%3EIced Latte Collection%3C/text%3E%3Ctext x='235' y='295' text-anchor='middle' fill='%23F472B6' font-size='16' font-family='system-ui'%3EBuy One Get One Free%3C/text%3E%3C/svg%3E" alt="Campaign image">
+
+      <!-- Actions -->
+      <div class="ig-actions">
+        <button class="ig-action-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <button class="ig-action-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <button class="ig-action-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></svg>
+        </button>
+        <div class="ig-action-spacer"></div>
+        <button class="ig-action-btn bookmark-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </button>
+      </div>
+
+      <!-- Likes -->
+      <div class="ig-likes">2,847 likes</div>
+
+      <!-- Caption -->
+      <div class="ig-caption">
+        <span class="ig-caption-author">bloomandbrew</span>
+        Summer just got cooler! ☀️🍦
+
+Our new Iced Latte Collection is here — single-origin beans + real fruit flavors 🥭🍓
+
+This weekend only: Buy one, get one FREE on all iced lattes! 🎉
+
+<span class="ig-hashtag">#IcedLatte</span> <span class="ig-hashtag">#SummerVibes</span> <span class="ig-hashtag">#CoffeeLover</span> <span class="ig-hashtag">#BloomAndBrew</span> <span class="ig-hashtag">#BOGO</span>
+      </div>
+
+      <!-- View comments -->
+      <div class="ig-view-comments">View all 342 comments</div>
+
+      <!-- Add comment -->
+      <div class="ig-add-comment">
+        <div class="ig-comment-avatar"></div>
+        <input class="ig-comment-input" placeholder="Add a comment…" readonly>
+        <button class="ig-post-btn">Post</button>
+      </div>
+
+      <!-- Timestamp -->
+      <div class="ig-timestamp">2 hours ago</div>
+    </div>
+  </div>
+
+  <!-- ==================== VARIANT B: No Image ==================== -->
+  <div id="variant-b" class="variant">
+    <div class="state-label">Instagram Post — No Image (Add Image Prompt)</div>
+
+    <div class="ig-post">
+      <!-- Header -->
+      <div class="ig-post-header">
+        <div class="ig-avatar">
+          <div class="ig-avatar-gradient">
+            <div class="ig-avatar-inner">B</div>
+          </div>
+        </div>
+        <div class="ig-post-meta">
+          <div class="ig-post-author">
+            bloomandbrew
+            <span class="ig-verified">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg>
+            </span>
+          </div>
+          <div class="ig-post-location">Bloom & Brew Coffee</div>
+        </div>
+        <button class="ig-more-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="6" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="18" r="1.5"/></svg>
+        </button>
+      </div>
+
+      <!-- Empty image state -->
+      <div class="ig-post-image-placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <path d="m21 15-5-5L5 21"/>
+        </svg>
+        <span>Add an image to this post</span>
+      </div>
+
+      <!-- Actions -->
+      <div class="ig-actions">
+        <button class="ig-action-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <button class="ig-action-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <button class="ig-action-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></svg>
+        </button>
+        <div class="ig-action-spacer"></div>
+        <button class="ig-action-btn bookmark-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </button>
+      </div>
+
+      <!-- Likes -->
+      <div class="ig-likes">1,203 likes</div>
+
+      <!-- Caption -->
+      <div class="ig-caption">
+        <span class="ig-caption-author">bloomandbrew</span>
+        Summer just got cooler! ☀️🍦
+
+Our new Iced Latte Collection is here — single-origin beans + real fruit flavors 🥭🍓
+
+This weekend only: Buy one, get one FREE on all iced lattes! 🎉
+
+<span class="ig-hashtag">#IcedLatte</span> <span class="ig-hashtag">#SummerVibes</span> <span class="ig-hashtag">#CoffeeLover</span>
+      </div>
+
+      <!-- View comments -->
+      <div class="ig-view-comments">View all 89 comments</div>
+
+      <!-- Add comment -->
+      <div class="ig-add-comment">
+        <div class="ig-comment-avatar"></div>
+        <input class="ig-comment-input" placeholder="Add a comment…" readonly>
+        <button class="ig-post-btn">Post</button>
+      </div>
+
+      <!-- Timestamp -->
+      <div class="ig-timestamp">Just now</div>
+    </div>
+  </div>
+
+  <!-- ==================== VARIANT C: Feed Context ==================== -->
+  <div id="variant-c" class="variant">
+    <div class="state-label">Generated Post in Instagram Feed Context</div>
+
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <!-- Story row (context) -->
+      <div style="display:flex;gap:12px;padding:0 4px;overflow-x:auto;">
+        <div style="text-align:center;flex-shrink:0;">
+          <div class="ig-story-ring">
+            <div class="ig-story-ring-inner">
+              <div class="ig-story-avatar">S</div>
+            </div>
+          </div>
+          <div style="font-size:11px;margin-top:4px;color:var(--ig-dark);">sarah.m</div>
+        </div>
+        <div style="text-align:center;flex-shrink:0;">
+          <div class="ig-story-ring">
+            <div class="ig-story-ring-inner">
+              <div class="ig-story-avatar" style="background:linear-gradient(135deg,#60A5FA,#3B82F6);">J</div>
+            </div>
+          </div>
+          <div style="font-size:11px;margin-top:4px;color:var(--ig-dark);">jake_t</div>
+        </div>
+        <div style="text-align:center;flex-shrink:0;">
+          <div class="ig-story-ring">
+            <div class="ig-story-ring-inner">
+              <div class="ig-story-avatar" style="background:linear-gradient(135deg,#34D399,#059669);">M</div>
+            </div>
+          </div>
+          <div style="font-size:11px;margin-top:4px;color:var(--ig-dark);">mike.fit</div>
+        </div>
+      </div>
+
+      <!-- Previous post (context) -->
+      <div class="ig-post" style="opacity:0.5;">
+        <div class="ig-post-header">
+          <div class="ig-avatar">
+            <div class="ig-avatar-gradient">
+              <div class="ig-avatar-inner" style="background:linear-gradient(135deg,#F472B6,#EC4899);color:white;">J</div>
+            </div>
+          </div>
+          <div class="ig-post-meta">
+            <div class="ig-post-author">jessica.park</div>
+          </div>
+          <button class="ig-more-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="6" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="18" r="1.5"/></svg>
+          </button>
+        </div>
+        <div style="width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,#E0F2FE,#BAE6FD);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:32px;">☕</span>
+        </div>
+      </div>
+
+      <!-- Our generated post -->
+      <div>
+        <div class="ig-generated-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21"/></svg>
+          Generated by Content Hub
+        </div>
+        <div class="ig-post" style="border-color: #BFDBFE;">
+          <div class="ig-post-header">
+            <div class="ig-avatar">
+              <div class="ig-avatar-gradient">
+                <div class="ig-avatar-inner">B</div>
+              </div>
+            </div>
+            <div class="ig-post-meta">
+              <div class="ig-post-author">
+                bloomandbrew
+                <span class="ig-verified">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg>
+                </span>
+              </div>
+              <div class="ig-post-location">Bloom & Brew Coffee</div>
+            </div>
+            <button class="ig-more-btn">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="6" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="18" r="1.5"/></svg>
+            </button>
+          </div>
+          <img class="ig-post-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='470' height='470'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23FDF2F8'/%3E%3Cstop offset='50%25' stop-color='%23FCE7F3'/%3E%3Cstop offset='100%25' stop-color='%23FBCFE8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23g)' width='470' height='470'/%3E%3Ctext x='235' y='210' text-anchor='middle' fill='%23EC4899' font-size='48' font-family='system-ui'%3E☕%3C/text%3E%3Ctext x='235' y='260' text-anchor='middle' fill='%23DB2777' font-size='24' font-family='system-ui' font-weight='600'%3EIced Latte Collection%3C/text%3E%3C/svg%3E" alt="Campaign image">
+          <div class="ig-actions">
+            <button class="ig-action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <button class="ig-action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </button>
+            <button class="ig-action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></svg>
+            </button>
+            <div class="ig-action-spacer"></div>
+            <button class="ig-action-btn bookmark-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+          <div class="ig-likes">2,847 likes</div>
+          <div class="ig-caption">
+            <span class="ig-caption-author">bloomandbrew</span>
+            Summer just got cooler! ☀️🍦 BOGO free on all iced lattes this weekend! 🎉
+
+<span class="ig-hashtag">#IcedLatte</span> <span class="ig-hashtag">#SummerVibes</span> <span class="ig-hashtag">#BOGO</span>
+          </div>
+          <div class="ig-timestamp">Just now</div>
+        </div>
+      </div>
+
+      <!-- Next post (context) -->
+      <div class="ig-post" style="opacity:0.5;">
+        <div class="ig-post-header">
+          <div class="ig-avatar">
+            <div class="ig-avatar-gradient">
+              <div class="ig-avatar-inner" style="background:linear-gradient(135deg,#FBBF24,#F59E0B);color:white;">M</div>
+            </div>
+          </div>
+          <div class="ig-post-meta">
+            <div class="ig-post-author">mike.fitness</div>
+          </div>
+          <button class="ig-more-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="6" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="18" r="1.5"/></svg>
+          </button>
+        </div>
+        <div style="width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,#FEF3C7,#FDE68A);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:32px;">💪</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sketch Toolbar -->
+  <div id="sketch-tools">
+    <button class="viewport-btn" onclick="setViewport('375px')" title="Phone">📱</button>
+    <button class="viewport-btn" onclick="setViewport('470px')" title="Tablet">Tablet</button>
+    <button class="viewport-btn active" onclick="setViewport('100%')" title="Full">Full</button>
+  </div>
+
+  <script>
+    function showVariant(id) {
+      document.querySelectorAll('.variant').forEach(v => v.style.display = 'none');
+      document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('variant-' + id).style.display = 'block';
+      event.target.classList.add('active');
+    }
+
+    function setViewport(width) {
+      document.querySelectorAll('.variant').forEach(v => v.style.maxWidth = width);
+      document.querySelectorAll('.viewport-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>

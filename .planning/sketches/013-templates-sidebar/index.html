@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 013: Templates with App Shell Sidebar</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <style>
+    body { padding-top: 0; margin: 0; }
+
+    /* App Shell */
+    .app-shell { display: flex; min-height: 100vh; }
+
+    /* Header */
+    .app-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 56px; background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+    }
+    .app-logo { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: var(--color-text); }
+    .app-logo svg { color: var(--color-primary); }
+    .app-avatar {
+      width: 32px; height: 32px; border-radius: 50%; background: var(--color-primary);
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+
+    /* Sidebar */
+    .app-sidebar {
+      position: fixed; top: 56px; left: 0; bottom: 0; width: 240px;
+      background: var(--color-surface); border-right: 1px solid var(--color-border);
+      padding: 24px 12px; z-index: 90; overflow-y: auto;
+    }
+    .sidebar-section { margin-bottom: 24px; }
+    .sidebar-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--color-text-muted); padding: 0 12px; margin-bottom: 8px;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-radius: var(--radius-control); font-size: 14px; font-weight: 500;
+      color: var(--color-text-secondary); cursor: pointer; transition: all 150ms;
+      text-decoration: none;
+    }
+    .sidebar-link:hover { background: var(--color-surface-subtle); color: var(--color-text); }
+    .sidebar-link.active { background: var(--color-primary-soft); color: var(--color-primary); }
+    .sidebar-link svg { width: 18px; height: 18px; }
+    .sidebar-link.disabled { color: var(--color-text-disabled); cursor: not-allowed; }
+
+    /* Main Content */
+    .app-main {
+      margin-left: 240px; margin-top: 56px; flex: 1; padding: 32px;
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+    }
+    .page-icon {
+      width: 40px; height: 40px; border-radius: var(--radius-panel);
+      background: var(--color-primary-soft); display: flex; align-items: center; justify-content: center;
+      color: var(--color-primary);
+    }
+    .page-title { font-size: 24px; font-weight: 600; color: var(--color-text); }
+    .page-desc { font-size: 14px; color: var(--color-text-muted); margin-top: 4px; }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+      padding: 12px 16px; background: var(--color-surface); border: 1px solid var(--color-border);
+      border-radius: var(--radius-panel);
+    }
+    .filter-label { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); white-space: nowrap; }
+    .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .filter-pill {
+      display: flex; align-items: center; gap: 6px; padding: 6px 14px;
+      border-radius: var(--radius-control); border: 1px solid var(--color-border);
+      background: var(--color-surface); font-size: 13px; font-weight: 500;
+      color: var(--color-text-secondary); cursor: pointer; transition: all 150ms;
+    }
+    .filter-pill:hover { border-color: var(--color-border-strong); }
+    .filter-pill.active { border-color: var(--color-primary); background: var(--color-primary-soft); color: var(--color-primary); }
+    .filter-pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .filter-pill .count {
+      font-size: 11px; background: var(--color-surface-subtle); padding: 1px 6px;
+      border-radius: 9999px; color: var(--color-text-muted);
+    }
+    .filter-pill.active .count { background: var(--color-primary); color: white; }
+
+    /* Template grid */
+    .template-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+    /* Template cards - Asymmetric style (winner from 014) */
+    .template-card {
+      background: var(--color-surface); border-radius: var(--radius-panel);
+      overflow: hidden; border: 1px solid var(--color-border); transition: all 200ms;
+    }
+    .template-card:hover { box-shadow: var(--shadow-card-hover); }
+
+    .card-visual { height: 100px; display: flex; align-items: center; justify-content: center; position: relative; }
+    .card-visual.tiktok { background: linear-gradient(135deg, #00F2EA, #FF0050); }
+    .card-visual.instagram { background: linear-gradient(45deg, #F09433, #DC2743, #BC1888); }
+    .card-visual.facebook { background: #1877F2; }
+    .card-visual .platform-icon { font-size: 36px; font-weight: 800; color: rgba(255,255,255,0.3); }
+
+    .card-content { padding: 16px; }
+    .card-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; margin-bottom: 8px;
+    }
+    .card-badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .card-badge.tiktok { color: var(--color-tiktok); }
+    .card-badge.tiktok .dot { background: var(--color-tiktok); }
+    .card-badge.instagram { color: var(--color-instagram); }
+    .card-badge.instagram .dot { background: var(--color-instagram); }
+    .card-badge.facebook { color: var(--color-facebook); }
+    .card-badge.facebook .dot { background: var(--color-facebook); }
+
+    .card-title { font-size: 15px; font-weight: 600; color: var(--color-text); margin-bottom: 6px; }
+    .card-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 12px; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .card-tag {
+      font-size: 11px; padding: 4px 8px; border-radius: 6px;
+      background: var(--color-surface-subtle); color: var(--color-text-muted);
+    }
+    .card-cta {
+      width: 100%; padding: 10px; border-radius: var(--radius-control);
+      border: none; font-size: 13px; font-weight: 600; color: white; cursor: pointer;
+      transition: opacity 200ms;
+    }
+    .card-cta.tiktok { background: var(--color-tiktok); }
+    .card-cta.instagram { background: var(--color-instagram); }
+    .card-cta.facebook { background: var(--color-facebook); }
+    .card-cta:hover { opacity: 0.9; }
+
+    /* Mobile bottom nav */
+    .mobile-nav {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+      background: var(--color-surface); border-top: 1px solid var(--color-border);
+      padding: 8px 0 20px; justify-content: space-around;
+    }
+    .mobile-nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      font-size: 10px; font-weight: 500; color: var(--color-text-muted); cursor: pointer;
+      padding: 4px 12px;
+    }
+    .mobile-nav-item.active { color: var(--color-primary); }
+    .mobile-nav-item svg { width: 20px; height: 20px; }
+
+    /* Sketch toolbar */
+    #sketch-tools {
+      position: fixed; bottom: 12px; right: 12px; z-index: 9999;
+      font-family: system-ui; font-size: 12px; background: rgba(0,0,0,0.7);
+      color: white; padding: 8px 12px; border-radius: 8px; opacity: 0.4; transition: opacity 0.2s;
+    }
+    #sketch-tools:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="app-logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Content Hub
+      </div>
+      <div class="app-avatar">JD</div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="app-sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Create</div>
+        <a class="sidebar-link" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          Generate
+        </a>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Library</div>
+        <a class="sidebar-link active" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Templates
+        </a>
+        <a class="sidebar-link" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Dashboard
+        </a>
+        <a class="sidebar-link" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+          Analytics
+        </a>
+        <a class="sidebar-link disabled">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          Favorites
+        </a>
+      </div>
+
+      <div style="flex: 1;"></div>
+
+      <div class="sidebar-section" style="border-top: 1px solid var(--color-border); padding-top: 16px; margin-top: 16px;">
+        <a class="sidebar-link" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="app-main">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="page-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </div>
+        <div>
+          <div class="page-title">Trending Templates</div>
+          <div class="page-desc">Browse trending content formats for each platform. Pick a template to get started instantly.</div>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <span class="filter-label">Filter:</span>
+        <div class="filter-pills">
+          <button class="filter-pill active" onclick="filterTemplates(this, 'all')">
+            All
+            <span class="count">9</span>
+          </button>
+          <button class="filter-pill" onclick="filterTemplates(this, 'tiktok')">
+            <span class="dot" style="background: var(--color-tiktok);"></span>
+            TikTok
+            <span class="count">3</span>
+          </button>
+          <button class="filter-pill" onclick="filterTemplates(this, 'instagram')">
+            <span class="dot" style="background: var(--color-instagram);"></span>
+            Instagram
+            <span class="count">3</span>
+          </button>
+          <button class="filter-pill" onclick="filterTemplates(this, 'facebook')">
+            <span class="dot" style="background: var(--color-facebook);"></span>
+            Facebook
+            <span class="count">3</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Template Grid -->
+      <div class="template-grid" id="template-grid">
+        <!-- TikTok -->
+        <div class="template-card" data-platform="tiktok">
+          <div class="card-visual tiktok"><div class="platform-icon">TT</div></div>
+          <div class="card-content">
+            <div class="card-badge tiktok"><span class="dot"></span> TikTok</div>
+            <div class="card-title">Day in the Life</div>
+            <div class="card-desc">Hook viewers with a behind-the-scenes look at your business day.</div>
+            <div class="card-tags">
+              <span class="card-tag">Viral Hook</span>
+              <span class="card-tag">Behind the Scenes</span>
+            </div>
+            <button class="card-cta tiktok">✨ Use Template</button>
+          </div>
+        </div>
+
+        <div class="template-card" data-platform="tiktok">
+          <div class="card-visual tiktok"><div class="platform-icon">TT</div></div>
+          <div class="card-content">
+            <div class="card-badge tiktok"><span class="dot"></span> TikTok</div>
+            <div class="card-title">Quick Tip / Hack</div>
+            <div class="card-desc">Share a fast, actionable tip related to your industry.</div>
+            <div class="card-tags">
+              <span class="card-tag">Educational</span>
+              <span class="card-tag">Save-worthy</span>
+            </div>
+            <button class="card-cta tiktok">✨ Use Template</button>
+          </div>
+        </div>
+
+        <!-- Instagram -->
+        <div class="template-card" data-platform="instagram">
+          <div class="card-visual instagram"><div class="platform-icon">IG</div></div>
+          <div class="card-content">
+            <div class="card-badge instagram"><span class="dot"></span> Instagram</div>
+            <div class="card-title">Carousel Slide Hook</div>
+            <div class="card-desc">Multi-slide carousel caption that hooks on slide 1.</div>
+            <div class="card-tags">
+              <span class="card-tag">Carousel</span>
+              <span class="card-tag">High Save Rate</span>
+            </div>
+            <button class="card-cta instagram">✨ Use Template</button>
+          </div>
+        </div>
+
+        <div class="template-card" data-platform="instagram">
+          <div class="card-visual instagram"><div class="platform-icon">IG</div></div>
+          <div class="card-content">
+            <div class="card-badge instagram"><span class="dot"></span> Instagram</div>
+            <div class="card-title">Reel Opening Hook</div>
+            <div class="card-desc">Stop-the-scroll reel caption with a punchy hook line.</div>
+            <div class="card-tags">
+              <span class="card-tag">Reel</span>
+              <span class="card-tag">Reach</span>
+            </div>
+            <button class="card-cta instagram">✨ Use Template</button>
+          </div>
+        </div>
+
+        <!-- Facebook -->
+        <div class="template-card" data-platform="facebook">
+          <div class="card-visual facebook"><div class="platform-icon">FB</div></div>
+          <div class="card-content">
+            <div class="card-badge facebook"><span class="dot"></span> Facebook</div>
+            <div class="card-title">Event / Launch Promo</div>
+            <div class="card-desc">Build anticipation for an upcoming event or launch.</div>
+            <div class="card-tags">
+              <span class="card-tag">Event</span>
+              <span class="card-tag">Anticipation</span>
+            </div>
+            <button class="card-cta facebook">✨ Use Template</button>
+          </div>
+        </div>
+
+        <div class="template-card" data-platform="facebook">
+          <div class="card-visual facebook"><div class="platform-icon">FB</div></div>
+          <div class="card-content">
+            <div class="card-badge facebook"><span class="dot"></span> Facebook</div>
+            <div class="card-title">Community Question</div>
+            <div class="card-desc">Start a conversation with your audience. Algorithm-friendly.</div>
+            <div class="card-tags">
+              <span class="card-tag">Engagement</span>
+              <span class="card-tag">Algorithm-friendly</span>
+            </div>
+            <button class="card-cta facebook">✨ Use Template</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="mobile-nav">
+    <div class="mobile-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      Generate
+    </div>
+    <div class="mobile-nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Templates
+    </div>
+    <div class="mobile-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Dashboard
+    </div>
+  </nav>
+
+  <!-- Sketch Toolbar -->
+  <div id="sketch-tools">
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'" style="background:transparent;color:white;border:1px solid rgba(255,255,255,0.3);border-radius:4px;padding:2px 6px;font-size:11px;">
+        <option value="default">Default</option>
+      </select>
+      <span style="opacity:0.5">|</span>
+      <button onclick="setViewport('phone')" style="background:transparent;color:white;border:none;cursor:pointer;font-size:11px;">📱</button>
+      <button onclick="setViewport('tablet')" style="background:transparent;color:white;border:none;cursor:pointer;font-size:11px;">📱</button>
+      <button onclick="setViewport('desktop')" style="background:transparent;color:white;border:none;cursor:pointer;font-size:11px;">🖥️</button>
+    </div>
+  </div>
+
+  <script>
+    function filterTemplates(el, platform) {
+      document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+
+      document.querySelectorAll('.template-card').forEach(card => {
+        if (platform === 'all' || card.dataset.platform === platform) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function setViewport(size) {
+      const main = document.querySelector('.app-main');
+      if (size === 'phone') { main.style.maxWidth = '375px'; main.style.marginLeft = '0'; }
+      else if (size === 'tablet') { main.style.maxWidth = '768px'; main.style.marginLeft = '0'; }
+      else { main.style.maxWidth = 'none'; main.style.marginLeft = '240px'; }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 004 — Loading & Transitions</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <style>
+    #variant-nav { position:fixed;top:0;left:0;right:0;z-index:9998;background:var(--color-surface);border-bottom:1px solid var(--color-border);padding:8px 16px;display:flex;gap:8px;font-family:var(--font-sans); }
+    .variant-tab { padding:6px 14px;border-radius:var(--radius-control);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text-secondary);font-size:13px;font-weight:500;cursor:pointer;transition:all var(--transition-fast); }
+    .variant-tab:hover { background:var(--color-surface-subtle); }
+    .variant-tab.active { background:var(--color-primary-soft);border-color:var(--color-primary-border);color:var(--color-primary); }
+    .variant { padding-top:52px;min-height:100vh; }
+    #sketch-tools { position:fixed;bottom:12px;right:12px;z-index:9999;font-family:system-ui;font-size:12px;background:rgba(0,0,0,0.75);color:white;padding:8px 12px;border-radius:8px;opacity:0.35;transition:opacity 0.2s;display:flex;gap:8px;align-items:center; }
+    #sketch-tools:hover { opacity:1; }
+    #sketch-tools select,#sketch-tools button { background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:white;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer; }
+    #sketch-tools button.active { background:rgba(255,255,255,0.35); }
+
+    .page-container { max-width:1440px;margin:0 auto;padding:0 32px; }
+    @media(max-width:768px){.page-container{padding:0 16px;}}
+
+    .site-header { display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--color-border); }
+    .logo { display:flex;align-items:center;gap:8px;font-weight:700;font-size:18px; }
+    .logo-icon { width:32px;height:32px;background:var(--color-primary);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:16px; }
+    .nav-links { display:flex;gap:24px; }
+    .nav-links a { font-size:14px;font-weight:500;color:var(--color-text-secondary);text-decoration:none; }
+    .nav-links a.active { color:var(--color-primary);background:var(--color-primary-soft);padding:6px 12px;border-radius:var(--radius-control); }
+
+    .controls-bar { display:flex;gap:12px;align-items:center;padding:16px 0;margin-bottom:16px;flex-wrap:wrap; }
+    .ctrl-btn { padding:6px 14px;border-radius:var(--radius-control);border:1px solid var(--color-border);background:var(--color-surface);font-size:13px;font-weight:500;cursor:pointer;transition:all var(--transition-fast); }
+    .ctrl-btn:hover { background:var(--color-surface-subtle); }
+    .ctrl-btn.active { background:var(--color-primary-soft);border-color:var(--color-primary-border);color:var(--color-primary); }
+    .ctrl-btn.danger { border-color:var(--color-error);color:var(--color-error); }
+    .ctrl-btn.danger:hover { background:var(--color-error-soft); }
+    .speed-control { display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-muted); }
+    .speed-control input[type="range"] { width:120px; }
+
+    .workspace { display:grid;grid-template-columns:5fr 7fr;gap:24px;padding-bottom:32px;align-items:start; }
+    @media(max-width:768px){.workspace{grid-template-columns:1fr;}}
+
+    .form-panel { background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-panel);padding:24px;box-shadow:var(--shadow-card); }
+    .form-panel h2 { font-size:var(--text-h3);font-weight:600;margin-bottom:16px; }
+    .form-group { margin-bottom:16px; }
+    .form-group label { display:block;font-size:14px;font-weight:600;margin-bottom:6px; }
+    .form-group input,.form-group textarea,.form-group select {
+      width:100%;min-height:40px;border-radius:var(--radius-control);border:1px solid var(--color-border-strong);
+      background:var(--color-surface);padding:8px 12px;font-size:14px;font-family:var(--font-sans);
+    }
+
+    .generate-btn {
+      width:100%;min-height:48px;border-radius:var(--radius-control);background:var(--color-primary);
+      color:white;border:none;font-size:16px;font-weight:600;cursor:pointer;display:flex;
+      align-items:center;justify-content:center;gap:8px;transition:all var(--transition-fast);
+    }
+    .generate-btn:hover { background:var(--color-primary-hover); }
+    .generate-btn:disabled { background:var(--color-surface-subtle);color:var(--color-text-disabled);cursor:not-allowed; }
+    .generate-btn .spinner { display:none;width:20px;height:20px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%; }
+    .generate-btn.loading .spinner { display:block;animation:spin 0.6s linear infinite; }
+    .generate-btn.loading .btn-label { display:none; }
+    @keyframes spin { to{transform:rotate(360deg);} }
+
+    /* Result card */
+    .result-card {
+      background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-panel);
+      padding:16px;margin-bottom:16px;transition:all var(--transition-fast);opacity:0;transform:translateY(8px);
+    }
+    .result-card.visible { opacity:1;transform:translateY(0); }
+    .result-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:12px; }
+    .result-platform { display:flex;align-items:center;gap:8px; }
+    .platform-badge { width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700; }
+    .platform-badge.tt { background:var(--color-tiktok); }
+    .platform-badge.ig { background:var(--color-instagram); }
+    .platform-badge.fb { background:var(--color-facebook); }
+    .platform-name { font-size:14px;font-weight:600; }
+    .result-content { font-size:14px;line-height:1.6;color:var(--color-text);margin-bottom:8px; }
+    .result-hashtags { font-size:13px;color:var(--color-primary);margin-bottom:8px; }
+    .result-cta { font-size:13px;font-weight:600;color:var(--color-text-secondary); }
+    .result-actions { display:flex;gap:8px;margin-top:12px; }
+    .action-btn { padding:6px 12px;border-radius:var(--radius-control);border:1px solid var(--color-border);background:var(--color-surface);font-size:13px;font-weight:500;cursor:pointer;transition:all var(--transition-fast); }
+    .action-btn:hover { border-color:var(--color-primary-border);background:var(--color-primary-soft);color:var(--color-primary); }
+
+    /* Error card */
+    .result-card.error { border-color:var(--color-warning-border);background:var(--color-warning-soft); }
+    .error-msg { display:flex;align-items:center;gap:8px;font-size:14px;color:var(--color-warning);margin-bottom:8px; }
+    .retry-btn { padding:6px 12px;border-radius:var(--radius-control);border:1px solid var(--color-warning);background:var(--color-surface);color:var(--color-warning);font-size:13px;font-weight:500;cursor:pointer; }
+
+    /* Skeleton */
+    .skeleton { background:var(--color-border);border-radius:6px;animation:pulse var(--skel-speed, 1.4s) ease-in-out infinite; }
+    .skeleton-line { height:12px;margin-bottom:8px; }
+    .skeleton-line.w60 { width:60%; }
+    .skeleton-line.w80 { width:80%; }
+    .skeleton-block { height:60px;border-radius:var(--radius-panel);margin-bottom:12px; }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+    /* Skeleton card */
+    .skel-card { background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-panel);padding:16px;margin-bottom:16px; }
+
+    /* Status */
+    .status-text { font-size:14px;color:var(--color-text-muted);padding:12px 0;text-align:center; }
+
+    /* Progress overlay */
+    .progress-overlay {
+      position:relative;
+    }
+    .progress-backdrop {
+      position:absolute;inset:0;background:rgba(248,250,252,0.85);border-radius:var(--radius-panel);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+      opacity:0;pointer-events:none;transition:opacity 0.2s;z-index:10;
+    }
+    .progress-backdrop.show { opacity:1;pointer-events:all; }
+    .progress-bar-track { width:200px;height:6px;background:var(--color-border);border-radius:3px;overflow:hidden; }
+    .progress-bar-fill { height:100%;background:var(--color-primary);border-radius:3px;width:0%;transition:width 0.3s ease; }
+
+    /* Toast */
+    .toast { position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--color-text);color:white;padding:12px 20px;border-radius:var(--radius-card);font-size:14px;font-weight:500;opacity:0;transition:all 0.25s ease;box-shadow:var(--shadow-toast);z-index:10000;pointer-events:none; }
+    .toast.show { opacity:1;transform:translateX(-50%) translateY(0); }
+
+    .section-label { font-size:12px;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;margin-bottom:12px;letter-spacing:0.5px; }
+  </style>
+</head>
+<body>
+
+<div id="variant-nav">
+  <button class="variant-tab active" onclick="showVariant('a')">A: Inline Skeleton</button>
+  <button class="variant-tab" onclick="showVariant('b')">B: Progress Overlay ★</button>
+  <button class="variant-tab" onclick="showVariant('c')">C: Progressive Reveal</button>
+</div>
+
+<!-- ==================== VARIANT A: Inline Skeleton ==================== -->
+<div id="variant-a" class="variant">
+  <div class="page-container">
+    <header class="site-header">
+      <div class="logo"><div class="logo-icon">✦</div>Content Hub</div>
+      <div class="nav-links">
+        <a href="#" class="active">Create content</a>
+        <a href="#">History</a>
+      </div>
+    </header>
+
+    <div class="controls-bar">
+      <span style="font-size:13px;font-weight:600;color:var(--color-text-secondary);">State:</span>
+      <button class="ctrl-btn active" onclick="setStateA(this,'empty')">Empty</button>
+      <button class="ctrl-btn" onclick="setStateA(this,'loading')">Loading</button>
+      <button class="ctrl-btn" onclick="setStateA(this,'loaded')">Loaded</button>
+      <button class="ctrl-btn" onclick="setStateA(this,'error')">Error</button>
+      <div class="speed-control">
+        <label>Speed:</label>
+        <input type="range" min="500" max="3000" value="1400" oninput="updateSpeed(this.value)">
+      </div>
+    </div>
+
+    <div class="workspace">
+      <div class="form-panel">
+        <h2>Campaign brief</h2>
+        <div class="form-group">
+          <label>Business or brand</label>
+          <input type="text" value="Summer Smoothie Bowl Co.">
+        </div>
+        <div class="form-group">
+          <label>Campaign description</label>
+          <textarea style="min-height:80px;">Introducing our new tropical smoothie bowl line — fresh, colorful, and Instagram-ready. Perfect for health-conscious millennials.</textarea>
+        </div>
+        <button id="genA" class="generate-btn" onclick="generateA()">
+          <span class="spinner"></span>
+          <span class="btn-label">Generate all 3 posts</span>
+        </button>
+      </div>
+
+      <div id="results-a">
+        <div id="status-a" class="status-text" style="display:none;"></div>
+        <div id="results-content-a"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VARIANT B: Progress Overlay ==================== -->
+<div id="variant-b" class="variant" style="display:none">
+  <div class="page-container">
+    <header class="site-header">
+      <div class="logo"><div class="logo-icon">✦</div>Content Hub</div>
+      <div class="nav-links">
+        <a href="#" class="active">Create content</a>
+        <a href="#">History</a>
+      </div>
+    </header>
+
+    <div class="controls-bar">
+      <span style="font-size:13px;font-weight:600;color:var(--color-text-secondary);">State:</span>
+      <button class="ctrl-btn active" onclick="setStateB(this,'empty')">Empty</button>
+      <button class="ctrl-btn" onclick="setStateB(this,'loading')">Loading</button>
+      <button class="ctrl-btn" onclick="setStateB(this,'loaded')">Loaded</button>
+      <button class="ctrl-btn" onclick="setStateB(this,'error')">Error</button>
+      <div class="speed-control">
+        <label>Speed:</label>
+        <input type="range" min="500" max="3000" value="1400" oninput="updateSpeed(this.value)">
+      </div>
+    </div>
+
+    <div class="workspace">
+      <div class="form-panel">
+        <h2>Campaign brief</h2>
+        <div class="form-group">
+          <label>Business or brand</label>
+          <input type="text" value="Summer Smoothie Bowl Co.">
+        </div>
+        <div class="form-group">
+          <label>Campaign description</label>
+          <textarea style="min-height:80px;">Introducing our new tropical smoothie bowl line — fresh, colorful, and Instagram-ready.</textarea>
+        </div>
+        <button id="genB" class="generate-btn" onclick="generateB()">
+          <span class="spinner"></span>
+          <span class="btn-label">Generate all 3 posts</span>
+        </button>
+      </div>
+
+      <div class="progress-overlay" id="results-b-wrap" style="position:relative;">
+        <div class="progress-backdrop" id="overlay-b">
+          <div style="width:36px;height:36px;border:3px solid var(--color-border);border-top-color:var(--color-primary);border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+          <div id="overlay-status" style="font-size:14px;color:var(--color-text-secondary);">Understanding your campaign...</div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+          </div>
+        </div>
+        <div id="results-content-b"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VARIANT C: Progressive Reveal ==================== -->
+<div id="variant-c" class="variant" style="display:none">
+  <div class="page-container">
+    <header class="site-header">
+      <div class="logo"><div class="logo-icon">✦</div>Content Hub</div>
+      <div class="nav-links">
+        <a href="#" class="active">Create content</a>
+        <a href="#">History</a>
+      </div>
+    </header>
+
+    <div class="controls-bar">
+      <span style="font-size:13px;font-weight:600;color:var(--color-text-secondary);">State:</span>
+      <button class="ctrl-btn active" onclick="setStateC(this,'empty')">Empty</button>
+      <button class="ctrl-btn" onclick="setStateC(this,'loading')">Loading</button>
+      <button class="ctrl-btn" onclick="setStateC(this,'loaded')">Loaded</button>
+      <button class="ctrl-btn" onclick="setStateC(this,'error')">Error</button>
+      <div class="speed-control">
+        <label>Speed:</label>
+        <input type="range" min="500" max="3000" value="1400" oninput="updateSpeed(this.value)">
+      </div>
+    </div>
+
+    <div class="workspace">
+      <div class="form-panel">
+        <h2>Campaign brief</h2>
+        <div class="form-group">
+          <label>Business or brand</label>
+          <input type="text" value="Summer Smoothie Bowl Co.">
+        </div>
+        <div class="form-group">
+          <label>Campaign description</label>
+          <textarea style="min-height:80px;">Introducing our new tropical smoothie bowl line — fresh, colorful, and Instagram-ready.</textarea>
+        </div>
+        <button id="genC" class="generate-btn" onclick="generateC()">
+          <span class="spinner"></span>
+          <span class="btn-label">Generate all 3 posts</span>
+        </button>
+      </div>
+
+      <div id="results-c">
+        <div id="status-c" class="status-text" style="display:none;"></div>
+        <div id="results-content-c"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div id="sketch-tools">
+  <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'"><option value="default">Default</option></select>
+  <button onclick="setViewport(375)">📱</button>
+  <button onclick="setViewport(768)">📟</button>
+  <button onclick="setViewport(0)" class="active">🖥</button>
+</div>
+
+<script>
+let skelSpeed = 1400;
+document.documentElement.style.setProperty('--skel-speed', '1.4s');
+
+function updateSpeed(v) {
+  skelSpeed = parseInt(v);
+  document.documentElement.style.setProperty('--skel-speed', (v/1000)+'s');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function showVariant(id) {
+  document.querySelectorAll('.variant').forEach(v => v.style.display='none');
+  document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('variant-'+id).style.display='block';
+  event.target.classList.add('active');
+}
+
+function setViewport(w) {
+  const c = document.querySelector('.page-container');
+  document.querySelectorAll('#sketch-tools button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  c.style.maxWidth = w === 0 ? '1440px' : w + 'px';
+}
+
+const MOCK = {
+  tt: { name:'TikTok', cls:'tt', post:'Tropical smoothie bowls just dropped 🌴🌈 Fresh, colorful, and ready for your feed. Which flavor are you trying first? 🥝🍓🥭 #SmoothieBowl #SummerVibes #HealthyEating', hashtags:'#SmoothieBowl #SummerVibes #HealthyEating #Tropical #FreshAndColorful #EatClean #FoodieFinds' },
+  ig: { name:'Instagram', cls:'ig', post:'Summer just got a whole lot more colorful. 🌴\n\nIntroducing our tropical smoothie bowl line — handcrafted with fresh mango, dragon fruit, pitaya, and topped with coconut flakes, granola, and edible flowers.\n\nAvailable now at all locations. Tag someone who needs this in their life.', hashtags:'#SmoothieBowl #SummerCollection #HealthyLifestyle #TropicalVibes #FoodPhotography' },
+  fb: { name:'Facebook', cls:'fb', post:'We\'re so excited to introduce our brand new tropical smoothie bowl line! 🌴\n\nEach bowl is made fresh to order with premium fruits, organic granola, and house-made toppings. Available in three flavors:\n\n🥭 Mango Sunrise\n🐉 Dragon Fruit Dream\n🍓 Berry Tropical\n\nCome try one this week and let us know your favorite!', hashtags:'#SmoothieBowl #SummerSpecials #HealthyFood #FreshIngredients' }
+};
+
+function buildCard(key, extra) {
+  const m = MOCK[key];
+  return `<div class="result-card ${extra||''}" style="${extra==='visible'?'opacity:1;transform:none;':''}"><div class="result-header"><div class="result-platform"><div class="platform-badge ${m.cls}">${m.name.substring(0,2)}</div><span class="platform-name">${m.name}</span></div></div><div class="result-content">${m.post.replace(/\n/g,'<br>')}</div><div class="result-hashtags">${m.hashtags}</div><div class="result-actions"><button class="action-btn" onclick="showToast('${m.name} post copied!')">📋 Copy</button></div></div>`;
+}
+
+function buildErrorCard() {
+  return `<div class="result-card error"><div class="error-msg">⚠️ Could not generate Facebook post. TikTok and Instagram succeeded.</div><div class="result-content" style="color:var(--color-text-muted);font-style:italic;">Facebook generation timed out. Please try again.</div><div class="result-actions"><button class="retry-btn" onclick="showToast('Retrying Facebook...')">↻ Retry</button></div></div>`;
+}
+
+function buildSkeletonCard() {
+  return `<div class="skel-card"><div class="skeleton skeleton-block" style="height:20px;width:30%;margin-bottom:12px;border-radius:4px;"></div><div class="skeleton skeleton-line w80"></div><div class="skeleton skeleton-line w60"></div><div class="skeleton skeleton-line" style="width:40%;"></div></div>`;
+}
+
+function setActive(btn, group) {
+  btn.closest('.controls-bar').querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// === VARIANT A: Inline Skeleton ===
+function setStateA(btn, state) {
+  setActive(btn, 'a');
+  const content = document.getElementById('results-content-a');
+  const status = document.getElementById('status-a');
+  if (state === 'empty') { content.innerHTML = ''; status.style.display = 'none'; }
+  else if (state === 'loading') { showLoadingA(); }
+  else if (state === 'loaded') { showLoadedA(); }
+  else if (state === 'error') { showErrorA(); }
+}
+
+async function showLoadingA() {
+  const content = document.getElementById('results-content-a');
+  const status = document.getElementById('status-a');
+  content.innerHTML = buildSkeletonCard() + buildSkeletonCard() + buildSkeletonCard();
+  status.style.display = 'block';
+  const msgs = ['Understanding your campaign...','Adapting for three platforms...','Creating CTAs and hashtags...'];
+  for (const m of msgs) { status.textContent = m; await sleep(skelSpeed); }
+}
+
+function showLoadedA() {
+  document.getElementById('results-content-a').innerHTML = buildCard('tt','visible') + buildCard('ig','visible') + buildCard('fb','visible');
+  document.getElementById('status-a').style.display = 'none';
+  showToast('All 3 posts generated!');
+}
+
+function showErrorA() {
+  document.getElementById('results-content-a').innerHTML = buildCard('tt','visible') + buildCard('ig','visible') + buildErrorCard();
+  document.getElementById('status-a').style.display = 'none';
+  showToast('Facebook generation failed');
+}
+
+async function generateA() {
+  const btn = document.getElementById('genA');
+  btn.classList.add('loading'); btn.disabled = true;
+  await showLoadingA();
+  showLoadedA();
+  btn.classList.remove('loading'); btn.disabled = false;
+}
+
+// === VARIANT B: Progress Overlay ===
+function setStateB(btn, state) {
+  setActive(btn, 'b');
+  const content = document.getElementById('results-content-b');
+  const overlay = document.getElementById('overlay-b');
+  if (state === 'empty') { content.innerHTML = ''; overlay.classList.remove('show'); }
+  else if (state === 'loading') { showLoadingB(); }
+  else if (state === 'loaded') { showLoadedB(); }
+  else if (state === 'error') { showErrorB(); }
+}
+
+async function showLoadingB() {
+  const overlay = document.getElementById('overlay-b');
+  const fill = document.getElementById('progress-fill');
+  const status = document.getElementById('overlay-status');
+  const content = document.getElementById('results-content-b');
+  content.innerHTML = buildSkeletonCard() + buildSkeletonCard() + buildSkeletonCard();
+  overlay.classList.add('show');
+  fill.style.width = '0%';
+
+  const msgs = ['Understanding your campaign...','Adapting for three platforms...','Creating CTAs and hashtags...','Finalizing...'];
+  for (let i = 0; i < msgs.length; i++) {
+    status.textContent = msgs[i];
+    fill.style.width = ((i+1)/msgs.length*100)+'%';
+    await sleep(skelSpeed);
+  }
+}
+
+function showLoadedB() {
+  const overlay = document.getElementById('overlay-b');
+  overlay.classList.remove('show');
+  document.getElementById('results-content-b').innerHTML = buildCard('tt','visible') + buildCard('ig','visible') + buildCard('fb','visible');
+  showToast('All 3 posts generated!');
+}
+
+function showErrorB() {
+  const overlay = document.getElementById('overlay-b');
+  overlay.classList.remove('show');
+  document.getElementById('results-content-b').innerHTML = buildCard('tt','visible') + buildCard('ig','visible') + buildErrorCard();
+  showToast('Facebook generation failed');
+}
+
+async function generateB() {
+  const btn = document.getElementById('genB');
+  btn.classList.add('loading'); btn.disabled = true;
+  await showLoadingB();
+  showLoadedB();
+  btn.classList.remove('loading'); btn.disabled = false;
+}
+
+// === VARIANT C: Progressive Reveal ===
+function setStateC(btn, state) {
+  setActive(btn, 'c');
+  const content = document.getElementById('results-content-c');
+  const status = document.getElementById('status-c');
+  if (state === 'empty') { content.innerHTML = ''; status.style.display = 'none'; }
+  else if (state === 'loading') { showLoadingC(); }
+  else if (state === 'loaded') { showLoadedC(); }
+  else if (state === 'error') { showErrorC(); }
+}
+
+async function showLoadingC() {
+  const content = document.getElementById('results-content-c');
+  const status = document.getElementById('status-c');
+  content.innerHTML = '';
+  status.style.display = 'block';
+  status.textContent = 'Understanding your campaign...';
+  await sleep(skelSpeed);
+  status.textContent = 'Creating TikTok post...';
+  await sleep(skelSpeed);
+  content.innerHTML = buildCard('tt');
+  requestAnimationFrame(() => content.lastElementChild.classList.add('visible'));
+  status.textContent = 'Creating Instagram post...';
+  await sleep(skelSpeed);
+  content.innerHTML += buildCard('ig');
+  requestAnimationFrame(() => content.lastElementChild.classList.add('visible'));
+  status.textContent = 'Creating Facebook post...';
+  await sleep(skelSpeed);
+  content.innerHTML += buildCard('fb');
+  requestAnimationFrame(() => content.lastElementChild.classList.add('visible'));
+}
+
+function showLoadedC() {
+  document.getElementById('results-content-c').innerHTML = buildCard('tt','visible') + buildCard('ig','visible') + buildCard('fb','visible');
+  document.getElementById('status-c').style.display = 'none';
+  showToast('All 3 posts generated!');
+}
+
+function showErrorC() {
+  document.getElementById('results-content-c').innerHTML = buildCard('tt','visible') + buildCard('ig','visible') + buildErrorCard();
+  document.getElementById('status-c').style.display = 'none';
+  showToast('Facebook generation failed');
+}
+
+async function generateC() {
+  const btn = document.getElementById('genC');
+  btn.classList.add('loading'); btn.disabled = true;
+  await showLoadingC();
+  btn.classList.remove('loading'); btn.disabled = false;
+  showToast('All 3 posts generated!');
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>

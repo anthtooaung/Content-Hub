@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { scoreContent } from '@/lib/scoring';
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,6 +38,13 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
+    // Calculate content score
+    const score = scoreContent({
+      post: body.post,
+      hashtags: body.hashtags,
+      callToAction: body.callToAction,
+    });
+
     const content = await prisma.content.create({
       data: {
         userId: session.user.id,
@@ -47,6 +55,12 @@ export async function POST(request: NextRequest) {
         hashtags: body.hashtags,
         caption: body.caption,
         callToAction: body.callToAction,
+        scoreReadability: score.readability,
+        scoreHashtagRelevance: score.hashtagRelevance,
+        scoreCtaStrength: score.ctaStrength,
+        scoreOverall: score.overall,
+        scoreGrade: score.grade,
+        scoreSuggestions: JSON.stringify(score.suggestions),
       },
     });
 

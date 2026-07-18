@@ -114,7 +114,7 @@ export default function DashboardPage() {
             action={
               <Link
                 href="/generate"
-                className="inline-flex items-center gap-2 rounded-control bg-primary px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-600 active:translate-y-0"
+                className="inline-flex items-center gap-2 rounded-control bg-primary px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:translate-y-0"
               >
                 <Sparkles size={16} />
                 Generate your first post

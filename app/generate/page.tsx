@@ -209,8 +209,8 @@ function GenerateContent() {
               <div className="mt-2 text-right text-xs text-text-muted">{editModal.text.length}/280 characters</div>
             </div>
             <div className="flex justify-end gap-2 border-t border-border px-6 py-4">
-              <button onClick={() => setEditModal({ ...editModal, open: false })} className="rounded-control border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-surface-subtle transition-all">Cancel</button>
-              <button onClick={() => { setEditModal({ ...editModal, open: false }); showToast('Post updated!'); }} className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600 transition-all">Save Changes</button>
+              <button onClick={() => setEditModal({ ...editModal, open: false })} className="rounded-control border border-primary-300 bg-primary-50 px-4 py-2 text-sm font-medium text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">Cancel</button>
+              <button onClick={() => { setEditModal({ ...editModal, open: false }); showToast('Post updated!'); }} className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">Save Changes</button>
             </div>
           </div>
         </div>
@@ -359,7 +359,7 @@ function GenerateContent() {
             <button
               onClick={handleGenerate}
               disabled={!businessName || !campaign || selectedPlatforms.length === 0}
-              className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-primary text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-600 active:translate-y-0 active:bg-primary-700 disabled:pointer-events-none disabled:opacity-50"
+              className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-primary text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:translate-y-0 active:bg-primary-700 disabled:pointer-events-none disabled:opacity-50"
             >
               <Sparkles size={18} />
               Generate {selectedPlatforms.length} post{selectedPlatforms.length !== 1 ? 's' : ''} →
@@ -408,7 +408,7 @@ function GenerateContent() {
               <h2 className="text-[20px] font-semibold text-text-primary">Your content</h2>
               <button
                 onClick={handleNewGeneration}
-                className="rounded-control border border-border px-4 py-2 text-sm font-medium text-text-secondary transition-all hover:border-border-strong hover:bg-surface-subtle"
+                className="rounded-control border border-primary-300 bg-primary-50 px-4 py-2 text-sm font-medium text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
               >
                 + New generation
               </button>
@@ -550,7 +550,7 @@ function ResultCard({
         </div>
         <button
           onClick={copyAll}
-          className="flex items-center gap-1.5 rounded-control border border-border px-3 py-1.5 text-[13px] font-medium text-text-secondary transition-all hover:border-primary-border hover:bg-primary-50 hover:text-primary"
+          className="flex items-center gap-1.5 rounded-control border border-primary-300 bg-primary-50 px-3 py-1.5 text-[13px] font-medium text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
         >
           {copied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
         </button>
@@ -561,7 +561,7 @@ function ResultCard({
             'flex items-center gap-1.5 rounded-control border px-3 py-1.5 text-[13px] font-medium transition-all',
             saved
               ? 'border-success bg-success-soft text-success'
-              : 'border-border text-text-secondary hover:border-primary-border hover:bg-primary-50 hover:text-primary'
+              : 'border-primary-300 bg-primary-50 text-primary hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]'
           )}
         >
           {saving ? 'Saving...' : saved ? <><Check size={14} /> Saved</> : <><Save size={14} /> Save</>}

@@ -56,13 +56,13 @@ export default function Home() {
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
                 href="/auth/signup"
-                className="inline-flex min-h-[48px] items-center gap-2 rounded-control bg-primary px-7 py-3.5 text-base font-semibold text-white transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary-600 active:translate-y-0 active:bg-primary-700"
+                className="inline-flex min-h-[48px] items-center gap-2 rounded-control bg-primary px-7 py-3.5 text-base font-semibold text-white transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:translate-y-0 active:bg-primary-700"
               >
                 Try it now
               </Link>
               <a
                 href="#how"
-                className="inline-flex min-h-[48px] items-center gap-2 rounded-control border border-border bg-surface px-7 py-3.5 text-base font-semibold text-text-primary transition-colors hover:bg-surface-subtle"
+                className="inline-flex min-h-[48px] items-center gap-2 rounded-control border border-primary-300 bg-primary-50 px-7 py-3.5 text-base font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
               >
                 See how it works
               </a>

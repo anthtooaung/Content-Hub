@@ -32,9 +32,6 @@ export default function SiteHeader() {
               <a href="#how" className="text-sm font-medium text-text-secondary transition-colors hover:text-primary">
                 How it works
               </a>
-              <a href="#proof" className="text-sm font-medium text-text-secondary transition-colors hover:text-primary">
-                What people say
-              </a>
             </nav>
           )}
 
@@ -62,7 +59,7 @@ export default function SiteHeader() {
               {isDashboard && (
                 <Link
                   href="/generate"
-                  className="flex items-center gap-1.5 rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-primary-600"
+                  className="flex items-center gap-1.5 rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors duration-150 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
                 >
                   <Plus size={16} />
                   Generate
@@ -99,7 +96,7 @@ export default function SiteHeader() {
           {isLanding && !session && (
             <Link
               href="/auth/signin"
-              className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-600"
+              className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors duration-150 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
             >
               Sign in
             </Link>

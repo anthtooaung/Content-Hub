@@ -15,6 +15,8 @@ export interface ContentRequest {
   businessType: string;
   platform: string;
   tone: string;
+  emotion?: string;
+  ageGroup?: string;
   topic?: string;
   keywords?: string[];
 }
@@ -29,6 +31,8 @@ export interface GeneratedContent {
 export async function generateWithOpenAI(request: ContentRequest): Promise<GeneratedContent> {
   const prompt = `Generate a social media post for a ${request.businessType} business on ${request.platform}.
 Tone: ${request.tone}
+${request.emotion ? `Emotional resonance: ${request.emotion}` : ''}
+${request.ageGroup ? `Target audience age group: ${request.ageGroup}` : ''}
 ${request.topic ? `Topic: ${request.topic}` : ''}
 ${request.keywords ? `Keywords: ${request.keywords.join(', ')}` : ''}
 
@@ -53,6 +57,8 @@ Format the response as JSON with these fields: post, hashtags, caption, callToAc
 export async function generateWithGemini(request: ContentRequest): Promise<GeneratedContent> {
   const prompt = `Generate a social media post for a ${request.businessType} business on ${request.platform}.
 Tone: ${request.tone}
+${request.emotion ? `Emotional resonance: ${request.emotion}` : ''}
+${request.ageGroup ? `Target audience age group: ${request.ageGroup}` : ''}
 ${request.topic ? `Topic: ${request.topic}` : ''}
 ${request.keywords ? `Keywords: ${request.keywords.join(', ')}` : ''}
 

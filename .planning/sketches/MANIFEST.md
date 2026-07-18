@@ -21,3 +21,15 @@ Calm, modern, helpful AI content generation workspace. Blue controls the AI syst
 | 007 | auth-screens | What do login/signup feel like in the calm, professional aesthetic? | A | auth, login, signup, trust |
 | 008 | post-generation | What happens after content is generated — copy, save, edit, share? | C | post-gen, interactions, copy, save |
 | 009 | error-edge-states | How do failed generation, empty API keys, and network errors feel? | C | error, edge-case, failure, empty-state |
+| 010 | button-states | How should buttons look in idle vs hover states? | B | buttons, interaction, states, color |
+| 012 | settings-page | How should the Settings page organize user data, auto-post toggles, platform connections, and preferences? | A | settings, preferences, toggles, profile |
+| 013 | templates-sidebar | How should the Templates page use the existing app shell sidebar for navigation? | A | templates, sidebar, navigation, filter |
+| 014 | platform-template-cards | How should template cards reflect each platform's brand identity? | C | templates, cards, platform-branding, facebook, tiktok, instagram |
+| 015 | landing-how-it-works | How should the "How It Works" section guide visitors through the product? | C | landing, steps, onboarding, visual-flow |
+| 016 | landing-social-proof | How should the social proof section build credibility without fake testimonials? | A | landing, stats, social-proof, trust, metrics |
+| 017 | image-upload-form | How should the image upload button integrate into the existing generate form? | A | image, upload, form, generate |
+| 018 | facebook-post-card | What does a pixel-perfect Facebook post card look like with generated content and user images? | B | facebook, post-card, pixel-perfect, social-media |
+| 019 | tiktok-post-card | What does a pixel-perfect TikTok post card look like with generated content and user images? | B | tiktok, post-card, pixel-perfect, social-media, dark-mode |
+| 020 | instagram-post-card | What does a pixel-perfect Instagram post card look like with generated content and user images? | B | instagram, post-card, pixel-perfect, social-media, feed |
+| 021 | profile-page | How should the profile page display user info, ticket balance, and reset timer? | | profile, tickets, account, navigation |
+| 022 | generate-ticket-flow | How should the generate page show ticket cost and low-ticket warnings? | | generate, tickets, cost, warning, rate-limit |

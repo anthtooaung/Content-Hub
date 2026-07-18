@@ -53,7 +53,7 @@ const PIE_COLORS = ['#1877F2', '#E4405F', '#000000', '#1DA1F2', '#0A66C2'];
 export default function AnalyticsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { addToast } = useToast();
+  const { showToast } = useToast();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -78,7 +78,7 @@ export default function AnalyticsPage() {
       }
     } catch (error) {
       console.error('Failed to fetch analytics:', error);
-      addToast('Failed to load analytics', 'error');
+      showToast('Failed to load analytics');
     } finally {
       setLoading(false);
     }
@@ -110,13 +110,17 @@ export default function AnalyticsPage() {
       <AppLayout>
         <div className="p-6 max-w-6xl mx-auto">
           <EmptyState
-            icon={BarChart3}
+            icon={<BarChart3 size={40} />}
             title="No analytics data"
             message="Start generating content to see your analytics."
-            action={{
-              label: 'Generate Content',
-              onClick: () => router.push('/generate'),
-            }}
+            action={
+              <button
+                onClick={() => router.push('/generate')}
+                className="px-4 py-2 bg-primary text-white rounded-control transition-colors duration-150 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
+              >
+                Generate Content
+              </button>
+            }
           />
         </div>
       </AppLayout>
@@ -216,8 +220,8 @@ export default function AnalyticsPage() {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ platform, percent }) =>
-                      `${platform} (${(percent * 100).toFixed(0)}%)`
+                    label={({ name, percent }) =>
+                      `${name} (${((percent ?? 0) * 100).toFixed(0)}%)`
                     }
                     outerRadius={100}
                     fill="#8884d8"

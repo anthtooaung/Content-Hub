@@ -273,7 +273,7 @@ export default function ProfilePage() {
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="rounded-control border border-border px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-subtle"
+                className="rounded-control border border-primary-300 bg-primary-50 px-4 py-2 text-sm font-medium text-primary transition-colors duration-150 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
               >
                 Cancel
               </button>

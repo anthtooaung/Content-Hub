@@ -95,7 +95,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 img { max-width: 100%; display: block; }
-a { color: var(--color-primary); text-decoration: none; }
+a { text-decoration: none; }
+
+/* Button base reset — ensures consistent rendering across all browsers */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+  padding: 0;
+}
 
 /* Animations */
 @keyframes spin {

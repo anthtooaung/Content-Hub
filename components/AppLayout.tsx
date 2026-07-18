@@ -11,7 +11,6 @@ import {
   Plus,
   Menu,
   X,
-  Calendar,
   BarChart3,
 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -29,7 +28,6 @@ const navSections = [
     items: [
       { href: '/templates', label: 'Templates', icon: LayoutGrid },
       { href: '/dashboard', label: 'Dashboard', icon: FileText },
-      { href: '/schedule', label: 'Schedule', icon: Calendar },
       { href: '/analytics', label: 'Analytics', icon: BarChart3 },
       { href: '#', label: 'Favorites', icon: Heart, disabled: true },
     ],
@@ -103,9 +101,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
           {/* Settings */}
           <Link
-            href="#"
-            className="flex items-center gap-3 px-4 py-2.5 rounded-control text-sm font-medium text-text-secondary hover:bg-surface-subtle hover:text-text-primary transition-all"
-            onClick={(e) => e.preventDefault()}
+            href="/settings"
+            className={clsx(
+              'flex items-center gap-3 px-4 py-2.5 rounded-control text-sm font-medium transition-all',
+              isActive('/settings')
+                ? 'bg-primary-50 text-primary'
+                : 'text-text-secondary hover:bg-surface-subtle hover:text-text-primary'
+            )}
           >
             <Settings size={18} />
             Settings
@@ -168,9 +170,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
               <div className="flex-1" />
               <Link
-                href="#"
-                className="flex items-center gap-3 px-4 py-2.5 rounded-control text-sm font-medium text-text-secondary hover:bg-surface-subtle hover:text-text-primary transition-all"
-                onClick={(e) => { e.preventDefault(); setMobileNavOpen(false); }}
+                href="/settings"
+                className={clsx(
+                  'flex items-center gap-3 px-4 py-2.5 rounded-control text-sm font-medium transition-all',
+                  isActive('/settings')
+                    ? 'bg-primary-50 text-primary'
+                    : 'text-text-secondary hover:bg-surface-subtle hover:text-text-primary'
+                )}
+                onClick={() => setMobileNavOpen(false)}
               >
                 <Settings size={18} />
                 Settings

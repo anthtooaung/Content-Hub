@@ -171,41 +171,44 @@ export default function FacebookPostCard({
 
       {/* Copy / Save / Score */}
       <div className="border-t border-[#E4E6EB] px-4 py-3">
-        <div className="flex items-center justify-end gap-2">
-          <button
-            onClick={copyAll}
-            className="flex items-center gap-1.5 rounded-lg border-2 border-[#BFDBFE] bg-[#EFF6FF] px-3 py-1.5 text-[13px] font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">
-            {copied ? (
-              <>
-                <Check size={14} /> Copied
-              </>
-            ) : (
-              <>
-                <Copy size={14} /> Copy
-              </>
-            )}
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving || saved}
-            className={clsx(
-              "flex items-center gap-1.5 rounded-lg border-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-150",
-              saved
-                ? "border-[#15803D] bg-[#F0FDF4] text-[#15803D]"
-                : "border-[#BFDBFE] bg-[#EFF6FF] text-primary hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]",
-            )}>
-            {saving ? (
-              "Saving..."
-            ) : saved ? (
-              <>
-                <Check size={14} /> Saved
-              </>
-            ) : (
-              <>
-                <Save size={14} /> Save
-              </>
-            )}
-          </button>
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[11px] text-[#65676B]">generated with : {content?.model || 'AI'}</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={copyAll}
+              className="flex items-center gap-1.5 rounded-lg border-2 border-[#BFDBFE] bg-[#EFF6FF] px-3 py-1.5 text-[13px] font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">
+              {copied ? (
+                <>
+                  <Check size={14} /> Copied
+                </>
+              ) : (
+                <>
+                  <Copy size={14} /> Copy
+                </>
+              )}
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving || saved}
+              className={clsx(
+                "flex items-center gap-1.5 rounded-lg border-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-150",
+                saved
+                  ? "border-[#15803D] bg-[#F0FDF4] text-[#15803D]"
+                  : "border-[#BFDBFE] bg-[#EFF6FF] text-primary hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]",
+              )}>
+              {saving ? (
+                "Saving..."
+              ) : saved ? (
+                <>
+                  <Check size={14} /> Saved
+                </>
+              ) : (
+                <>
+                  <Save size={14} /> Save
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Score */}

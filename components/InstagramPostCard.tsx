@@ -128,7 +128,7 @@ export default function InstagramPostCard({
           src={images[0].url}
           alt={images[0].name}
           className="w-full cursor-pointer object-cover"
-          style={{ aspectRatio: "1/1" }}
+          style={{ aspectRatio: "2/0.8" }}
         />
       ) : (
         <div

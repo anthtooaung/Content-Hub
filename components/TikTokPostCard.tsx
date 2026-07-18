@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { clsx } from 'clsx';
-import { getGradeColor } from '@/lib/scoring';
+import { useState } from "react";
+import { clsx } from "clsx";
+import { getGradeColor } from "@/lib/scoring";
 import {
   Copy,
   Check,
@@ -12,10 +12,9 @@ import {
   Heart,
   MessageCircle,
   Bookmark,
-  Share2,
+  MoreHorizontal,
   ImagePlus,
-  Music,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface TikTokPostCardProps {
   content: any;
@@ -37,7 +36,7 @@ export default function TikTokPostCard({
 
   const copyAll = () => {
     if (!content) return;
-    const text = `${content.post}\n\n${content.hashtags?.join(' ')}\n\n${content.caption}\n\n${content.callToAction}`;
+    const text = `${content.post}\n\n${content.hashtags?.join(" ")}\n\n${content.caption}\n\n${content.callToAction}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -47,11 +46,11 @@ export default function TikTokPostCard({
     if (saved || saving) return;
     setSaving(true);
     try {
-      const response = await fetch('/api/history', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          platform: 'TikTok',
+          platform: "TikTok",
           post: content.post,
           hashtags: content.hashtags,
           caption: content.caption,
@@ -60,173 +59,211 @@ export default function TikTokPostCard({
       });
       if (response.ok) setSaved(true);
     } catch (error) {
-      console.error('Save error:', error);
+      console.error("Save error:", error);
     } finally {
       setSaving(false);
     }
   };
 
+  const formatCaption = (text: string) => {
+    if (!text) return null;
+    return text.split(/(#\w+)/g).map((part, i) =>
+      part.startsWith("#") ? (
+        <span
+          key={i}
+          className="text-[#00376B] font-medium cursor-pointer hover:underline">
+          {part}
+        </span>
+      ) : (
+        <span key={i}>{part}</span>
+      ),
+    );
+  };
+
   return (
     <div
-      className="overflow-hidden rounded-xl bg-[#161823]"
+      className="overflow-hidden rounded-lg border border-[#DBDBDB] bg-white"
       style={{
         opacity: 0,
-        transform: 'translateY(8px)',
+        transform: "translateY(8px)",
         animation: `fadeSlideIn 0.3s ease forwards ${index * 0.1}s`,
-      }}
-    >
-      {/* Generated badge */}
-      <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 rounded-md bg-[rgba(37,99,235,0.9)] px-2 py-1 text-[10px] font-semibold text-white backdrop-blur-sm">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21" />
-        </svg>
-        Content Hub
-      </div>
-
-      {/* Video / Image area */}
-      <div className="relative" style={{ aspectRatio: '9/16', maxHeight: '500px' }}>
-        {images.length > 0 ? (
-          <img
-            src={images[0].url}
-            alt={images[0].name}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-[#1E1E2E] to-[#2D1B4E]">
-            <ImagePlus size={48} className="opacity-40 text-white" />
-            <span className="text-[13px] text-white/60">Add a video thumbnail or image</span>
-            <span className="text-[11px] text-white/30">Tap to upload</span>
-          </div>
-        )}
-
-        {/* Right sidebar */}
-        <div className="absolute right-3 bottom-28 flex flex-col items-center gap-5">
-          {/* Profile */}
-          <div className="relative">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-[#FE2C55] to-[#FF6B6B] text-[18px] font-bold text-white">
+      }}>
+      {/* Header */}
+      <div className="flex items-center gap-2.5 px-3 py-2.5">
+        <div className="rounded-full p-[2px] bg-gradient-to-tr from-[#25F4EE] via-[#FE2C55] to-[#FE2C55]">
+          <div className="rounded-full bg-white p-[2px]">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#FE2C55] to-[#FF6B6B] text-[13px] font-bold text-white">
               B
             </div>
-            <div className="absolute -bottom-2 left-1/2 flex h-5 w-5 -translate-x-1/2 items-center justify-center rounded-full border-2 border-white bg-[#FE2C55] text-[14px] font-bold text-white">
-              +
-            </div>
-          </div>
-
-          {/* Like */}
-          <div className="flex flex-col items-center gap-1 cursor-pointer">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition-all hover:scale-110 hover:bg-white/20">
-              <Heart size={24} className="fill-[#FE2C55] text-[#FE2C55]" />
-            </div>
-            <span className="text-[12px] font-medium text-white">45.2K</span>
-          </div>
-
-          {/* Comment */}
-          <div className="flex flex-col items-center gap-1 cursor-pointer">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition-all hover:scale-110 hover:bg-white/20">
-              <MessageCircle size={24} className="text-white" />
-            </div>
-            <span className="text-[12px] font-medium text-white">1,832</span>
-          </div>
-
-          {/* Bookmark */}
-          <div className="flex flex-col items-center gap-1 cursor-pointer">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition-all hover:scale-110 hover:bg-white/20">
-              <Bookmark size={24} className="text-white" />
-            </div>
-            <span className="text-[12px] font-medium text-white">12.1K</span>
-          </div>
-
-          {/* Share */}
-          <div className="flex flex-col items-center gap-1 cursor-pointer">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition-all hover:scale-110 hover:bg-white/20">
-              <Share2 size={24} className="text-white" />
-            </div>
-            <span className="text-[12px] font-medium text-white">3,421</span>
           </div>
         </div>
-
-        {/* Sound disc */}
-        <div className="absolute right-3 bottom-4 flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/20 bg-[#161823] [animation:spin_3s_linear_infinite]">
-          <div className="h-[18px] w-[18px] rounded-full bg-gradient-to-br from-[#FE2C55] to-[#FF6B6B]" />
-        </div>
-
-        {/* Bottom overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 pb-16">
-          <div className="mb-1.5 flex items-center gap-1.5">
-            <span className="text-[16px] font-bold text-white">bloomandbrew</span>
-            <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#25F4EE]">
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#161823" strokeWidth="3">
+        <div className="flex-1">
+          <div className="flex items-center gap-1 text-[14px] font-semibold leading-tight">
+            bloomandbrew
+            <span className="flex h-3 w-3 items-center justify-center rounded-full bg-[#25F4EE]">
+              <svg
+                width="8"
+                height="8"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#161823"
+                strokeWidth="3">
                 <polyline points="20,6 9,17 4,12" />
               </svg>
             </span>
           </div>
-          <div className="mb-2 max-h-20 overflow-hidden text-[14px] leading-[1.5] text-white/90">
-            {content?.post}
-          </div>
-          {content?.hashtags?.length > 0 && (
-            <div className="mb-2 text-[14px] text-white">
-              {content.hashtags.join(' ')}
-            </div>
-          )}
-          <div className="flex items-center gap-1.5 text-[13px] text-white/80">
-            <Music size={14} />
-            <span>Original Sound — bloomandbrew</span>
+          <div className="text-[12px] text-[#8E8E8E] leading-tight">
+            Bloom & Brew Coffee
           </div>
         </div>
+        <button className="text-[#262626]">
+          <MoreHorizontal size={24} />
+        </button>
       </div>
 
-      {/* Copy / Save / Score controls below the card */}
-      <div className="border-t border-white/10 px-4 py-3">
+      {/* Image area */}
+      {images.length > 0 ? (
+        <img
+          src={images[0].url}
+          alt={images[0].name}
+          className="w-full cursor-pointer object-cover"
+          style={{ aspectRatio: "1/0.7" }}
+        />
+      ) : (
+        <div
+          className="flex cursor-pointer flex-col items-center justify-center gap-2 bg-[#161823]"
+          style={{ aspectRatio: "1/0.7" }}>
+          <ImagePlus size={40} className="opacity-40 text-white" />
+          <span className="text-[13px] font-medium text-white/60">
+            Add a video thumbnail or image
+          </span>
+        </div>
+      )}
+
+      {/* Actions */}
+      <div className="flex items-center px-3 py-2 gap-3">
+        <button className="text-[#262626] transition-opacity hover:opacity-60">
+          <Heart size={24} />
+        </button>
+        <button className="text-[#262626] transition-opacity hover:opacity-60">
+          <MessageCircle size={24} />
+        </button>
+        <div className="flex-1" />
+        <button className="text-[#262626] transition-opacity hover:opacity-60">
+          <Bookmark size={24} />
+        </button>
+      </div>
+
+      {/* Likes */}
+      <div className="px-3 pb-1 text-[14px] font-semibold">45.2K likes</div>
+
+      {/* Caption */}
+      <div className="px-3 pb-1 text-[14px] leading-[1.5]">
+        <span className="font-semibold">bloomandbrew</span>{" "}
+        {formatCaption(content?.post)}
+      </div>
+
+      {/* Timestamp */}
+      <div className="px-3 pb-2 text-[10px] uppercase tracking-wide text-[#8E8E8E]">
+        2 hours ago
+      </div>
+
+      {/* Copy / Save / Score */}
+      <div className="border-t border-[#DBDBDB] px-3 py-3">
         <div className="flex items-center justify-end gap-2">
           <button
             onClick={copyAll}
-            className="flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-white/20"
-          >
-            {copied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
+            className="flex items-center gap-1.5 rounded-lg border-2 border-[#BFDBFE] bg-[#EFF6FF] px-3 py-1.5 text-[13px] font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">
+            {copied ? (
+              <>
+                <Check size={14} /> Copied
+              </>
+            ) : (
+              <>
+                <Copy size={14} /> Copy
+              </>
+            )}
           </button>
           <button
             onClick={handleSave}
             disabled={saving || saved}
             className={clsx(
-              'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors',
+              "flex items-center gap-1.5 rounded-lg border-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-150",
               saved
-                ? 'bg-white/20 text-white'
-                : 'bg-white text-[#161823] hover:bg-white/90'
+                ? "border-[#15803D] bg-[#F0FDF4] text-[#15803D]"
+                : "border-[#BFDBFE] bg-[#EFF6FF] text-primary hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]",
+            )}>
+            {saving ? (
+              "Saving..."
+            ) : saved ? (
+              <>
+                <Check size={14} /> Saved
+              </>
+            ) : (
+              <>
+                <Save size={14} /> Save
+              </>
             )}
-          >
-            {saving ? 'Saving...' : saved ? <><Check size={14} /> Saved</> : <><Save size={14} /> Save</>}
           </button>
         </div>
 
-        {/* Score */}
         {content?.score && (
-          <div className="mt-3 pt-3 border-t border-white/10">
+          <div className="mt-3 pt-3 border-t border-[#DBDBDB]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-[13px] font-medium text-white">Score:</span>
-                <span className="text-[18px] font-bold text-white">{content.score.overall}/100</span>
-                <span className={clsx('rounded-full px-2 py-0.5 text-[11px] font-bold', getGradeColor(content.score.grade))}>
+                <span className="text-[13px] font-medium text-[#262626]">
+                  Score:
+                </span>
+                <span className="text-[18px] font-bold text-[#262626]">
+                  {content.score.overall}/100
+                </span>
+                <span
+                  className={clsx(
+                    "rounded-full px-2 py-0.5 text-[11px] font-bold",
+                    getGradeColor(content.score.grade),
+                  )}>
                   {content.score.grade}
                 </span>
               </div>
               <button
                 onClick={() => setShowScoreDetails(!showScoreDetails)}
-                className="flex items-center gap-1 text-[12px] text-white/60 hover:text-white transition-colors"
-              >
-                {showScoreDetails ? <><ChevronUp size={14} /> Hide</> : <><ChevronDown size={14} /> Details</>}
+                className="flex items-center gap-1 text-[12px] text-[#8E8E8E] hover:text-[#262626] transition-colors">
+                {showScoreDetails ? (
+                  <>
+                    <ChevronUp size={14} /> Hide
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={14} /> Details
+                  </>
+                )}
               </button>
             </div>
             {showScoreDetails && (
               <div className="mt-3 space-y-2">
-                <ScoreBar label="Readability" score={content.score.readability} />
-                <ScoreBar label="Hashtag Relevance" score={content.score.hashtagRelevance} />
-                <ScoreBar label="CTA Strength" score={content.score.ctaStrength} />
+                <ScoreBar
+                  label="Readability"
+                  score={content.score.readability}
+                />
+                <ScoreBar
+                  label="Hashtag Relevance"
+                  score={content.score.hashtagRelevance}
+                />
+                <ScoreBar
+                  label="CTA Strength"
+                  score={content.score.ctaStrength}
+                />
                 {content.score.suggestions?.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-white/10">
-                    <p className="text-[11px] font-medium text-white/60 mb-2">Suggestions:</p>
+                  <div className="mt-3 pt-3 border-t border-[#DBDBDB]">
+                    <p className="text-[11px] font-medium text-[#8E8E8E] mb-2">
+                      Suggestions:
+                    </p>
                     <ul className="space-y-1">
                       {content.score.suggestions.map((s: string, i: number) => (
-                        <li key={i} className="text-[11px] text-white/60 flex items-start gap-1.5">
-                          <span className="text-[#25F4EE] mt-0.5">•</span>
+                        <li
+                          key={i}
+                          className="text-[11px] text-[#8E8E8E] flex items-start gap-1.5">
+                          <span className="text-[#FE2C55] mt-0.5">•</span>
                           {s}
                         </li>
                       ))}
@@ -244,19 +281,27 @@ export default function TikTokPostCard({
 
 function ScoreBar({ label, score }: { label: string; score: number }) {
   const getBarColor = (score: number) => {
-    if (score >= 80) return 'bg-green-500';
-    if (score >= 60) return 'bg-blue-500';
-    if (score >= 40) return 'bg-yellow-500';
-    return 'bg-red-500';
+    if (score >= 80) return "bg-green-500";
+    if (score >= 60) return "bg-blue-500";
+    if (score >= 40) return "bg-yellow-500";
+    return "bg-red-500";
   };
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-[11px] text-white/60 w-28 shrink-0">{label}</span>
-      <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-        <div className={clsx('h-full rounded-full transition-all', getBarColor(score))} style={{ width: `${score}%` }} />
+      <span className="text-[11px] text-[#8E8E8E] w-28 shrink-0">{label}</span>
+      <div className="flex-1 h-1.5 bg-[#F0F2F5] rounded-full overflow-hidden">
+        <div
+          className={clsx(
+            "h-full rounded-full transition-all",
+            getBarColor(score),
+          )}
+          style={{ width: `${score}%` }}
+        />
       </div>
-      <span className="text-[11px] font-medium text-white w-6 text-right">{score}</span>
+      <span className="text-[11px] font-medium text-[#262626] w-6 text-right">
+        {score}
+      </span>
     </div>
   );
 }

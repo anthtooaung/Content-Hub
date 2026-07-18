@@ -126,7 +126,7 @@ export default function FacebookPostCard({
       ) : (
         <div
           className="flex cursor-pointer flex-col items-center justify-center gap-2 bg-[#F0F2F5]"
-          style={{ aspectRatio: "16/9" }}>
+          style={{ aspectRatio: "2/0.8" }}>
           <ImagePlus size={48} className="opacity-40 text-[#65676B]" />
           <span className="text-[14px] font-medium text-[#65676B]">
             Add an image to this post

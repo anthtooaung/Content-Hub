@@ -15,9 +15,18 @@ export async function POST(request: NextRequest) {
 
     let content;
 
-    // Try OpenAI first, fallback to Gemini
+    // Try OpenAI first, fallback to Gemini on failure
     if (process.env.OPENAI_API_KEY) {
-      content = await generateWithOpenAI(body);
+      try {
+        content = await generateWithOpenAI(body);
+      } catch (openaiError) {
+        console.warn('OpenAI failed, falling back to Gemini:', openaiError);
+        if (process.env.GEMINI_API_KEY) {
+          content = await generateWithGemini(body);
+        } else {
+          throw openaiError;
+        }
+      }
     } else if (process.env.GEMINI_API_KEY) {
       content = await generateWithGemini(body);
     } else {

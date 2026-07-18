@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useCallback, useEffect, useRef } from 'react';
+import { Fragment, Suspense, useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -66,7 +66,7 @@ export default function GeneratePage() {
   return (
     <Suspense fallback={
       <AppLayout>
-        <div className="mx-auto max-w-[860px] px-8 py-10 max-md:px-4 max-md:py-6 pb-24 md:pb-10">
+        <div className="mx-auto max-w-[640px] px-8 py-10 max-md:px-4 max-md:py-6 pb-24 md:pb-10">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-surface-subtle rounded w-48" />
             <div className="h-64 bg-surface-subtle rounded-panel" />
@@ -322,15 +322,15 @@ function GenerateContent() {
 
       {/* Workspace: scrollable area */}
       <div className="min-h-[calc(100vh-64px)]">
-        <div className="mx-auto max-w-[860px] px-8 py-8 max-md:px-4 max-md:py-6">
+        <div className="mx-auto max-w-[640px] px-8 py-8 max-md:px-4 max-md:py-6">
           {/* Wizard Progress */}
-          <div className="mb-8 flex items-stretch gap-2 w-full">
+          <div className="mb-8 flex items-center w-full">
             {[
               { num: 1, label: 'Campaign details' },
               { num: 2, label: 'Generating' },
               { num: 3, label: 'Results' },
             ].map((s, i) => (
-              <div key={s.num} className="flex items-center gap-2 flex-1">
+              <Fragment key={s.num}>
                 <div
                   className={clsx(
                     'flex items-center gap-2 text-sm whitespace-nowrap',
@@ -362,20 +362,20 @@ function GenerateContent() {
                 {i < 2 && (
                   <div
                     className={clsx(
-                      'h-0.5 flex-1 min-w-[20px]',
+                      'h-0.5 flex-1 min-w-[20px] mx-2',
                       (i === 0 && step !== 'form') || (i === 1 && step === 'results')
                         ? 'bg-success'
                         : 'bg-border'
                     )}
                   />
                 )}
-              </div>
+              </Fragment>
             ))}
           </div>
 
           {/* Step 1: Form — Centered Card */}
           {step === 'form' && (
-            <div className="mx-auto max-w-[640px]">
+            <div>
               <div className="rounded-panel border border-border bg-surface p-8 shadow-card max-md:p-6">
                 {/* Header */}
                 <div className="mb-8 text-center">

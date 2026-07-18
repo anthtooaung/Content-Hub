@@ -84,7 +84,7 @@ export default function FacebookPostCard({
 
   return (
     <div
-      className="overflow-hidden rounded-lg border border-[#CED0D4] bg-white shadow-sm"
+      className="overflow-hidden rounded-lg border border-border bg-surface shadow-sm"
       style={{
         opacity: 0,
         transform: "translateY(8px)",
@@ -96,22 +96,22 @@ export default function FacebookPostCard({
           B
         </div>
         <div className="flex-1">
-          <div className="text-[15px] font-semibold text-[#050505] leading-tight hover:underline cursor-pointer">
+          <div className="text-[15px] font-semibold text-text-primary leading-tight hover:underline cursor-pointer">
             Bloom & Brew Coffee
           </div>
-          <div className="flex items-center gap-1 text-[13px] text-[#65676B] leading-tight">
+          <div className="flex items-center gap-1 text-[13px] text-text-muted leading-tight">
             <span>Just now</span>
             <span>·</span>
             <Globe size={12} className="opacity-60" />
           </div>
         </div>
-        <button className="flex h-9 w-9 items-center justify-center rounded-full text-[#65676B] transition-colors hover:bg-[#F2F2F2]">
+        <button className="flex h-9 w-9 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-surface-subtle">
           <MoreHorizontal size={20} />
         </button>
       </div>
 
       {/* Post text */}
-      <div className="whitespace-pre-wrap px-4 pb-3 text-[15px] leading-[1.5] text-[#050505]">
+      <div className="whitespace-pre-wrap px-4 pb-3 text-[15px] leading-[1.5] text-text-primary">
         {formatPostText(content?.post)}
       </div>
 
@@ -125,17 +125,17 @@ export default function FacebookPostCard({
         />
       ) : (
         <div
-          className="flex cursor-pointer flex-col items-center justify-center gap-2 bg-[#F0F2F5]"
+          className="flex cursor-pointer flex-col items-center justify-center gap-2 bg-surface-subtle"
           style={{ aspectRatio: "2/0.8" }}>
-          <ImagePlus size={48} className="opacity-40 text-[#65676B]" />
-          <span className="text-[14px] font-medium text-[#65676B]">
+          <ImagePlus size={48} className="opacity-40 text-text-muted" />
+          <span className="text-[14px] font-medium text-text-muted">
             Add an image to this post
           </span>
         </div>
       )}
 
       {/* Reactions */}
-      <div className="flex items-center justify-between px-4 py-2.5 text-[15px] text-[#65676B]">
+      <div className="flex items-center justify-between px-4 py-2.5 text-[15px] text-text-muted">
         <div className="flex items-center gap-1">
           <div className="flex -space-x-1">
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#1877F2] text-[12px]">
@@ -154,7 +154,7 @@ export default function FacebookPostCard({
       </div>
 
       {/* Action buttons */}
-      <div className="mx-4 flex border-t border-b border-[#E4E6EB] py-1">
+      <div className="mx-4 flex border-t border-b border-border py-1">
         {[
           { icon: ThumbsUp, label: "Like" },
           { icon: MessageCircle, label: "Comment" },
@@ -162,7 +162,7 @@ export default function FacebookPostCard({
         ].map(({ icon: Icon, label }) => (
           <button
             key={label}
-            className="flex flex-1 items-center justify-center gap-2 py-2 text-[15px] font-semibold text-[#65676B] transition-colors hover:rounded-md hover:bg-[#F2F2F2]">
+            className="flex flex-1 items-center justify-center gap-2 py-2 text-[15px] font-semibold text-text-muted transition-colors hover:rounded-md hover:bg-surface-subtle">
             <Icon size={20} />
             {label}
           </button>
@@ -170,13 +170,13 @@ export default function FacebookPostCard({
       </div>
 
       {/* Copy / Save / Score */}
-      <div className="border-t border-[#E4E6EB] px-4 py-3">
+      <div className="border-t border-border px-4 py-3">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[11px] text-[#65676B]">generated with : {content?.model || 'AI'}</span>
+          <span className="text-[11px] text-text-muted">generated with : {content?.model || 'AI'}</span>
           <div className="flex items-center gap-2">
             <button
               onClick={copyAll}
-              className="flex items-center gap-1.5 rounded-lg border-2 border-[#BFDBFE] bg-[#EFF6FF] px-3 py-1.5 text-[13px] font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">
+              className="flex items-center gap-1.5 rounded-lg border-2 border-primary-border bg-primary-50 px-3 py-1.5 text-[13px] font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">
               {copied ? (
                 <>
                   <Check size={14} /> Copied
@@ -193,8 +193,8 @@ export default function FacebookPostCard({
               className={clsx(
                 "flex items-center gap-1.5 rounded-lg border-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-150",
                 saved
-                  ? "border-[#15803D] bg-[#F0FDF4] text-[#15803D]"
-                  : "border-[#BFDBFE] bg-[#EFF6FF] text-primary hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]",
+                  ? "border-success bg-success-soft text-success"
+                  : "border-primary-border bg-primary-50 text-primary hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]",
               )}>
               {saving ? (
                 "Saving..."
@@ -213,13 +213,13 @@ export default function FacebookPostCard({
 
         {/* Score */}
         {content?.score && (
-          <div className="mt-3 pt-3 border-t border-[#E4E6EB]">
+          <div className="mt-3 pt-3 border-t border-border">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-[13px] font-medium text-[#050505]">
+                <span className="text-[13px] font-medium text-text-primary">
                   Score:
                 </span>
-                <span className="text-[18px] font-bold text-[#050505]">
+                <span className="text-[18px] font-bold text-text-primary">
                   {content.score.overall}/100
                 </span>
                 <span
@@ -232,7 +232,7 @@ export default function FacebookPostCard({
               </div>
               <button
                 onClick={() => setShowScoreDetails(!showScoreDetails)}
-                className="flex items-center gap-1 text-[12px] text-[#65676B] hover:text-[#050505] transition-colors">
+                className="flex items-center gap-1 text-[12px] text-text-muted hover:text-text-primary transition-colors">
                 {showScoreDetails ? (
                   <>
                     <ChevronUp size={14} /> Hide
@@ -259,15 +259,15 @@ export default function FacebookPostCard({
                   score={content.score.ctaStrength}
                 />
                 {content.score.suggestions?.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-[#E4E6EB]">
-                    <p className="text-[11px] font-medium text-[#65676B] mb-2">
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <p className="text-[11px] font-medium text-text-muted mb-2">
                       Suggestions:
                     </p>
                     <ul className="space-y-1">
                       {content.score.suggestions.map((s: string, i: number) => (
                         <li
                           key={i}
-                          className="text-[11px] text-[#65676B] flex items-start gap-1.5">
+                          className="text-[11px] text-text-muted flex items-start gap-1.5">
                           <span className="text-primary mt-0.5">•</span>
                           {s}
                         </li>
@@ -294,8 +294,8 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-[11px] text-[#65676B] w-28 shrink-0">{label}</span>
-      <div className="flex-1 h-1.5 bg-[#F0F2F5] rounded-full overflow-hidden">
+      <span className="text-[11px] text-text-muted w-28 shrink-0">{label}</span>
+      <div className="flex-1 h-1.5 bg-surface-subtle rounded-full overflow-hidden">
         <div
           className={clsx(
             "h-full rounded-full transition-all",
@@ -304,7 +304,7 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
           style={{ width: `${score}%` }}
         />
       </div>
-      <span className="text-[11px] font-medium text-[#050505] w-6 text-right">
+      <span className="text-[11px] font-medium text-text-primary w-6 text-right">
         {score}
       </span>
     </div>

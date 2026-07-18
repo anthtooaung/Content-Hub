@@ -2,8 +2,10 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { ArrowLeft, Sparkles, Copy, Check, AlertTriangle, RefreshCw } from 'lucide-react';
 import { clsx } from 'clsx';
+import SiteHeader from '@/components/SiteHeader';
+import Footer from '@/components/Footer';
 
 const platforms = [
   { id: 'TikTok', label: 'TikTok', color: 'bg-tiktok' },
@@ -148,23 +150,7 @@ export default function GeneratePage() {
 
   return (
     <div className="min-h-screen bg-page">
-      {/* Header */}
-      <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-8 py-4 max-md:px-4">
-          <Link href="/" className="flex items-center gap-2 text-lg font-bold text-text-primary">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
-              <Sparkles size={16} />
-            </div>
-            Content Hub
-          </Link>
-          <Link
-            href="/dashboard"
-            className="text-sm font-medium text-text-secondary transition-colors hover:text-primary"
-          >
-            Dashboard
-          </Link>
-        </div>
-      </header>
+      <SiteHeader />
 
       <div className="mx-auto max-w-[720px] px-8 py-10 max-md:px-4 max-md:py-6">
         {/* Wizard Progress */}
@@ -377,6 +363,7 @@ export default function GeneratePage() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }
@@ -430,13 +417,15 @@ function ResultCard({
     return (
       <div className="rounded-panel border border-warning bg-warning-soft p-4">
         <div className="mb-2 flex items-center gap-2 text-sm text-warning">
-          ⚠️ {result.error}
+          <AlertTriangle size={16} />
+          {result.error}
         </div>
         <button
           onClick={onRetry}
-          className="mt-2 rounded-control border border-warning bg-surface px-3 py-1.5 text-[13px] font-medium text-warning transition-colors hover:bg-warning-soft"
+          className="mt-2 flex items-center gap-1.5 rounded-control border border-warning bg-surface px-3 py-1.5 text-[13px] font-medium text-warning transition-colors hover:bg-warning-soft"
         >
-          ↻ Retry
+          <RefreshCw size={14} />
+          Retry
         </button>
       </div>
     );
@@ -454,12 +443,6 @@ function ResultCard({
         animation: `fadeSlideIn 0.3s ease forwards ${index * 0.1}s`,
       }}
     >
-      <style>{`
-        @keyframes fadeSlideIn {
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div
@@ -476,7 +459,7 @@ function ResultCard({
           onClick={copyAll}
           className="flex items-center gap-1.5 rounded-control border border-border px-3 py-1.5 text-[13px] font-medium text-text-secondary transition-all hover:border-primary-border hover:bg-primary-50 hover:text-primary"
         >
-          {copied ? '✓ Copied' : '📋 Copy'}
+          {copied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
         </button>
       </div>
 

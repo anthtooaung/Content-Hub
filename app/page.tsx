@@ -128,7 +128,7 @@ export default function Home() {
           </p>
           <div className="mt-10 grid grid-cols-3 gap-8 max-md:grid-cols-1 max-md:gap-6">
             {steps.map((step) => (
-              <div key={step.num} className="text-center">
+              <div key={step.num} className="text-center rounded-panel p-6 transition-all duration-150 hover:bg-surface hover:shadow-card">
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary-50 text-xl font-bold text-primary">
                   {step.num}
                 </div>
@@ -150,7 +150,7 @@ export default function Home() {
             {testimonials.map((t, i) => (
               <div
                 key={i}
-                className="rounded-panel border border-border bg-surface p-6 text-left"
+                className="rounded-panel border border-border bg-surface p-6 text-left transition-all duration-150 hover:shadow-card-hover hover:border-border-strong"
               >
                 <p className="mb-4 text-sm italic leading-relaxed text-text-secondary">
                   {t.text}

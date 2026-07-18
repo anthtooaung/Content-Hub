@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Sparkles, Plus, FileText } from 'lucide-react';
+import { Sparkles, Plus, FileText, Copy, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { clsx } from 'clsx';
+import SiteHeader from '@/components/SiteHeader';
+import Footer from '@/components/Footer';
 
 interface ContentItem {
   id: string;
@@ -79,24 +81,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-page">
-      {/* Header */}
-      <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-8 py-4 max-md:px-4">
-          <Link href="/" className="flex items-center gap-2 text-lg font-bold text-text-primary">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
-              <Sparkles size={16} />
-            </div>
-            Content Hub
-          </Link>
-          <Link
-            href="/generate"
-            className="flex items-center gap-1.5 rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-primary-600"
-          >
-            <Plus size={16} />
-            Generate
-          </Link>
-        </div>
-      </header>
+      <SiteHeader />
 
       <div className="mx-auto max-w-[1200px] px-8 py-10 max-md:px-4 max-md:py-6">
         <div className="mb-8">
@@ -204,15 +189,19 @@ export default function DashboardPage() {
                           onClick={() =>
                             setExpandedId(expandedId === item.id ? null : item.id)
                           }
-                          className="rounded-control border border-border px-3 py-1.5 text-[13px] font-medium text-text-secondary transition-all hover:border-border-strong hover:bg-surface-subtle"
+                          className="flex items-center gap-1.5 rounded-control border border-border px-3 py-1.5 text-[13px] font-medium text-text-secondary transition-all hover:border-border-strong hover:bg-surface-subtle"
                         >
-                          {expandedId === item.id ? 'Show less' : 'Show more'}
+                          {expandedId === item.id ? (
+                            <><ChevronUp size={14} /> Show less</>
+                          ) : (
+                            <><ChevronDown size={14} /> Show more</>
+                          )}
                         </button>
                         <button
                           onClick={() => copyPost(item)}
-                          className="rounded-control border border-border px-3 py-1.5 text-[13px] font-medium text-text-secondary transition-all hover:border-primary-border hover:bg-primary-50 hover:text-primary"
+                          className="flex items-center gap-1.5 rounded-control border border-border px-3 py-1.5 text-[13px] font-medium text-text-secondary transition-all hover:border-primary-border hover:bg-primary-50 hover:text-primary"
                         >
-                          {copiedId === item.id ? '✓ Copied' : '📋 Copy'}
+                          {copiedId === item.id ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
                         </button>
                       </div>
 
@@ -247,6 +236,7 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

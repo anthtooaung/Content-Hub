@@ -482,7 +482,7 @@ function GenerateContent() {
                               'flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] font-medium transition-all duration-150',
                               emotion === e.id
                                 ? 'border-primary bg-primary-50 text-primary shadow-[0_0_0_2px_rgba(37,99,235,0.12)]'
-                                : 'border-border-strong bg-surface text-text-secondary hover:border-text-disabled hover:bg-surface-subtle'
+                                : 'border-gray-200 bg-surface text-text-secondary hover:border-text-disabled hover:bg-surface-subtle'
                             )}
                           >
                             <span className="text-base">{e.emoji}</span>
@@ -525,7 +525,7 @@ function GenerateContent() {
                           'flex flex-1 items-center justify-center gap-2 rounded-control border px-4 py-3 text-sm font-medium transition-colors duration-150',
                           selectedPlatforms.includes(p.id)
                             ? 'border-primary bg-primary-50 text-primary'
-                            : 'border-border bg-surface text-text-secondary hover:border-border-strong'
+                            : 'border-gray-200 bg-surface text-text-secondary hover:border-border-strong'
                         )}
                       >
                         <div className={clsx('h-2.5 w-2.5 rounded-full', p.color)} />

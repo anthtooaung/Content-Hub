@@ -24,6 +24,12 @@ const platformColors: Record<string, string> = {
   Facebook: 'bg-facebook',
 };
 
+const platformBorders: Record<string, string> = {
+  TikTok: 'border-t-tiktok',
+  Instagram: 'border-t-instagram',
+  Facebook: 'border-t-facebook',
+};
+
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
   const now = new Date();
@@ -127,7 +133,14 @@ export default function DashboardPage() {
                   {items.map((item) => (
                     <div
                       key={item.id}
-                      className="group rounded-panel border border-border bg-surface p-4 transition-all duration-150 hover:shadow-card-hover hover:border-border-strong"
+                      className={clsx(
+                        'group rounded-panel border border-border bg-surface p-4 transition-all duration-150 hover:shadow-card-hover hover:border-border-strong hover:-translate-y-1 border-t-[3px]',
+                        platformBorders[item.platform],
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2'
+                      )}
+                      tabIndex={0}
+                      role="article"
+                      aria-label={`${item.platform} content from ${formatDate(item.createdAt)}`}
                     >
                       <div className="mb-3 flex items-center justify-between">
                         <div className="flex items-center gap-2">

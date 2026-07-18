@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Sparkles, Copy, Check, AlertTriangle, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Sparkles, Copy, Check, AlertTriangle, RefreshCw, Save } from 'lucide-react';
 import { clsx } from 'clsx';
 import AppLayout from '@/components/AppLayout';
 import Toast, { useToast } from '@/components/Toast';
@@ -407,6 +407,8 @@ function ResultCard({
   index: number;
 }) {
   const [copied, setCopied] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const platformColors: Record<string, string> = {
     TikTok: 'bg-tiktok',
@@ -426,6 +428,33 @@ function ResultCard({
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleSave = async () => {
+    if (saved || saving) return;
+    setSaving(true);
+    try {
+      const response = await fetch('/api/history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          platform: result.platform,
+          post: result.content.post,
+          hashtags: result.content.hashtags,
+          caption: result.content.caption,
+          callToAction: result.content.callToAction,
+        }),
+      });
+      if (response.ok) {
+        setSaved(true);
+      } else {
+        console.error('Failed to save content');
+      }
+    } catch (error) {
+      console.error('Save error:', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (result.status === 'loading') {
@@ -489,6 +518,18 @@ function ResultCard({
           className="flex items-center gap-1.5 rounded-control border border-border px-3 py-1.5 text-[13px] font-medium text-text-secondary transition-all hover:border-primary-border hover:bg-primary-50 hover:text-primary"
         >
           {copied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
+        </button>
+        <button
+          onClick={handleSave}
+          disabled={saving || saved}
+          className={clsx(
+            'flex items-center gap-1.5 rounded-control border px-3 py-1.5 text-[13px] font-medium transition-all',
+            saved
+              ? 'border-success bg-success-soft text-success'
+              : 'border-border text-text-secondary hover:border-primary-border hover:bg-primary-50 hover:text-primary'
+          )}
+        >
+          {saving ? 'Saving...' : saved ? <><Check size={14} /> Saved</> : <><Save size={14} /> Save</>}
         </button>
       </div>
 

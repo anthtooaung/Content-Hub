@@ -1,43 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateWithOpenAI, generateWithGemini, ContentRequest } from '@/lib/ai';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { generateWithAISDK, ContentRequest } from '@/lib/ai';
 import { scoreContent } from '@/lib/scoring';
+import { generateRequestSchema } from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
   try {
-    const body: ContentRequest = await request.json();
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    // Validate required fields
-    if (!body.businessType || !body.platform || !body.tone) {
+    const body = await request.json();
+    const parsed = generateRequestSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: 'Missing required fields: businessType, platform, tone' },
+        { error: 'Invalid request', details: parsed.error.flatten() },
         { status: 400 }
       );
     }
 
-    let content;
+    const req: ContentRequest = parsed.data;
+    const result = await generateWithAISDK(req);
+    const content = result;
 
-    // Try OpenAI first, fallback to Gemini on failure
-    if (process.env.OPENAI_API_KEY) {
-      try {
-        content = await generateWithOpenAI(body);
-      } catch (openaiError) {
-        console.warn('OpenAI failed, falling back to Gemini:', openaiError);
-        if (process.env.GEMINI_API_KEY) {
-          content = await generateWithGemini(body);
-        } else {
-          throw openaiError;
-        }
-      }
-    } else if (process.env.GEMINI_API_KEY) {
-      content = await generateWithGemini(body);
-    } else {
-      return NextResponse.json(
-        { error: 'No AI API key configured' },
-        { status: 500 }
-      );
-    }
-
-    // Calculate content score
     const score = scoreContent({
       post: content.post,
       hashtags: content.hashtags,
@@ -45,8 +32,12 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({
-      ...content,
+      post: content.post,
+      hashtags: content.hashtags,
+      caption: content.caption,
+      callToAction: content.callToAction,
       score,
+      model: content.model,
     });
   } catch (error) {
     console.error('Generation error:', error);

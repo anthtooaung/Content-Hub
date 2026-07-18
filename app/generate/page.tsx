@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useCallback, useEffect, useRef } from 'react';
+import { Fragment, Suspense, useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -23,12 +23,7 @@ const platforms = [
 const emotions = [
   { id: 'joy', label: 'Joy', emoji: '😊' },
   { id: 'excitement', label: 'Excitement', emoji: '🔥' },
-  { id: 'trust', label: 'Trust', emoji: '🤝' },
   { id: 'inspiration', label: 'Inspiration', emoji: '✨' },
-  { id: 'urgency', label: 'Urgency', emoji: '⚡' },
-  { id: 'curiosity', label: 'Curiosity', emoji: '👀' },
-  { id: 'pride', label: 'Pride', emoji: '🏆' },
-  { id: 'gratitude', label: 'Gratitude', emoji: '🙏' },
 ];
 
 const ageGroups = [
@@ -66,7 +61,7 @@ export default function GeneratePage() {
   return (
     <Suspense fallback={
       <AppLayout>
-        <div className="mx-auto max-w-[860px] px-8 py-10 max-md:px-4 max-md:py-6 pb-24 md:pb-10">
+        <div className="mx-auto max-w-[640px] px-8 py-10 max-md:px-4 max-md:py-6 pb-24 md:pb-10">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-surface-subtle rounded w-48" />
             <div className="h-64 bg-surface-subtle rounded-panel" />
@@ -103,6 +98,20 @@ function GenerateContent() {
 
   // Results state
   const [results, setResults] = useState<PlatformResult[]>([]);
+
+  // Ticket state
+  const GENERATION_COST = 3;
+  const [ticketBalance, setTicketBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!session) return;
+    fetch('/api/tickets')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setTicketBalance(data.balance);
+      })
+      .catch(() => {});
+  }, [session]);
 
   const togglePlatform = (id: string) => {
     setSelectedPlatforms((prev) =>
@@ -179,6 +188,30 @@ function GenerateContent() {
     // If guest user, redirect to login
     if (!session) {
       router.push('/auth/signin?callbackUrl=/generate');
+      return;
+    }
+
+    // Pre-flight ticket spend — charged once per submit regardless of
+    // how many platforms are selected (the actual generation fans out
+    // into N parallel requests below, which can't safely coordinate
+    // a shared decrement).
+    try {
+      const spendRes = await fetch('/api/tickets/spend', { method: 'POST' });
+      const spendData = await spendRes.json();
+
+      if (!spendRes.ok) {
+        setTicketBalance(spendData.balance ?? 0);
+        showToast(
+          spendData.error === 'Not enough tickets'
+            ? 'Not enough tickets — resets at midnight.'
+            : 'Could not check ticket balance. Please try again.'
+        );
+        return;
+      }
+
+      setTicketBalance(spendData.balance);
+    } catch {
+      showToast('Could not check ticket balance. Please try again.');
       return;
     }
 
@@ -284,60 +317,62 @@ function GenerateContent() {
 
       {/* Workspace: scrollable area */}
       <div className="min-h-[calc(100vh-64px)]">
-        <div className="mx-auto max-w-[860px] px-8 py-8 max-md:px-4 max-md:py-6">
+        <div className="mx-auto max-w-[640px] px-8 py-8 max-md:px-4 max-md:py-6">
           {/* Wizard Progress */}
-          <div className="mb-8 flex items-stretch gap-2 w-full">
+          <div className="mb-8 flex items-center w-full">
             {[
               { num: 1, label: 'Campaign details' },
               { num: 2, label: 'Generating' },
               { num: 3, label: 'Results' },
             ].map((s, i) => (
-              <div key={s.num} className="flex items-center gap-2 flex-1">
+              <Fragment key={s.num}>
                 <div
                   className={clsx(
                     'flex items-center gap-2 text-sm whitespace-nowrap',
                     step === 'form' && i === 0 && 'font-semibold text-primary',
-                    step === 'loading' && i === 1 && 'font-semibold text-primary',
-                    step === 'results' && i === 2 && 'font-semibold text-primary',
                     i > 0 && step === 'form' && 'text-text-disabled',
                     i > 1 && step === 'loading' && 'text-text-disabled',
                     i === 0 && step !== 'form' && 'text-success',
-                    i === 1 && step === 'results' && 'text-success'
+                    i === 1 && (step === 'loading' || step === 'results') && 'font-semibold text-success',
+                    i === 2 && step === 'results' && 'font-semibold text-success'
                   )}
                 >
                   <div
                     className={clsx(
                       'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold',
                       step === 'form' && i === 0 && 'border-primary bg-primary-50 text-primary',
-                      step === 'loading' && i === 1 && 'border-primary bg-primary-50 text-primary',
-                      step === 'results' && i === 2 && 'border-primary bg-primary-50 text-primary',
                       i === 0 && step !== 'form' && 'border-success bg-success-soft text-success',
-                      i === 1 && step === 'results' && 'border-success bg-success-soft text-success',
+                      i === 1 && (step === 'loading' || step === 'results') && 'border-success bg-success-soft text-success',
+                      i === 2 && step === 'results' && 'border-success bg-success-soft text-success',
                       i > 0 && step === 'form' && 'border-border bg-surface text-text-disabled',
                       i > 1 && step === 'loading' && 'border-border bg-surface text-text-disabled'
                     )}
                   >
-                    {i === 0 && step !== 'form' ? '✓' : i === 1 && step === 'results' ? '✓' : s.num}
+                    {(i === 0 && step !== 'form') ||
+                    (i === 1 && (step === 'loading' || step === 'results')) ||
+                    (i === 2 && step === 'results')
+                      ? '✓'
+                      : s.num}
                   </div>
                   <span className="max-md:hidden">{s.label}</span>
                 </div>
                 {i < 2 && (
                   <div
                     className={clsx(
-                      'h-0.5 flex-1 min-w-[20px]',
+                      'h-0.5 flex-1 min-w-[20px] mx-2',
                       (i === 0 && step !== 'form') || (i === 1 && step === 'results')
                         ? 'bg-success'
                         : 'bg-border'
                     )}
                   />
                 )}
-              </div>
+              </Fragment>
             ))}
           </div>
 
           {/* Step 1: Form — Centered Card */}
           {step === 'form' && (
-            <div className="mx-auto max-w-[640px]">
+            <div>
               <div className="rounded-panel border border-border bg-surface p-8 shadow-card max-md:p-6">
                 {/* Header */}
                 <div className="mb-8 text-center">
@@ -447,7 +482,7 @@ function GenerateContent() {
                               'flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] font-medium transition-all duration-150',
                               emotion === e.id
                                 ? 'border-primary bg-primary-50 text-primary shadow-[0_0_0_2px_rgba(37,99,235,0.12)]'
-                                : 'border-border bg-surface text-text-secondary hover:border-border-strong hover:bg-surface-subtle'
+                                : 'border-gray-200 bg-surface text-text-secondary hover:border-text-disabled hover:bg-surface-subtle'
                             )}
                           >
                             <span className="text-base">{e.emoji}</span>
@@ -490,7 +525,7 @@ function GenerateContent() {
                           'flex flex-1 items-center justify-center gap-2 rounded-control border px-4 py-3 text-sm font-medium transition-colors duration-150',
                           selectedPlatforms.includes(p.id)
                             ? 'border-primary bg-primary-50 text-primary'
-                            : 'border-border bg-surface text-text-secondary hover:border-border-strong'
+                            : 'border-gray-200 bg-surface text-text-secondary hover:border-border-strong'
                         )}
                       >
                         <div className={clsx('h-2.5 w-2.5 rounded-full', p.color)} />
@@ -503,7 +538,12 @@ function GenerateContent() {
                 {/* Generate Button */}
                 <button
                   onClick={handleGenerate}
-                  disabled={!businessName || !campaign || selectedPlatforms.length === 0}
+                  disabled={
+                    !businessName ||
+                    !campaign ||
+                    selectedPlatforms.length === 0 ||
+                    (session != null && ticketBalance !== null && ticketBalance < GENERATION_COST)
+                  }
                   className="flex h-12 w-full items-center justify-center gap-2.5 rounded-control bg-primary text-[15px] font-semibold text-white transition-all duration-150 hover:bg-primary-600 hover:shadow-[0_4px_16px_rgba(37,99,235,0.3)] active:bg-primary-700 disabled:pointer-events-none disabled:opacity-50"
                 >
                   <Sparkles size={18} />
@@ -511,6 +551,14 @@ function GenerateContent() {
                     ? `Generate ${selectedPlatforms.length} post${selectedPlatforms.length !== 1 ? 's' : ''}`
                     : 'Sign in to generate'}
                 </button>
+                {session && ticketBalance !== null && (
+                  <div className="text-center text-xs text-text-muted">
+                    Costs {GENERATION_COST} tickets · You have {ticketBalance} ticket{ticketBalance !== 1 ? 's' : ''}
+                    {ticketBalance < GENERATION_COST && (
+                      <span className="text-error"> — not enough to generate, resets at midnight</span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}

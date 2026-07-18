@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import {
   Sparkles,
   LayoutGrid,
@@ -12,9 +13,10 @@ import {
   Menu,
   X,
   BarChart3,
+  Ticket,
 } from 'lucide-react';
 import { clsx } from 'clsx';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const navSections = [
   {
@@ -36,7 +38,19 @@ const navSections = [
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [ticketBalance, setTicketBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!session) return;
+    fetch('/api/tickets')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setTicketBalance(data.balance);
+      })
+      .catch(() => {});
+  }, [session]);
 
   const isActive = (href: string) => {
     if (href === '#') return false;
@@ -46,7 +60,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-page">
       {/* Top Header Strip */}
-      <header className="sticky top-0 z-100 border-b border-border bg-surface px-6 h-14 flex items-center justify-between max-md:px-4">
+      <header className="sticky top-0 z-[100] border-b border-border bg-surface px-6 h-14 flex items-center justify-between max-md:px-4">
         {/* Mobile hamburger */}
         <button
           className="md:hidden flex items-center justify-center w-9 h-9 rounded-control text-text-secondary transition-colors hover:bg-surface-subtle"
@@ -61,9 +75,31 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           Content Hub
         </Link>
 
-        {/* Avatar */}
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-50 text-xs font-semibold text-primary cursor-pointer">
-          JD
+        {/* Right side: ticket badge + avatar */}
+        <div className="flex items-center gap-3">
+          {session && ticketBalance !== null && (
+            <div
+              className={clsx(
+                'flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold',
+                ticketBalance <= 0
+                  ? 'border-border bg-surface-subtle text-text-muted'
+                  : ticketBalance < 6
+                  ? 'border-error/30 bg-error-soft text-error'
+                  : ticketBalance < 9
+                  ? 'border-warning-border bg-warning-soft text-warning'
+                  : 'border-primary-200 bg-primary-50 text-primary'
+              )}
+              title="Tickets reset daily at midnight"
+            >
+              <Ticket size={14} />
+              {ticketBalance} ticket{ticketBalance !== 1 ? 's' : ''}
+            </div>
+          )}
+
+          {/* Avatar */}
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-50 text-xs font-semibold text-primary cursor-pointer">
+            JD
+          </div>
         </div>
       </header>
 

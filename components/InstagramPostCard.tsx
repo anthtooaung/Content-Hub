@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { clsx } from 'clsx';
-import { getGradeColor } from '@/lib/scoring';
+import { useState } from "react";
+import { clsx } from "clsx";
+import { getGradeColor } from "@/lib/scoring";
 import {
   Copy,
   Check,
@@ -15,7 +15,7 @@ import {
   Bookmark,
   MoreHorizontal,
   ImagePlus,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface InstagramPostCardProps {
   content: any;
@@ -37,7 +37,7 @@ export default function InstagramPostCard({
 
   const copyAll = () => {
     if (!content) return;
-    const text = `${content.post}\n\n${content.hashtags?.join(' ')}\n\n${content.caption}\n\n${content.callToAction}`;
+    const text = `${content.post}\n\n${content.hashtags?.join(" ")}\n\n${content.caption}\n\n${content.callToAction}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -47,11 +47,11 @@ export default function InstagramPostCard({
     if (saved || saving) return;
     setSaving(true);
     try {
-      const response = await fetch('/api/history', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          platform: 'Instagram',
+          platform: "Instagram",
           post: content.post,
           hashtags: content.hashtags,
           caption: content.caption,
@@ -60,7 +60,7 @@ export default function InstagramPostCard({
       });
       if (response.ok) setSaved(true);
     } catch (error) {
-      console.error('Save error:', error);
+      console.error("Save error:", error);
     } finally {
       setSaving(false);
     }
@@ -69,13 +69,15 @@ export default function InstagramPostCard({
   const formatCaption = (text: string) => {
     if (!text) return null;
     return text.split(/(#\w+)/g).map((part, i) =>
-      part.startsWith('#') ? (
-        <span key={i} className="text-[#00376B] font-medium cursor-pointer hover:underline">
+      part.startsWith("#") ? (
+        <span
+          key={i}
+          className="text-[#00376B] font-medium cursor-pointer hover:underline">
           {part}
         </span>
       ) : (
         <span key={i}>{part}</span>
-      )
+      ),
     );
   };
 
@@ -84,10 +86,9 @@ export default function InstagramPostCard({
       className="overflow-hidden rounded-lg border border-[#DBDBDB] bg-white"
       style={{
         opacity: 0,
-        transform: 'translateY(8px)',
+        transform: "translateY(8px)",
         animation: `fadeSlideIn 0.3s ease forwards ${index * 0.1}s`,
-      }}
-    >
+      }}>
       {/* Header */}
       <div className="flex items-center gap-2.5 px-3 py-2.5">
         <div className="rounded-full p-[2px] bg-gradient-to-tr from-[#F09433] via-[#DC2743] to-[#BC1888]">
@@ -101,12 +102,20 @@ export default function InstagramPostCard({
           <div className="flex items-center gap-1 text-[14px] font-semibold leading-tight">
             bloomandbrew
             <span className="flex h-3 w-3 items-center justify-center rounded-full bg-[#3897F0]">
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+              <svg
+                width="8"
+                height="8"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                strokeWidth="3">
                 <polyline points="20,6 9,17 4,12" />
               </svg>
             </span>
           </div>
-          <div className="text-[12px] text-[#8E8E8E] leading-tight">Bloom & Brew Coffee</div>
+          <div className="text-[12px] text-[#8E8E8E] leading-tight">
+            Bloom & Brew Coffee
+          </div>
         </div>
         <button className="text-[#262626]">
           <MoreHorizontal size={24} />
@@ -119,15 +128,16 @@ export default function InstagramPostCard({
           src={images[0].url}
           alt={images[0].name}
           className="w-full cursor-pointer object-cover"
-          style={{ aspectRatio: '1/1' }}
+          style={{ aspectRatio: "2/0.8" }}
         />
       ) : (
         <div
           className="flex cursor-pointer flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#FDF2F8] to-[#FBCFE8]"
-          style={{ aspectRatio: '1/1' }}
-        >
+          style={{ aspectRatio: "2/0.8" }}>
           <ImagePlus size={40} className="opacity-50 text-[#8E8E8E]" />
-          <span className="text-[13px] font-medium text-[#8E8E8E]">Add an image to this post</span>
+          <span className="text-[13px] font-medium text-[#8E8E8E]">
+            Add an image to this post
+          </span>
         </div>
       )}
 
@@ -153,78 +163,113 @@ export default function InstagramPostCard({
 
       {/* Caption */}
       <div className="px-3 pb-1 text-[14px] leading-[1.5]">
-        <span className="font-semibold">bloomandbrew</span>{' '}
+        <span className="font-semibold">bloomandbrew</span>{" "}
         {formatCaption(content?.post)}
       </div>
 
-      {/* View comments */}
-      <div className="px-3 pb-1 text-[14px] text-[#8E8E8E] cursor-pointer">View all 342 comments</div>
-
-      {/* Add comment */}
-      <div className="flex items-center gap-2 border-t border-[#DBDBDB] px-3 py-2.5">
-        <div className="h-6 w-6 rounded-full bg-[#E4E6EB] flex-shrink-0" />
-        <input
-          placeholder="Add a comment…"
-          readOnly
-          className="flex-1 text-[14px] text-[#8E8E8E] outline-none"
-        />
-        <button className="text-[14px] font-semibold text-[#3897F0] opacity-50">Post</button>
-      </div>
-
       {/* Timestamp */}
-      <div className="px-3 pb-3 text-[10px] uppercase tracking-wide text-[#8E8E8E]">2 hours ago</div>
+      <div className="px-3 pb-2 text-[10px] uppercase tracking-wide text-[#8E8E8E]">
+        2 hours ago
+      </div>
 
       {/* Copy / Save / Score */}
       <div className="border-t border-[#DBDBDB] px-3 py-3">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={copyAll}
-            className="flex items-center gap-1.5 rounded-lg border-2 border-[#BFDBFE] bg-[#EFF6FF] px-3 py-1.5 text-[13px] font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
-          >
-            {copied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving || saved}
-            className={clsx(
-              'flex items-center gap-1.5 rounded-lg border-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-150',
-              saved
-                ? 'border-[#15803D] bg-[#F0FDF4] text-[#15803D]'
-                : 'border-[#BFDBFE] bg-[#EFF6FF] text-primary hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]'
-            )}
-          >
-            {saving ? 'Saving...' : saved ? <><Check size={14} /> Saved</> : <><Save size={14} /> Save</>}
-          </button>
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[11px] text-[#8E8E8E]">generated with : {content?.model || 'AI'}</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={copyAll}
+              className="flex items-center gap-1.5 rounded-lg border-2 border-[#BFDBFE] bg-[#EFF6FF] px-3 py-1.5 text-[13px] font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">
+              {copied ? (
+                <>
+                  <Check size={14} /> Copied
+                </>
+              ) : (
+                <>
+                  <Copy size={14} /> Copy
+                </>
+              )}
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving || saved}
+              className={clsx(
+                "flex items-center gap-1.5 rounded-lg border-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-150",
+                saved
+                  ? "border-[#15803D] bg-[#F0FDF4] text-[#15803D]"
+                  : "border-[#BFDBFE] bg-[#EFF6FF] text-primary hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]",
+              )}>
+              {saving ? (
+                "Saving..."
+              ) : saved ? (
+                <>
+                  <Check size={14} /> Saved
+                </>
+              ) : (
+                <>
+                  <Save size={14} /> Save
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {content?.score && (
           <div className="mt-3 pt-3 border-t border-[#DBDBDB]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-[13px] font-medium text-[#262626]">Score:</span>
-                <span className="text-[18px] font-bold text-[#262626]">{content.score.overall}/100</span>
-                <span className={clsx('rounded-full px-2 py-0.5 text-[11px] font-bold', getGradeColor(content.score.grade))}>
+                <span className="text-[13px] font-medium text-[#262626]">
+                  Score:
+                </span>
+                <span className="text-[18px] font-bold text-[#262626]">
+                  {content.score.overall}/100
+                </span>
+                <span
+                  className={clsx(
+                    "rounded-full px-2 py-0.5 text-[11px] font-bold",
+                    getGradeColor(content.score.grade),
+                  )}>
                   {content.score.grade}
                 </span>
               </div>
               <button
                 onClick={() => setShowScoreDetails(!showScoreDetails)}
-                className="flex items-center gap-1 text-[12px] text-[#8E8E8E] hover:text-[#262626] transition-colors"
-              >
-                {showScoreDetails ? <><ChevronUp size={14} /> Hide</> : <><ChevronDown size={14} /> Details</>}
+                className="flex items-center gap-1 text-[12px] text-[#8E8E8E] hover:text-[#262626] transition-colors">
+                {showScoreDetails ? (
+                  <>
+                    <ChevronUp size={14} /> Hide
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={14} /> Details
+                  </>
+                )}
               </button>
             </div>
             {showScoreDetails && (
               <div className="mt-3 space-y-2">
-                <ScoreBar label="Readability" score={content.score.readability} />
-                <ScoreBar label="Hashtag Relevance" score={content.score.hashtagRelevance} />
-                <ScoreBar label="CTA Strength" score={content.score.ctaStrength} />
+                <ScoreBar
+                  label="Readability"
+                  score={content.score.readability}
+                />
+                <ScoreBar
+                  label="Hashtag Relevance"
+                  score={content.score.hashtagRelevance}
+                />
+                <ScoreBar
+                  label="CTA Strength"
+                  score={content.score.ctaStrength}
+                />
                 {content.score.suggestions?.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-[#DBDBDB]">
-                    <p className="text-[11px] font-medium text-[#8E8E8E] mb-2">Suggestions:</p>
+                    <p className="text-[11px] font-medium text-[#8E8E8E] mb-2">
+                      Suggestions:
+                    </p>
                     <ul className="space-y-1">
                       {content.score.suggestions.map((s: string, i: number) => (
-                        <li key={i} className="text-[11px] text-[#8E8E8E] flex items-start gap-1.5">
+                        <li
+                          key={i}
+                          className="text-[11px] text-[#8E8E8E] flex items-start gap-1.5">
                           <span className="text-primary mt-0.5">•</span>
                           {s}
                         </li>
@@ -243,19 +288,27 @@ export default function InstagramPostCard({
 
 function ScoreBar({ label, score }: { label: string; score: number }) {
   const getBarColor = (score: number) => {
-    if (score >= 80) return 'bg-green-500';
-    if (score >= 60) return 'bg-blue-500';
-    if (score >= 40) return 'bg-yellow-500';
-    return 'bg-red-500';
+    if (score >= 80) return "bg-green-500";
+    if (score >= 60) return "bg-blue-500";
+    if (score >= 40) return "bg-yellow-500";
+    return "bg-red-500";
   };
 
   return (
     <div className="flex items-center gap-3">
       <span className="text-[11px] text-[#8E8E8E] w-28 shrink-0">{label}</span>
       <div className="flex-1 h-1.5 bg-[#F0F2F5] rounded-full overflow-hidden">
-        <div className={clsx('h-full rounded-full transition-all', getBarColor(score))} style={{ width: `${score}%` }} />
+        <div
+          className={clsx(
+            "h-full rounded-full transition-all",
+            getBarColor(score),
+          )}
+          style={{ width: `${score}%` }}
+        />
       </div>
-      <span className="text-[11px] font-medium text-[#262626] w-6 text-right">{score}</span>
+      <span className="text-[11px] font-medium text-[#262626] w-6 text-right">
+        {score}
+      </span>
     </div>
   );
 }

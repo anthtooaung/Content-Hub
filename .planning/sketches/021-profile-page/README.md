@@ -2,7 +2,7 @@
 sketch: 021
 name: profile-page
 question: "How should the profile page display user info, ticket balance, and reset timer?"
-winner: null
+winner: "B"
 tags: [profile, tickets, account, navigation]
 ---
 

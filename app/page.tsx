@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
-import { ClipboardPen, Cpu, Send, Star, Quote } from 'lucide-react';
+import { ClipboardPen, Cpu, Send } from 'lucide-react';
 
 const steps = [
   {
@@ -35,27 +35,6 @@ const stats = [
   { value: '<10s', label: 'Avg. generation', sublabel: 'From idea to ready-to-post' },
   { value: '100%', label: 'Free to use', sublabel: 'No credit card required' },
   { value: '5+', label: 'Content types', sublabel: 'Posts, captions, hashtags, CTAs' },
-];
-
-const testimonials = [
-  {
-    name: 'Sarah Chen',
-    initials: 'SC',
-    role: 'Coffee Shop Owner',
-    quote: 'I used to spend hours writing Instagram captions. Now I describe my weekly specials and get three platform-ready posts in under 10 seconds. Game changer.',
-  },
-  {
-    name: 'Marcus Rivera',
-    initials: 'MR',
-    role: 'Fitness Coach',
-    quote: 'The hashtag suggestions alone save me 20 minutes per post. My TikTok engagement went up 40% since I started using Content Hub for my training tips.',
-  },
-  {
-    name: 'Priya Sharma',
-    initials: 'PS',
-    role: 'Boutique Owner',
-    quote: 'As a one-person business, I need content that sounds professional across all platforms. Content Hub nails the tone for each one — it feels like having a content team.',
-  },
 ];
 
 export default function Home() {
@@ -235,56 +214,6 @@ export default function Home() {
             >
               {session ? 'Start generating →' : 'Get started free →'}
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* What People Say — Testimonials */}
-      <section className="px-8 py-20 max-md:px-4 max-md:py-14">
-        <div className="mx-auto max-w-[1000px]">
-          <div className="text-center mb-14">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-[12px] font-semibold text-primary mb-4">
-              Loved by creators
-            </div>
-            <h2 className="text-[32px] font-semibold text-text-primary max-md:text-[24px]">
-              What people say
-            </h2>
-            <p className="mt-3 text-base text-text-secondary max-md:text-sm">
-              Hear from small business owners and marketers who use Content Hub daily.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-3 gap-5 max-md:grid-cols-1 max-md:gap-4">
-            {testimonials.map((t) => (
-              <div
-                key={t.name}
-                className="rounded-panel border border-border bg-surface p-6 transition-colors duration-200 hover:border-primary-200 hover:shadow-card-hover flex flex-col"
-              >
-                {/* Stars */}
-                <div className="mb-3 flex gap-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} size={14} className="fill-warning text-warning" />
-                  ))}
-                </div>
-                {/* Quote */}
-                <div className="relative mb-4 flex-1">
-                  <Quote size={20} className="absolute -left-1 -top-1 text-primary-100" />
-                  <p className="text-[14px] leading-relaxed text-text-secondary pl-5 italic">
-                    {t.quote}
-                  </p>
-                </div>
-                {/* Author */}
-                <div className="flex items-center gap-3 pt-4 border-t border-border">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-[13px] font-bold text-primary">
-                    {t.initials}
-                  </div>
-                  <div>
-                    <div className="text-[13px] font-semibold text-text-primary">{t.name}</div>
-                    <div className="text-[12px] text-text-muted">{t.role}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>

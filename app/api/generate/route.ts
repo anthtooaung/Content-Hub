@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { generateWithOpenAI, generateWithGemini, ContentRequest } from '@/lib/ai';
 import { scoreContent } from '@/lib/scoring';
+import { getTicketState, deductTickets } from '@/lib/tickets';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,6 +15,22 @@ export async function POST(request: NextRequest) {
         { error: 'Missing required fields: businessType, platform, tone' },
         { status: 400 }
       );
+    }
+
+    // Check tickets for authenticated users
+    const session = await getServerSession(authOptions);
+    if (session?.user?.id) {
+      const ticketState = await getTicketState(session.user.id);
+      if (!ticketState.canGenerate) {
+        return NextResponse.json(
+          {
+            error: 'insufficient_tickets',
+            remaining: ticketState.remaining,
+            resetAt: ticketState.nextRefreshAt,
+          },
+          { status: 402 }
+        );
+      }
     }
 
     let content;
@@ -44,9 +63,16 @@ export async function POST(request: NextRequest) {
       callToAction: content.callToAction,
     });
 
+    // Deduct tickets for authenticated users after successful generation
+    let tickets;
+    if (session?.user?.id) {
+      tickets = await deductTickets(session.user.id);
+    }
+
     return NextResponse.json({
       ...content,
       score,
+      tickets,
     });
   } catch (error) {
     console.error('Generation error:', error);

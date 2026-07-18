@@ -4,8 +4,8 @@ import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Sparkles, Copy, Check, AlertTriangle, RefreshCw } from 'lucide-react';
 import { clsx } from 'clsx';
-import SiteHeader from '@/components/SiteHeader';
-import Footer from '@/components/Footer';
+import AppLayout from '@/components/AppLayout';
+import Toast, { useToast } from '@/components/Toast';
 
 const platforms = [
   { id: 'TikTok', label: 'TikTok', color: 'bg-tiktok' },
@@ -32,6 +32,9 @@ interface PlatformResult {
 }
 
 export default function GeneratePage() {
+  const { toast, showToast, hideToast } = useToast();
+  const [activeTab, setActiveTab] = useState(0);
+  const [editModal, setEditModal] = useState<{ open: boolean; platform: string; text: string }>({ open: false, platform: '', text: '' });
   const [step, setStep] = useState<'form' | 'loading' | 'results'>('form');
 
   // Form state
@@ -149,10 +152,37 @@ export default function GeneratePage() {
   };
 
   return (
-    <div className="min-h-screen bg-page">
-      <SiteHeader />
+    <AppLayout>
+      <Toast message={toast.message} show={toast.show} onHide={hideToast} />
 
-      <div className="mx-auto max-w-[720px] px-8 py-10 max-md:px-4 max-md:py-6">
+      {/* Edit Modal */}
+      {editModal.open && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6" onClick={() => setEditModal({ ...editModal, open: false })}>
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="relative w-full max-w-[600px] rounded-panel border border-border bg-surface shadow-modal animate-[modalIn_0.225s_ease]" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-border px-6 py-5">
+              <h3 className="text-base font-semibold">Edit {editModal.platform} Post</h3>
+              <button onClick={() => setEditModal({ ...editModal, open: false })} className="p-1 text-text-muted hover:text-text-primary transition-colors">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="px-6 py-5">
+              <textarea
+                value={editModal.text}
+                onChange={(e) => setEditModal({ ...editModal, text: e.target.value })}
+                className="min-h-[160px] w-full resize-y rounded-control border border-border p-3.5 text-sm font-[inherit] leading-relaxed outline-none transition-shadow focus:border-primary focus:shadow-focus"
+              />
+              <div className="mt-2 text-right text-xs text-text-muted">{editModal.text.length}/280 characters</div>
+            </div>
+            <div className="flex justify-end gap-2 border-t border-border px-6 py-4">
+              <button onClick={() => setEditModal({ ...editModal, open: false })} className="rounded-control border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-surface-subtle transition-all">Cancel</button>
+              <button onClick={() => { setEditModal({ ...editModal, open: false }); showToast('Post updated!'); }} className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600 transition-all">Save Changes</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mx-auto max-w-[720px] px-8 py-10 max-md:px-4 max-md:py-6 pb-24 md:pb-10">
         {/* Wizard Progress */}
         <div className="mb-8 flex items-center gap-3">
           {[
@@ -363,8 +393,7 @@ export default function GeneratePage() {
           </div>
         )}
       </div>
-      <Footer />
-    </div>
+    </AppLayout>
   );
 }
 

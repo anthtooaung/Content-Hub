@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Sparkles, Plus, FileText, Copy, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { clsx } from 'clsx';
-import SiteHeader from '@/components/SiteHeader';
-import Footer from '@/components/Footer';
+import AppLayout from '@/components/AppLayout';
+import EmptyState from '@/components/EmptyState';
 
 interface ContentItem {
   id: string;
@@ -80,10 +80,8 @@ export default function DashboardPage() {
   const groups = groupByDate(content);
 
   return (
-    <div className="min-h-screen bg-page">
-      <SiteHeader />
-
-      <div className="mx-auto max-w-[1200px] px-8 py-10 max-md:px-4 max-md:py-6">
+    <AppLayout>
+      <div className="mx-auto max-w-[1200px] px-8 py-10 max-md:px-4 max-md:py-6 pb-24 md:pb-10">
         <div className="mb-8">
           <h1 className="text-[28px] font-semibold text-text-primary">Dashboard</h1>
           <p className="mt-1 text-text-secondary">Your generated content history</p>
@@ -96,22 +94,20 @@ export default function DashboardPage() {
           </div>
         ) : content.length === 0 ? (
           /* Empty State */
-          <div className="rounded-panel border border-border bg-surface py-20 text-center">
-            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-panel bg-surface-subtle">
-              <FileText size={36} className="text-text-muted" />
-            </div>
-            <h3 className="mb-2 text-lg font-semibold text-text-primary">No content yet</h3>
-            <p className="mb-6 text-text-secondary">
-              Generate your first social media posts and they&apos;ll appear here.
-            </p>
-            <Link
-              href="/generate"
-              className="inline-flex items-center gap-2 rounded-control bg-primary px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-600 active:translate-y-0"
-            >
-              <Sparkles size={16} />
-              Generate your first post
-            </Link>
-          </div>
+          <EmptyState
+            icon={<FileText size={36} />}
+            title="No content yet"
+            message="Generate your first social media posts and they'll appear here."
+            action={
+              <Link
+                href="/generate"
+                className="inline-flex items-center gap-2 rounded-control bg-primary px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-600 active:translate-y-0"
+              >
+                <Sparkles size={16} />
+                Generate your first post
+              </Link>
+            }
+          />
         ) : (
           /* Timeline */
           <div className="relative pl-10">
@@ -236,7 +232,6 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
-      <Footer />
-    </div>
+    </AppLayout>
   );
 }

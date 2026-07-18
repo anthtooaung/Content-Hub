@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { email },
     });
 
@@ -33,10 +33,10 @@ export async function POST(req: Request) {
 
     const hashedPassword = await hash(password, 12);
 
-    await prisma.user.create({
+    await prisma.users.create({
       data: {
         email,
-        password: hashedPassword,
+        password_hash: hashedPassword,
       },
     });
 

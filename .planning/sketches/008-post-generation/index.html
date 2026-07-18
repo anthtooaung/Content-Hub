@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 008: Post-Generation Interactions</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <style>
+    body { padding-top: 0; background: var(--color-page); }
+
+    #variant-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+      background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+      padding: 8px 16px; display: flex; gap: 8px; font-family: var(--font-sans);
+    }
+    .variant-tab {
+      padding: 6px 14px; border-radius: var(--radius-pill); border: 1px solid var(--color-border);
+      background: transparent; color: var(--color-text-secondary); cursor: pointer;
+      font-size: var(--text-small); font-weight: 500; transition: all var(--transition-fast);
+    }
+    .variant-tab:hover { background: var(--color-surface-subtle); }
+    .variant-tab.active { background: var(--color-primary); color: var(--color-text-on-primary); border-color: var(--color-primary); }
+
+    .variant { display: none; padding-top: 52px; min-height: 100vh; }
+    .variant.active { display: block; }
+
+    /* App header */
+    .app-header {
+      background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+      padding: 0 24px; height: 56px; display: flex; align-items: center;
+      justify-content: space-between; position: sticky; top: 52px; z-index: 100;
+    }
+    .app-logo { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; }
+    .app-logo svg { color: var(--color-primary); }
+    .app-nav { display: flex; gap: 4px; }
+    .app-nav-item {
+      padding: 8px 16px; border-radius: var(--radius-pill); font-size: 13px; font-weight: 500;
+      color: var(--color-text-secondary); cursor: pointer; transition: all var(--transition-fast);
+      border: none; background: none;
+    }
+    .app-nav-item:hover { background: var(--color-surface-subtle); color: var(--color-text); }
+    .app-nav-item.active { background: var(--color-primary-soft); color: var(--color-primary); }
+    .app-avatar { width: 32px; height: 32px; border-radius: 9999px; background: var(--color-primary-soft); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--color-primary); }
+
+    .app-body { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+
+    /* Success banner */
+    .success-banner {
+      background: var(--color-success-soft); border: 1px solid #bbf7d0; border-radius: var(--radius-card);
+      padding: 16px 20px; display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    .success-icon { width: 32px; height: 32px; border-radius: 9999px; background: var(--color-success); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .success-text { font-size: 14px; font-weight: 500; color: var(--color-success); }
+    .success-dismiss { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--color-text-muted); padding: 4px; transition: color var(--transition-fast); }
+    .success-dismiss:hover { color: var(--color-text); }
+
+    /* Result card */
+    .result-section { margin-bottom: 24px; }
+    .result-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .result-section-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .platform-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
+    .badge-tiktok { background: #1a1a2e; color: #fff; }
+    .badge-instagram { background: #fce4ec; color: #c2185b; }
+    .badge-facebook { background: #e3f2fd; color: #1565c0; }
+
+    .result-card {
+      background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card);
+      padding: 20px; box-shadow: var(--shadow-card); margin-bottom: 16px;
+    }
+    .result-post { font-size: 15px; line-height: 1.6; color: var(--color-text); margin-bottom: 12px; white-space: pre-wrap; }
+    .result-hashtags { font-size: 13px; color: var(--color-primary); margin-bottom: 10px; line-height: 1.5; }
+    .result-caption { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 10px; font-style: italic; }
+    .result-cta-badge {
+      display: inline-block; padding: 5px 12px; background: var(--color-primary-soft); color: var(--color-primary);
+      border-radius: 9999px; font-size: 12px; font-weight: 600;
+    }
+
+    /* Action bar */
+    .action-bar { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .action-btn {
+      display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
+      border: 1px solid var(--color-border); border-radius: var(--radius-control);
+      font-size: 12px; font-weight: 500; cursor: pointer; background: var(--color-surface);
+      transition: all var(--transition-fast); color: var(--color-text-secondary);
+    }
+    .action-btn:hover { background: var(--color-surface-subtle); border-color: var(--color-border-strong); color: var(--color-text); }
+    .action-btn.primary { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+    .action-btn.primary:hover { background: var(--color-primary-hover); }
+    .action-btn.copied { background: var(--color-success-soft); color: var(--color-success); border-color: var(--color-success); }
+
+    /* Edit mode */
+    .edit-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4);
+      z-index: 200; display: none; align-items: center; justify-content: center; padding: 24px;
+    }
+    .edit-overlay.open { display: flex; }
+    .edit-modal {
+      background: var(--color-surface); border-radius: var(--radius-modal); width: 100%; max-width: 600px;
+      box-shadow: var(--shadow-modal); animation: modalIn 0.225s ease;
+    }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .edit-header { padding: 20px 24px; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between; }
+    .edit-header h3 { font-size: 16px; font-weight: 600; }
+    .edit-close { background: none; border: none; cursor: pointer; color: var(--color-text-muted); padding: 4px; transition: color var(--transition-fast); }
+    .edit-close:hover { color: var(--color-text); }
+    .edit-body { padding: 24px; }
+    .edit-textarea {
+      width: 100%; min-height: 160px; padding: 14px; border: 1px solid var(--color-border);
+      border-radius: var(--radius-control); font-size: 14px; font-family: var(--font-sans);
+      line-height: 1.6; resize: vertical;
+    }
+    .edit-textarea:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--shadow-focus); }
+    .edit-footer { padding: 16px 24px; border-top: 1px solid var(--color-border); display: flex; gap: 8px; justify-content: flex-end; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; background: var(--color-text);
+      color: white; padding: 10px 20px; border-radius: 8px; font-size: 13px;
+      font-weight: 500; box-shadow: var(--shadow-toast); transform: translateY(20px);
+      opacity: 0; transition: all var(--transition-panel); z-index: 999;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* Copy all bar */
+    .copy-all-bar {
+      position: sticky; bottom: 0; background: var(--color-surface); border-top: 1px solid var(--color-border);
+      padding: 12px 24px; display: flex; align-items: center; justify-content: space-between;
+      z-index: 50;
+    }
+    .copy-all-bar span { font-size: 13px; color: var(--color-text-muted); }
+
+    /* Variant B: Accordion */
+    .accordion-item { border: 1px solid var(--color-border); border-radius: var(--radius-card); margin-bottom: 8px; overflow: hidden; }
+    .accordion-header {
+      padding: 14px 20px; background: var(--color-surface); cursor: pointer; display: flex;
+      align-items: center; justify-content: space-between; transition: background var(--transition-fast);
+    }
+    .accordion-header:hover { background: var(--color-surface-subtle); }
+    .accordion-header-left { display: flex; align-items: center; gap: 10px; }
+    .accordion-arrow { transition: transform var(--transition-fast); color: var(--color-text-muted); }
+    .accordion-item.open .accordion-arrow { transform: rotate(180deg); }
+    .accordion-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: all var(--transition-panel); }
+    .accordion-item.open .accordion-body { max-height: 600px; padding: 0 20px 20px; }
+
+    /* Variant C: Tabbed by platform */
+    .platform-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+    .platform-tab {
+      padding: 8px 16px; border-radius: var(--radius-pill); border: 1px solid var(--color-border);
+      font-size: 13px; font-weight: 500; cursor: pointer; background: var(--color-surface);
+      transition: all var(--transition-fast); display: flex; align-items: center; gap: 6px;
+    }
+    .platform-tab:hover { background: var(--color-surface-subtle); }
+    .platform-tab.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+    .platform-tab .tab-dot { width: 8px; height: 8px; border-radius: 9999px; }
+  </style>
+</head>
+<body>
+
+<div id="variant-nav">
+  <button class="variant-tab active" onclick="showVariant('a')">A: Card Actions</button>
+  <button class="variant-tab" onclick="showVariant('b')">B: Accordion + Bulk</button>
+  <button class="variant-tab" onclick="showVariant('c')">C: Tabbed by Platform ★ Selected</button>
+</div>
+
+<!-- ==================== VARIANT A: Card Actions ==================== -->
+<div id="variant-a" class="variant active">
+  <header class="app-header">
+    <div class="app-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Content Hub
+    </div>
+    <nav class="app-nav">
+      <button class="app-nav-item">Generate</button>
+      <button class="app-nav-item active">Results</button>
+      <button class="app-nav-item">Dashboard</button>
+    </nav>
+    <div class="app-avatar">JD</div>
+  </header>
+
+  <div class="app-body">
+    <div class="success-banner">
+      <div class="success-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="success-text">3 platform posts generated successfully</div>
+      <button class="success-dismiss" onclick="this.closest('.success-banner').style.display='none'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- TikTok -->
+    <div class="result-section">
+      <div class="result-section-header">
+        <div class="result-section-title">
+          <span class="platform-badge badge-tiktok">TikTok</span>
+          Post
+        </div>
+      </div>
+      <div class="result-card">
+        <div class="result-post">Beat the heat with our summer collection! 🌴
+
+30% off all iced drinks and fresh smoothies. Limited time only — swing by today and cool down with something delicious.
+
+Your taste buds will thank you ☕🍦</div>
+        <div class="result-hashtags">#SummerVibes #IcedDrinks #SmoothieLover #CafeLife #SummerSale #Foodie #LocalBusiness</div>
+        <div class="result-cta-badge">Shop Now →</div>
+        <div class="action-bar">
+          <button class="action-btn primary" onclick="copyText(this, 'post')">📋 Copy Post</button>
+          <button class="action-btn" onclick="copyText(this, 'hashtags')">🏷️ Copy Hashtags</button>
+          <button class="action-btn" onclick="openEdit('tiktok')">✏️ Edit</button>
+          <button class="action-btn" onclick="showToast('Saved to favorites')">♡ Save</button>
+          <button class="action-btn" onclick="showToast('Regenerating TikTok post...')">🔄 Regenerate</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Instagram -->
+    <div class="result-section">
+      <div class="result-section-header">
+        <div class="result-section-title">
+          <span class="platform-badge badge-instagram">Instagram</span>
+          Post
+        </div>
+      </div>
+      <div class="result-card">
+        <div class="result-post">Summer just got sweeter 🍹
+
+Introducing our new tropical smoothie bowl — mango, passion fruit, and coconut. Available now for a limited time.
+
+Tag someone who needs this in their life 👇</div>
+        <div class="result-hashtags">#InstaFood #SmoothieBowl #TropicalVibes #Foodie #CafeLife #SummerDrinks #HealthyLiving</div>
+        <div class="result-caption">Caption: The perfect summer treat doesn't exi— 🥥🥭</div>
+        <div class="result-cta-badge">Order Now →</div>
+        <div class="action-bar">
+          <button class="action-btn primary" onclick="copyText(this, 'post')">📋 Copy Post</button>
+          <button class="action-btn" onclick="copyText(this, 'hashtags')">🏷️ Copy Hashtags</button>
+          <button class="action-btn" onclick="copyText(this, 'caption')">💬 Copy Caption</button>
+          <button class="action-btn" onclick="openEdit('instagram')">✏️ Edit</button>
+          <button class="action-btn" onclick="showToast('Saved to favorites')">♡ Save</button>
+          <button class="action-btn" onclick="showToast('Regenerating Instagram post...')">🔄 Regenerate</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Facebook -->
+    <div class="result-section">
+      <div class="result-section-header">
+        <div class="result-section-title">
+          <span class="platform-badge badge-facebook">Facebook</span>
+          Post
+        </div>
+      </div>
+      <div class="result-card">
+        <div class="result-post">☀️ SUMMER SALE IS HERE! ☀️
+
+All iced drinks and smoothies are 30% off this week only. Bring your friends, beat the heat, and enjoy the season with us.
+
+📍 Open daily 7am–8pm
+🔗 Order online for pickup</div>
+        <div class="result-hashtags">#SummerSale #LocalCafe #CommunityLove #SupportLocal #FoodAndDrink</div>
+        <div class="result-cta-badge">Learn More →</div>
+        <div class="action-bar">
+          <button class="action-btn primary" onclick="copyText(this, 'post')">📋 Copy Post</button>
+          <button class="action-btn" onclick="copyText(this, 'hashtags')">🏷️ Copy Hashtags</button>
+          <button class="action-btn" onclick="openEdit('facebook')">✏️ Edit</button>
+          <button class="action-btn" onclick="showToast('Saved to favorites')">♡ Save</button>
+          <button class="action-btn" onclick="showToast('Regenerating Facebook post...')">🔄 Regenerate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="copy-all-bar">
+    <span>3 posts ready to use</span>
+    <div style="display:flex;gap:8px;">
+      <button class="action-btn" onclick="showToast('All posts saved')">♡ Save All</button>
+      <button class="action-btn primary" onclick="showToast('All posts copied!')">📋 Copy All</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VARIANT B: Accordion + Bulk ==================== -->
+<div id="variant-b" class="variant" style="display:none;">
+  <header class="app-header">
+    <div class="app-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Content Hub
+    </div>
+    <nav class="app-nav">
+      <button class="app-nav-item">Generate</button>
+      <button class="app-nav-item active">Results</button>
+      <button class="app-nav-item">Dashboard</button>
+    </nav>
+    <div class="app-avatar">JD</div>
+  </header>
+
+  <div class="app-body">
+    <div class="success-banner">
+      <div class="success-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="success-text">3 platform posts generated</div>
+      <button class="success-dismiss" onclick="this.closest('.success-banner').style.display='none'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="accordion-item open" onclick="toggleAccordion(this)">
+      <div class="accordion-header">
+        <div class="accordion-header-left">
+          <span class="platform-badge badge-tiktok">TikTok</span>
+          <span style="font-size:13px;font-weight:500;">Summer Sale Campaign</span>
+        </div>
+        <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="accordion-body" onclick="event.stopPropagation()">
+        <div class="result-post" style="font-size:14px;line-height:1.6;margin:12px 0;">Beat the heat with our summer collection! 🌴
+
+30% off all iced drinks and fresh smoothies. Limited time only — swing by today and cool down with something delicious.
+
+Your taste buds will thank you ☕🍦</div>
+        <div class="result-hashtags" style="font-size:12px;">#SummerVibes #IcedDrinks #SmoothieLover #CafeLife #SummerSale</div>
+        <div class="action-bar">
+          <button class="action-btn primary" onclick="copyText(this, 'post')">📋 Copy</button>
+          <button class="action-btn" onclick="openEdit('tiktok')">✏️ Edit</button>
+          <button class="action-btn" onclick="showToast('Regenerating...')">🔄</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item" onclick="toggleAccordion(this)">
+      <div class="accordion-header">
+        <div class="accordion-header-left">
+          <span class="platform-badge badge-instagram">Instagram</span>
+          <span style="font-size:13px;font-weight:500;">Summer Sale Campaign</span>
+        </div>
+        <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="accordion-body" onclick="event.stopPropagation()">
+        <div class="result-post" style="font-size:14px;line-height:1.6;margin:12px 0;">Summer just got sweeter 🍹
+
+Introducing our new tropical smoothie bowl — mango, passion fruit, and coconut. Available now for a limited time.
+
+Tag someone who needs this in their life 👇</div>
+        <div class="result-hashtags" style="font-size:12px;">#InstaFood #SmoothieBowl #TropicalVibes #Foodie #CafeLife</div>
+        <div class="action-bar">
+          <button class="action-btn primary" onclick="copyText(this, 'post')">📋 Copy</button>
+          <button class="action-btn" onclick="openEdit('instagram')">✏️ Edit</button>
+          <button class="action-btn" onclick="showToast('Regenerating...')">🔄</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item" onclick="toggleAccordion(this)">
+      <div class="accordion-header">
+        <div class="accordion-header-left">
+          <span class="platform-badge badge-facebook">Facebook</span>
+          <span style="font-size:13px;font-weight:500;">Summer Sale Campaign</span>
+        </div>
+        <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="accordion-body" onclick="event.stopPropagation()">
+        <div class="result-post" style="font-size:14px;line-height:1.6;margin:12px 0;">☀️ SUMMER SALE IS HERE! ☀️
+
+All iced drinks and smoothies are 30% off this week only. Bring your friends, beat the heat, and enjoy the season with us.
+
+📍 Open daily 7am–8pm
+🔗 Order online for pickup</div>
+        <div class="result-hashtags" style="font-size:12px;">#SummerSale #LocalCafe #CommunityLove #SupportLocal</div>
+        <div class="action-bar">
+          <button class="action-btn primary" onclick="copyText(this, 'post')">📋 Copy</button>
+          <button class="action-btn" onclick="openEdit('facebook')">✏️ Edit</button>
+          <button class="action-btn" onclick="showToast('Regenerating...')">🔄</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;display:flex;gap:8px;justify-content:flex-end;">
+      <button class="action-btn" onclick="showToast('All saved')">♡ Save All</button>
+      <button class="action-btn primary" onclick="showToast('All copied!')">📋 Copy All</button>
+      <button class="action-btn" onclick="showToast('Starting new generation...')">+ New Generation</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VARIANT C: Tabbed by Platform ==================== -->
+<div id="variant-c" class="variant" style="display:none;">
+  <header class="app-header">
+    <div class="app-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Content Hub
+    </div>
+    <nav class="app-nav">
+      <button class="app-nav-item">Generate</button>
+      <button class="app-nav-item active">Results</button>
+      <button class="app-nav-item">Dashboard</button>
+    </nav>
+    <div class="app-avatar">JD</div>
+  </header>
+
+  <div class="app-body">
+    <div class="success-banner">
+      <div class="success-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="success-text">Content generated for 3 platforms</div>
+      <button class="success-dismiss" onclick="this.closest('.success-banner').style.display='none'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="platform-tabs">
+      <button class="platform-tab active" onclick="showPlatformTab('tt-c', this)">
+        <span class="tab-dot" style="background:var(--color-tiktok);"></span> TikTok
+      </button>
+      <button class="platform-tab" onclick="showPlatformTab('ig-c', this)">
+        <span class="tab-dot" style="background:var(--color-instagram);"></span> Instagram
+      </button>
+      <button class="platform-tab" onclick="showPlatformTab('fb-c', this)">
+        <span class="tab-dot" style="background:var(--color-facebook);"></span> Facebook
+      </button>
+    </div>
+
+    <div id="tab-tt-c" class="platform-tab-content">
+      <div class="result-card">
+        <div class="result-section-title" style="margin-bottom:12px;">
+          <span class="platform-badge badge-tiktok">TikTok</span>
+          Post
+        </div>
+        <div class="result-post">Beat the heat with our summer collection! 🌴
+
+30% off all iced drinks and fresh smoothies. Limited time only — swing by today and cool down with something delicious.
+
+Your taste buds will thank you ☕🍦</div>
+        <div class="result-hashtags">#SummerVibes #IcedDrinks #SmoothieLover #CafeLife #SummerSale</div>
+        <div class="result-cta-badge">Shop Now →</div>
+        <div class="action-bar">
+          <button class="action-btn primary" onclick="copyText(this, 'post')">📋 Copy Post</button>
+          <button class="action-btn" onclick="copyText(this, 'hashtags')">🏷️ Copy Hashtags</button>
+          <button class="action-btn" onclick="openEdit('tiktok')">✏️ Edit</button>
+          <button class="action-btn" onclick="showToast('Saved')">♡ Save</button>
+          <button class="action-btn" onclick="showToast('Regenerating...')">🔄 Regenerate</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-ig-c" class="platform-tab-content" style="display:none;">
+      <div class="result-card">
+        <div class="result-section-title" style="margin-bottom:12px;">
+          <span class="platform-badge badge-instagram">Instagram</span>
+          Post
+        </div>
+        <div class="result-post">Summer just got sweeter 🍹
+
+Introducing our new tropical smoothie bowl — mango, passion fruit, and coconut. Available now for a limited time.
+
+Tag someone who needs this in their life 👇</div>
+        <div class="result-hashtags">#InstaFood #SmoothieBowl #TropicalVibes #Foodie #CafeLife</div>
+        <div class="result-caption">Caption: The perfect summer treat doesn't exi— 🥥🥭</div>
+        <div class="result-cta-badge">Order Now →</div>
+        <div class="action-bar">
+          <button class="action-btn primary" onclick="copyText(this, 'post')">📋 Copy Post</button>
+          <button class="action-btn" onclick="copyText(this, 'hashtags')">🏷️ Copy Hashtags</button>
+          <button class="action-btn" onclick="copyText(this, 'caption')">💬 Copy Caption</button>
+          <button class="action-btn" onclick="openEdit('instagram')">✏️ Edit</button>
+          <button class="action-btn" onclick="showToast('Saved')">♡ Save</button>
+          <button class="action-btn" onclick="showToast('Regenerating...')">🔄 Regenerate</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-fb-c" class="platform-tab-content" style="display:none;">
+      <div class="result-card">
+        <div class="result-section-title" style="margin-bottom:12px;">
+          <span class="platform-badge badge-facebook">Facebook</span>
+          Post
+        </div>
+        <div class="result-post">☀️ SUMMER SALE IS HERE! ☀️
+
+All iced drinks and smoothies are 30% off this week only. Bring your friends, beat the heat, and enjoy the season with us.
+
+📍 Open daily 7am–8pm
+🔗 Order online for pickup</div>
+        <div class="result-hashtags">#SummerSale #LocalCafe #CommunityLove #SupportLocal</div>
+        <div class="result-cta-badge">Learn More →</div>
+        <div class="action-bar">
+          <button class="action-btn primary" onclick="copyText(this, 'post')">📋 Copy Post</button>
+          <button class="action-btn" onclick="copyText(this, 'hashtags')">🏷️ Copy Hashtags</button>
+          <button class="action-btn" onclick="openEdit('facebook')">✏️ Edit</button>
+          <button class="action-btn" onclick="showToast('Saved')">♡ Save</button>
+          <button class="action-btn" onclick="showToast('Regenerating...')">🔄 Regenerate</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;display:flex;gap:8px;justify-content:flex-end;">
+      <button class="action-btn" onclick="showToast('All saved')">♡ Save All</button>
+      <button class="action-btn primary" onclick="showToast('All copied!')">📋 Copy All</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="edit-overlay" id="edit-overlay" onclick="closeEdit()">
+  <div class="edit-modal" onclick="event.stopPropagation()">
+    <div class="edit-header">
+      <h3 id="edit-title">Edit Post</h3>
+      <button class="edit-close" onclick="closeEdit()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="edit-body">
+      <textarea class="edit-textarea" id="edit-textarea">Beat the heat with our summer collection! 🌴
+
+30% off all iced drinks and fresh smoothies. Limited time only — swing by today and cool down with something delicious.
+
+Your taste buds will thank you ☕🍦</textarea>
+      <div style="margin-top:8px;font-size:12px;color:var(--color-text-muted);text-align:right;">
+        <span id="char-count">187</span>/280 characters
+      </div>
+    </div>
+    <div class="edit-footer">
+      <button class="action-btn" onclick="closeEdit()">Cancel</button>
+      <button class="action-btn primary" onclick="closeEdit(); showToast('Post updated!')">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Sketch Toolbar -->
+<div id="sketch-tools" style="position:fixed;bottom:12px;right:12px;z-index:9999;font-family:system-ui;font-size:12px;background:rgba(0,0,0,0.7);color:white;padding:8px 12px;border-radius:8px;opacity:0.4;transition:opacity 0.2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.4'">
+  <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'" style="background:transparent;color:white;border:1px solid rgba(255,255,255,0.3);border-radius:4px;padding:2px 4px;font-size:11px;">
+    <option value="default">Default</option>
+  </select>
+</div>
+
+<script>
+function showVariant(id) {
+  document.querySelectorAll('.variant').forEach(v => { v.style.display = 'none'; v.classList.remove('active'); });
+  document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('variant-' + id).style.display = 'block';
+  document.getElementById('variant-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function showPlatformTab(tabId, btn) {
+  document.querySelectorAll('.platform-tab-content').forEach(t => t.style.display = 'none');
+  document.querySelectorAll('.platform-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tabId).style.display = 'block';
+  btn.classList.add('active');
+}
+
+function toggleAccordion(item) {
+  item.classList.toggle('open');
+}
+
+function copyText(btn, type) {
+  btn.classList.add('copied');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '✓ Copied';
+  showToast(type === 'post' ? 'Post copied to clipboard!' : type === 'hashtags' ? 'Hashtags copied!' : 'Caption copied!');
+  setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = orig; }, 1500);
+}
+
+function openEdit(platform) {
+  document.getElementById('edit-title').textContent = 'Edit ' + platform.charAt(0).toUpperCase() + platform.slice(1) + ' Post';
+  document.getElementById('edit-overlay').classList.add('open');
+}
+
+function closeEdit() {
+  document.getElementById('edit-overlay').classList.remove('open');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Character counter in edit modal
+document.getElementById('edit-textarea').addEventListener('input', function() {
+  document.getElementById('char-count').textContent = this.value.length;
+});
+</script>
+
+</body>
+</html>

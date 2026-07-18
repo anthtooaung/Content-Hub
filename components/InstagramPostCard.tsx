@@ -72,7 +72,7 @@ export default function InstagramPostCard({
       part.startsWith("#") ? (
         <span
           key={i}
-          className="text-[#00376B] font-medium cursor-pointer hover:underline">
+          className="text-[#00376B] dark:text-[#6BB5FF] font-medium cursor-pointer hover:underline">
           {part}
         </span>
       ) : (
@@ -83,7 +83,7 @@ export default function InstagramPostCard({
 
   return (
     <div
-      className="overflow-hidden rounded-lg border border-[#DBDBDB] bg-white"
+      className="overflow-hidden rounded-lg border border-border bg-surface"
       style={{
         opacity: 0,
         transform: "translateY(8px)",
@@ -92,14 +92,14 @@ export default function InstagramPostCard({
       {/* Header */}
       <div className="flex items-center gap-2.5 px-3 py-2.5">
         <div className="rounded-full p-[2px] bg-gradient-to-tr from-[#F09433] via-[#DC2743] to-[#BC1888]">
-          <div className="rounded-full bg-white p-[2px]">
+          <div className="rounded-full bg-surface p-[2px]">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#F472B6] to-[#EC4899] text-[13px] font-bold text-white">
               B
             </div>
           </div>
         </div>
         <div className="flex-1">
-          <div className="flex items-center gap-1 text-[14px] font-semibold leading-tight">
+          <div className="flex items-center gap-1 text-[14px] font-semibold leading-tight text-text-primary">
             bloomandbrew
             <span className="flex h-3 w-3 items-center justify-center rounded-full bg-[#3897F0]">
               <svg
@@ -113,11 +113,11 @@ export default function InstagramPostCard({
               </svg>
             </span>
           </div>
-          <div className="text-[12px] text-[#8E8E8E] leading-tight">
+          <div className="text-[12px] text-text-muted leading-tight">
             Bloom & Brew Coffee
           </div>
         </div>
-        <button className="text-[#262626]">
+        <button className="text-text-primary">
           <MoreHorizontal size={24} />
         </button>
       </div>
@@ -132,10 +132,10 @@ export default function InstagramPostCard({
         />
       ) : (
         <div
-          className="flex cursor-pointer flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#FDF2F8] to-[#FBCFE8]"
+          className="flex cursor-pointer flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#FDF2F8] to-[#FBCFE8] dark:from-[#3D1529] dark:to-[#3D1F35]"
           style={{ aspectRatio: "2/0.8" }}>
-          <ImagePlus size={40} className="opacity-50 text-[#8E8E8E]" />
-          <span className="text-[13px] font-medium text-[#8E8E8E]">
+          <ImagePlus size={40} className="opacity-50 text-text-muted" />
+          <span className="text-[13px] font-medium text-text-muted">
             Add an image to this post
           </span>
         </div>
@@ -143,43 +143,43 @@ export default function InstagramPostCard({
 
       {/* Actions */}
       <div className="flex items-center px-3 py-2 gap-3">
-        <button className="text-[#262626] transition-opacity hover:opacity-60">
+        <button className="text-text-primary transition-opacity hover:opacity-60">
           <Heart size={24} />
         </button>
-        <button className="text-[#262626] transition-opacity hover:opacity-60">
+        <button className="text-text-primary transition-opacity hover:opacity-60">
           <MessageCircle size={24} />
         </button>
-        <button className="text-[#262626] transition-opacity hover:opacity-60">
+        <button className="text-text-primary transition-opacity hover:opacity-60">
           <Send size={24} />
         </button>
         <div className="flex-1" />
-        <button className="text-[#262626] transition-opacity hover:opacity-60">
+        <button className="text-text-primary transition-opacity hover:opacity-60">
           <Bookmark size={24} />
         </button>
       </div>
 
       {/* Likes */}
-      <div className="px-3 pb-1 text-[14px] font-semibold">2,847 likes</div>
+      <div className="px-3 pb-1 text-[14px] font-semibold text-text-primary">2,847 likes</div>
 
       {/* Caption */}
-      <div className="px-3 pb-1 text-[14px] leading-[1.5]">
+      <div className="px-3 pb-1 text-[14px] leading-[1.5] text-text-primary">
         <span className="font-semibold">bloomandbrew</span>{" "}
         {formatCaption(content?.post)}
       </div>
 
       {/* Timestamp */}
-      <div className="px-3 pb-2 text-[10px] uppercase tracking-wide text-[#8E8E8E]">
+      <div className="px-3 pb-2 text-[10px] uppercase tracking-wide text-text-muted">
         2 hours ago
       </div>
 
       {/* Copy / Save / Score */}
-      <div className="border-t border-[#DBDBDB] px-3 py-3">
+      <div className="border-t border-border px-3 py-3">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[11px] text-[#8E8E8E]">generated with : {content?.model || 'AI'}</span>
+          <span className="text-[11px] text-text-muted">generated with : {content?.model || 'AI'}</span>
           <div className="flex items-center gap-2">
             <button
               onClick={copyAll}
-              className="flex items-center gap-1.5 rounded-lg border-2 border-[#BFDBFE] bg-[#EFF6FF] px-3 py-1.5 text-[13px] font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">
+              className="flex items-center gap-1.5 rounded-lg border-2 border-primary-border bg-primary-50 px-3 py-1.5 text-[13px] font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">
               {copied ? (
                 <>
                   <Check size={14} /> Copied
@@ -196,8 +196,8 @@ export default function InstagramPostCard({
               className={clsx(
                 "flex items-center gap-1.5 rounded-lg border-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-150",
                 saved
-                  ? "border-[#15803D] bg-[#F0FDF4] text-[#15803D]"
-                  : "border-[#BFDBFE] bg-[#EFF6FF] text-primary hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]",
+                  ? "border-success bg-success-soft text-success"
+                  : "border-primary-border bg-primary-50 text-primary hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]",
               )}>
               {saving ? (
                 "Saving..."
@@ -215,13 +215,13 @@ export default function InstagramPostCard({
         </div>
 
         {content?.score && (
-          <div className="mt-3 pt-3 border-t border-[#DBDBDB]">
+          <div className="mt-3 pt-3 border-t border-border">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-[13px] font-medium text-[#262626]">
+                <span className="text-[13px] font-medium text-text-primary">
                   Score:
                 </span>
-                <span className="text-[18px] font-bold text-[#262626]">
+                <span className="text-[18px] font-bold text-text-primary">
                   {content.score.overall}/100
                 </span>
                 <span
@@ -234,7 +234,7 @@ export default function InstagramPostCard({
               </div>
               <button
                 onClick={() => setShowScoreDetails(!showScoreDetails)}
-                className="flex items-center gap-1 text-[12px] text-[#8E8E8E] hover:text-[#262626] transition-colors">
+                className="flex items-center gap-1 text-[12px] text-text-muted hover:text-text-primary transition-colors">
                 {showScoreDetails ? (
                   <>
                     <ChevronUp size={14} /> Hide
@@ -261,15 +261,15 @@ export default function InstagramPostCard({
                   score={content.score.ctaStrength}
                 />
                 {content.score.suggestions?.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-[#DBDBDB]">
-                    <p className="text-[11px] font-medium text-[#8E8E8E] mb-2">
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <p className="text-[11px] font-medium text-text-muted mb-2">
                       Suggestions:
                     </p>
                     <ul className="space-y-1">
                       {content.score.suggestions.map((s: string, i: number) => (
                         <li
                           key={i}
-                          className="text-[11px] text-[#8E8E8E] flex items-start gap-1.5">
+                          className="text-[11px] text-text-muted flex items-start gap-1.5">
                           <span className="text-primary mt-0.5">•</span>
                           {s}
                         </li>
@@ -296,8 +296,8 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-[11px] text-[#8E8E8E] w-28 shrink-0">{label}</span>
-      <div className="flex-1 h-1.5 bg-[#F0F2F5] rounded-full overflow-hidden">
+      <span className="text-[11px] text-text-muted w-28 shrink-0">{label}</span>
+      <div className="flex-1 h-1.5 bg-surface-subtle rounded-full overflow-hidden">
         <div
           className={clsx(
             "h-full rounded-full transition-all",
@@ -306,7 +306,7 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
           style={{ width: `${score}%` }}
         />
       </div>
-      <span className="text-[11px] font-medium text-[#262626] w-6 text-right">
+      <span className="text-[11px] font-medium text-text-primary w-6 text-right">
         {score}
       </span>
     </div>

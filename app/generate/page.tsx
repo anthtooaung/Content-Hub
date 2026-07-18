@@ -684,20 +684,20 @@ function GenerateContent() {
       {/* Low Ticket Confirmation Modal */}
       {showLowTicketModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-lg p-6 max-w-[380px] w-[90%] text-center">
+          <div className="bg-surface rounded-xl shadow-lg p-6 max-w-[380px] w-[90%] text-center">
             <h3 className="text-lg font-semibold text-text-primary mb-2">Almost out of tickets</h3>
             <p className="text-sm text-text-muted mb-4 leading-relaxed">
               This generation will use <strong>3 tickets</strong>, leaving you with <strong>{tickets ? tickets.remaining - 3 : 0} ticket{tickets && tickets.remaining - 3 !== 1 ? 's' : ''}</strong>.
               {tickets && tickets.remaining - 3 <= 0 && " You won't be able to generate again until tickets reset."}
             </p>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-50 border border-amber-200 text-sm font-semibold text-amber-700 mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-50 dark:bg-warning-soft border border-amber-200 dark:border-warning-border text-sm font-semibold text-amber-700 dark:text-warning mb-4">
               <AlertTriangle size={16} />
               {tickets?.remaining} → {tickets ? tickets.remaining - 3 : 0} tickets remaining
             </div>
             <div className="flex gap-2 justify-center">
               <button
                 onClick={() => setShowLowTicketModal(false)}
-                className="px-5 py-2 rounded-lg border border-border bg-white text-sm font-medium text-text-secondary hover:bg-surface-subtle transition-colors"
+                className="px-5 py-2 rounded-lg border border-border bg-surface text-sm font-medium text-text-secondary hover:bg-surface-subtle transition-colors"
               >
                 Cancel
               </button>
@@ -746,7 +746,7 @@ function GenerateContent() {
                     }, 400);
                   })();
                 }}
-                className="px-5 py-2 rounded-lg bg-amber-600 text-sm font-medium text-white hover:bg-amber-700 transition-colors border border-amber-600"
+                className="px-5 py-2 rounded-lg bg-amber-600 dark:bg-warning text-sm font-medium text-white hover:bg-amber-700 dark:hover:opacity-90 transition-colors border border-amber-600 dark:border-warning"
               >
                 Proceed anyway
               </button>

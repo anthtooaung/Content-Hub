@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 005: App Shell & Navigation</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <style>
+    body { padding-top: 0; background: var(--color-page); }
+
+    /* Variant Nav */
+    #variant-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+      background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+      padding: 8px 16px; display: flex; gap: 8px; font-family: var(--font-sans);
+    }
+    .variant-tab {
+      padding: 6px 14px; border-radius: var(--radius-pill); border: 1px solid var(--color-border);
+      background: transparent; color: var(--color-text-secondary); cursor: pointer;
+      font-size: var(--text-small); font-weight: 500; transition: all var(--transition-fast);
+    }
+    .variant-tab:hover { background: var(--color-surface-subtle); }
+    .variant-tab.active { background: var(--color-primary); color: var(--color-text-on-primary); border-color: var(--color-primary); }
+
+    .variant { display: none; padding-top: 52px; min-height: 100vh; }
+    .variant.active { display: block; }
+
+    /* App Shell Shared */
+    .app-header {
+      background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+      padding: 0 var(--space-6); height: 56px; display: flex; align-items: center;
+      justify-content: space-between; position: sticky; top: 52px; z-index: 100;
+    }
+    .app-logo { display: flex; align-items: center; gap: var(--space-2); font-weight: 600; font-size: var(--text-body); color: var(--color-text); }
+    .app-logo svg { color: var(--color-primary); }
+    .app-nav { display: flex; gap: var(--space-1); }
+    .app-nav-item {
+      padding: var(--space-2) var(--space-4); border-radius: var(--radius-control);
+      font-size: var(--text-small); font-weight: 500; color: var(--color-text-secondary);
+      cursor: pointer; transition: all var(--transition-fast); border: none; background: none;
+    }
+    .app-nav-item:hover { background: var(--color-surface-subtle); color: var(--color-text); }
+    .app-nav-item.active { background: var(--color-primary-soft); color: var(--color-primary); }
+    .app-header-actions { display: flex; align-items: center; gap: var(--space-3); }
+    .app-avatar {
+      width: 32px; height: 32px; border-radius: var(--radius-full); background: var(--color-primary-soft);
+      display: flex; align-items: center; justify-content: center; font-size: var(--text-caption);
+      font-weight: 600; color: var(--color-primary); cursor: pointer;
+    }
+    .btn-primary {
+      padding: var(--space-2) var(--space-4); background: var(--color-primary); color: white;
+      border: none; border-radius: var(--radius-control); font-size: var(--text-small);
+      font-weight: 600; cursor: pointer; transition: all var(--transition-fast);
+    }
+    .btn-primary:hover { background: var(--color-primary-hover); }
+
+    .app-body { max-width: 1200px; margin: 0 auto; padding: var(--space-8) var(--space-6); }
+
+    /* Page content stubs */
+    .page-content { animation: fadeIn 0.225s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .content-card {
+      background: var(--color-surface); border-radius: var(--radius-card); padding: var(--space-6);
+      box-shadow: var(--shadow-card); border: 1px solid var(--color-border);
+    }
+    .content-card h2 { font-size: var(--text-h2); font-weight: 600; margin-bottom: var(--space-4); }
+    .content-card p { color: var(--color-text-secondary); line-height: 1.6; }
+
+    /* Generate form stub */
+    .form-group { margin-bottom: var(--space-5); }
+    .form-label { display: block; font-size: var(--text-small); font-weight: 500; color: var(--color-text-secondary); margin-bottom: var(--space-2); }
+    .form-input {
+      width: 100%; padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border);
+      border-radius: var(--radius-control); font-size: var(--text-body); font-family: var(--font-sans);
+      transition: border-color var(--transition-fast);
+    }
+    .form-input:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--shadow-focus); }
+    .form-textarea { resize: vertical; min-height: 100px; }
+    .form-select {
+      width: 100%; padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border);
+      border-radius: var(--radius-control); font-size: var(--text-body); font-family: var(--font-sans);
+      background: var(--color-surface); cursor: pointer;
+    }
+    .platform-chips { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+    .platform-chip {
+      padding: var(--space-2) var(--space-4); border-radius: var(--radius-pill);
+      border: 1px solid var(--color-border); font-size: var(--text-small); font-weight: 500;
+      cursor: pointer; transition: all var(--transition-fast); background: var(--color-surface);
+    }
+    .platform-chip:hover { border-color: var(--color-primary-border); }
+    .platform-chip.selected { background: var(--color-primary-soft); border-color: var(--color-primary); color: var(--color-primary); }
+
+    /* Dashboard stub */
+    .timeline-item {
+      display: flex; gap: var(--space-4); padding: var(--space-4) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .timeline-date { font-size: var(--text-caption); color: var(--color-text-muted); min-width: 80px; padding-top: 2px; }
+    .timeline-content { flex: 1; }
+    .timeline-title { font-weight: 600; font-size: var(--text-body); margin-bottom: var(--space-1); }
+    .timeline-meta { font-size: var(--text-caption); color: var(--color-text-muted); }
+    .platform-badge {
+      display: inline-block; padding: 2px 8px; border-radius: var(--radius-pill);
+      font-size: 11px; font-weight: 600; margin-right: 4px;
+    }
+    .badge-tiktok { background: #1a1a2e; color: #fff; }
+    .badge-instagram { background: #fce4ec; color: #c2185b; }
+    .badge-facebook { background: #e3f2fd; color: #1565c0; }
+
+    /* Variant A: Top Nav with underline */
+    .nav-underline .app-nav-item.active { background: none; border-bottom: 2px solid var(--color-primary); border-radius: 0; padding-bottom: calc(var(--space-2) - 2px); }
+
+    /* Variant B: Sidebar */
+    .sidebar-layout { display: flex; min-height: calc(100vh - 52px); }
+    .app-sidebar {
+      width: 240px; background: var(--color-surface); border-right: 1px solid var(--color-border);
+      padding: var(--space-6) var(--space-4); position: sticky; top: 108px; height: calc(100vh - 108px);
+      display: flex; flex-direction: column; gap: var(--space-1);
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-control); font-size: var(--text-small); font-weight: 500;
+      color: var(--color-text-secondary); cursor: pointer; transition: all var(--transition-fast);
+      border: none; background: none; width: 100%; text-align: left;
+    }
+    .sidebar-item:hover { background: var(--color-surface-subtle); color: var(--color-text); }
+    .sidebar-item.active { background: var(--color-primary-soft); color: var(--color-primary); }
+    .sidebar-section { font-size: var(--text-caption); font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: var(--space-4) var(--space-4) var(--space-2); }
+    .sidebar-spacer { flex: 1; }
+    .sidebar-main { flex: 1; padding: var(--space-8) var(--space-6); max-width: 960px; }
+
+    /* Variant C: Compact header with dropdown nav */
+    .compact-header { padding: 0 var(--space-4); height: 48px; }
+    .hamburger-btn {
+      display: flex; align-items: center; justify-content: center; width: 36px; height: 36px;
+      border: none; background: none; border-radius: var(--radius-control); cursor: pointer;
+      color: var(--color-text-secondary); transition: all var(--transition-fast);
+    }
+    .hamburger-btn:hover { background: var(--color-surface-subtle); }
+    .mobile-nav-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3);
+      z-index: 200; opacity: 0; pointer-events: none; transition: opacity var(--transition-panel);
+    }
+    .mobile-nav-overlay.open { opacity: 1; pointer-events: auto; }
+    .mobile-nav-panel {
+      position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--color-surface);
+      z-index: 201; transform: translateX(-100%); transition: transform var(--transition-panel);
+      padding: var(--space-6); display: flex; flex-direction: column;
+    }
+    .mobile-nav-overlay.open .mobile-nav-panel { transform: translateX(0); }
+    .mobile-nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-6); }
+    .mobile-nav-close {
+      width: 32px; height: 32px; border: none; background: none; border-radius: var(--radius-control);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--color-text-muted); transition: all var(--transition-fast);
+    }
+    .mobile-nav-close:hover { background: var(--color-surface-subtle); }
+    .mobile-nav-items { display: flex; flex-direction: column; gap: var(--space-1); }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; background: var(--color-text);
+      color: white; padding: var(--space-3) var(--space-5); border-radius: var(--radius-control);
+      font-size: var(--text-small); font-weight: 500; box-shadow: var(--shadow-toast);
+      transform: translateY(20px); opacity: 0; transition: all var(--transition-panel);
+      z-index: 999;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+  </style>
+</head>
+<body>
+
+<div id="variant-nav">
+  <button class="variant-tab active" onclick="showVariant('a')">A: Top Nav (Underline)</button>
+  <button class="variant-tab" onclick="showVariant('b')">B: Sidebar ★ Selected</button>
+  <button class="variant-tab" onclick="showVariant('c')">C: Compact + Slide-out</button>
+</div>
+
+<!-- ==================== VARIANT A: Top Nav with Underline ==================== -->
+<div id="variant-a" class="variant active">
+  <header class="app-header nav-underline">
+    <div class="app-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Content Hub
+    </div>
+    <nav class="app-nav">
+      <button class="app-nav-item active" onclick="showPage('generate', this)">Generate</button>
+      <button class="app-nav-item" onclick="showPage('dashboard', this)">Dashboard</button>
+    </nav>
+    <div class="app-header-actions">
+      <button class="btn-primary" onclick="showToast('New content created!')">+ New</button>
+      <div class="app-avatar">JD</div>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <div id="page-generate" class="page-content">
+      <div class="content-card">
+        <h2>Generate Content</h2>
+        <p style="margin-bottom: var(--space-6);">Describe your campaign and pick your platforms.</p>
+        <div class="form-group">
+          <label class="form-label">Business Type</label>
+          <input class="form-input" placeholder="e.g. Coffee shop, SaaS startup, Fitness studio" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">What are you promoting?</label>
+          <textarea class="form-input form-textarea" placeholder="Describe your campaign, product, or event..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Platforms</label>
+          <div class="platform-chips">
+            <span class="platform-chip selected" onclick="this.classList.toggle('selected')">TikTok</span>
+            <span class="platform-chip" onclick="this.classList.toggle('selected')">Instagram</span>
+            <span class="platform-chip" onclick="this.classList.toggle('selected')">Facebook</span>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="showToast('Generating content...')">Generate Content</button>
+      </div>
+    </div>
+    <div id="page-dashboard" class="page-content" style="display:none;">
+      <div class="content-card">
+        <h2>Your Content</h2>
+        <div class="timeline-item">
+          <div class="timeline-date">Jul 18</div>
+          <div class="timeline-content">
+            <div class="timeline-title">Summer Sale Campaign</div>
+            <div class="timeline-meta">
+              <span class="platform-badge badge-tiktok">TikTok</span>
+              <span class="platform-badge badge-instagram">Instagram</span>
+            </div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jul 17</div>
+          <div class="timeline-content">
+            <div class="timeline-title">New Product Launch</div>
+            <div class="timeline-meta">
+              <span class="platform-badge badge-facebook">Facebook</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VARIANT B: Sidebar ==================== -->
+<div id="variant-b" class="variant" style="display:none;">
+  <header class="app-header">
+    <div class="app-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Content Hub
+    </div>
+    <div class="app-header-actions">
+      <div class="app-avatar">JD</div>
+    </div>
+  </header>
+  <div class="sidebar-layout">
+    <aside class="app-sidebar">
+      <div class="sidebar-section">Create</div>
+      <button class="sidebar-item active" onclick="showSidebarPage('generate-b', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+        Generate
+      </button>
+      <div class="sidebar-section">Library</div>
+      <button class="sidebar-item" onclick="showSidebarPage('dashboard-b', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <button class="sidebar-item" onclick="showToast('Favorites coming soon')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Favorites
+      </button>
+      <div class="sidebar-spacer"></div>
+      <button class="sidebar-item" onclick="showToast('Settings coming soon')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+    </aside>
+    <main class="sidebar-main">
+      <div id="page-generate-b" class="page-content">
+        <div class="content-card">
+          <h2>Generate Content</h2>
+          <p style="margin-bottom: var(--space-6);">Describe your campaign and pick your platforms.</p>
+          <div class="form-group">
+            <label class="form-label">Business Type</label>
+            <input class="form-input" placeholder="e.g. Coffee shop, SaaS startup, Fitness studio" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">What are you promoting?</label>
+            <textarea class="form-input form-textarea" placeholder="Describe your campaign, product, or event..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Platforms</label>
+            <div class="platform-chips">
+              <span class="platform-chip selected" onclick="this.classList.toggle('selected')">TikTok</span>
+              <span class="platform-chip" onclick="this.classList.toggle('selected')">Instagram</span>
+              <span class="platform-chip" onclick="this.classList.toggle('selected')">Facebook</span>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="showToast('Generating content...')">Generate Content</button>
+        </div>
+      </div>
+      <div id="page-dashboard-b" class="page-content" style="display:none;">
+        <div class="content-card">
+          <h2>Your Content</h2>
+          <div class="timeline-item">
+            <div class="timeline-date">Jul 18</div>
+            <div class="timeline-content">
+              <div class="timeline-title">Summer Sale Campaign</div>
+              <div class="timeline-meta">
+                <span class="platform-badge badge-tiktok">TikTok</span>
+                <span class="platform-badge badge-instagram">Instagram</span>
+              </div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Jul 17</div>
+            <div class="timeline-content">
+              <div class="timeline-title">New Product Launch</div>
+              <div class="timeline-meta">
+                <span class="platform-badge badge-facebook">Facebook</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ==================== VARIANT C: Compact + Slide-out ==================== -->
+<div id="variant-c" class="variant" style="display:none;">
+  <header class="app-header compact-header">
+    <button class="hamburger-btn" onclick="toggleMobileNav()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/></svg>
+    </button>
+    <div class="app-logo" style="font-size: var(--text-small);">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Content Hub
+    </div>
+    <div class="app-header-actions">
+      <button class="btn-primary" style="font-size: 12px; padding: 6px 12px;" onclick="showToast('New content created!')">+ New</button>
+      <div class="app-avatar" style="width: 28px; height: 28px; font-size: 11px;">JD</div>
+    </div>
+  </header>
+
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay" onclick="toggleMobileNav()">
+    <div class="mobile-nav-panel" onclick="event.stopPropagation()">
+      <div class="mobile-nav-header">
+        <div class="app-logo" style="font-size: var(--text-small);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          Content Hub
+        </div>
+        <button class="mobile-nav-close" onclick="toggleMobileNav()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="mobile-nav-items">
+        <button class="sidebar-item active" onclick="showMobilePage('generate-c', this); toggleMobileNav();">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+          Generate
+        </button>
+        <button class="sidebar-item" onclick="showMobilePage('dashboard-c', this); toggleMobileNav();">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </button>
+        <button class="sidebar-item" onclick="showToast('Favorites coming soon'); toggleMobileNav();">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          Favorites
+        </button>
+        <button class="sidebar-item" onclick="showToast('Settings coming soon'); toggleMobileNav();">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-body">
+    <div id="page-generate-c" class="page-content">
+      <div class="content-card">
+        <h2>Generate Content</h2>
+        <p style="margin-bottom: var(--space-6);">Describe your campaign and pick your platforms.</p>
+        <div class="form-group">
+          <label class="form-label">Business Type</label>
+          <input class="form-input" placeholder="e.g. Coffee shop, SaaS startup" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">What are you promoting?</label>
+          <textarea class="form-input form-textarea" placeholder="Describe your campaign..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Platforms</label>
+          <div class="platform-chips">
+            <span class="platform-chip selected" onclick="this.classList.toggle('selected')">TikTok</span>
+            <span class="platform-chip" onclick="this.classList.toggle('selected')">Instagram</span>
+            <span class="platform-chip" onclick="this.classList.toggle('selected')">Facebook</span>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="showToast('Generating content...')">Generate Content</button>
+      </div>
+    </div>
+    <div id="page-dashboard-c" class="page-content" style="display:none;">
+      <div class="content-card">
+        <h2>Your Content</h2>
+        <div class="timeline-item">
+          <div class="timeline-date">Jul 18</div>
+          <div class="timeline-content">
+            <div class="timeline-title">Summer Sale Campaign</div>
+            <div class="timeline-meta">
+              <span class="platform-badge badge-tiktok">TikTok</span>
+              <span class="platform-badge badge-instagram">Instagram</span>
+            </div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jul 17</div>
+          <div class="timeline-content">
+            <div class="timeline-title">New Product Launch</div>
+            <div class="timeline-meta">
+              <span class="platform-badge badge-facebook">Facebook</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Sketch Toolbar -->
+<div id="sketch-tools" style="position:fixed;bottom:12px;right:12px;z-index:9999;font-family:system-ui;font-size:12px;background:rgba(0,0,0,0.7);color:white;padding:8px 12px;border-radius:8px;opacity:0.4;transition:opacity 0.2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.4'">
+  <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'" style="background:transparent;color:white;border:1px solid rgba(255,255,255,0.3);border-radius:4px;padding:2px 4px;font-size:11px;">
+    <option value="default">Default</option>
+  </select>
+  <span style="margin:0 6px;opacity:0.4">|</span>
+  <button onclick="setViewport('phone')" style="background:transparent;color:white;border:none;cursor:pointer;font-size:11px;">📱</button>
+  <button onclick="setViewport('tablet')" style="background:transparent;color:white;border:none;cursor:pointer;font-size:11px;">📋</button>
+  <button onclick="setViewport('desktop')" style="background:transparent;color:white;border:none;cursor:pointer;font-size:11px;">🖥️</button>
+</div>
+
+<script>
+function showVariant(id) {
+  document.querySelectorAll('.variant').forEach(v => { v.style.display = 'none'; v.classList.remove('active'); });
+  document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('variant-' + id).style.display = 'block';
+  document.getElementById('variant-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function showPage(page, btn) {
+  document.querySelectorAll('#variant-a .page-content').forEach(p => p.style.display = 'none');
+  document.getElementById('page-' + page).style.display = 'block';
+  document.querySelectorAll('#variant-a .app-nav-item').forEach(n => n.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function showSidebarPage(page, btn) {
+  document.querySelectorAll('#variant-b .page-content').forEach(p => p.style.display = 'none');
+  document.getElementById('page-' + page).style.display = 'block';
+  document.querySelectorAll('#variant-b .sidebar-item').forEach(n => n.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function showMobilePage(page, btn) {
+  document.querySelectorAll('#variant-c .page-content').forEach(p => p.style.display = 'none');
+  document.getElementById('page-' + page).style.display = 'block';
+  document.querySelectorAll('#variant-c .mobile-nav-items .sidebar-item').forEach(n => n.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function toggleMobileNav() {
+  document.getElementById('mobile-nav-overlay').classList.toggle('open');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function setViewport(size) {
+  const body = document.querySelector('.variant.active .app-body') || document.querySelector('.variant.active');
+  if (size === 'phone') body.style.maxWidth = '375px';
+  else if (size === 'tablet') body.style.maxWidth = '768px';
+  else body.style.maxWidth = '1200px';
+  body.style.margin = '0 auto';
+}
+</script>
+
+</body>
+</html>

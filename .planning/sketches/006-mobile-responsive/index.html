@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 006: Mobile Responsive</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <style>
+    body { padding-top: 0; background: var(--color-page); }
+
+    #variant-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+      background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+      padding: 8px 16px; display: flex; gap: 8px; font-family: var(--font-sans);
+    }
+    .variant-tab {
+      padding: 6px 14px; border-radius: var(--radius-pill); border: 1px solid var(--color-border);
+      background: transparent; color: var(--color-text-secondary); cursor: pointer;
+      font-size: var(--text-small); font-weight: 500; transition: all var(--transition-fast);
+    }
+    .variant-tab:hover { background: var(--color-surface-subtle); }
+    .variant-tab.active { background: var(--color-primary); color: var(--color-text-on-primary); border-color: var(--color-primary); }
+
+    .variant { display: none; padding-top: 52px; }
+    .variant.active { display: flex; justify-content: center; }
+
+    /* Phone frame */
+    .phone-frame {
+      width: 375px; min-height: 812px; background: var(--color-page);
+      border: 1px solid var(--color-border); border-radius: 24px;
+      overflow: hidden; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+      margin: 20px 0;
+    }
+    .phone-status-bar {
+      height: 44px; background: var(--color-surface); display: flex; align-items: center;
+      justify-content: space-between; padding: 0 20px; font-size: 12px; font-weight: 600;
+    }
+    .phone-notch { width: 120px; height: 28px; background: #000; border-radius: 0 0 16px 16px; position: absolute; top: 0; left: 50%; transform: translateX(-50%); }
+
+    /* Mobile header */
+    .mobile-header {
+      background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+      padding: 0 16px; height: 48px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .mobile-logo { font-weight: 600; font-size: var(--text-small); display: flex; align-items: center; gap: 6px; }
+    .mobile-logo svg { color: var(--color-primary); }
+    .mobile-header-btn {
+      width: 32px; height: 32px; border: none; background: none; border-radius: var(--radius-control);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--color-text-secondary); transition: all var(--transition-fast);
+    }
+    .mobile-header-btn:hover { background: var(--color-surface-subtle); }
+
+    /* Mobile body */
+    .mobile-body { padding: 16px; }
+
+    /* Mobile bottom nav */
+    .bottom-nav {
+      position: absolute; bottom: 0; left: 0; right: 0; background: var(--color-surface);
+      border-top: 1px solid var(--color-border); display: flex; justify-content: space-around;
+      padding: 8px 0 20px; z-index: 10;
+    }
+    .bottom-nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      font-size: 10px; font-weight: 500; color: var(--color-text-muted);
+      cursor: pointer; border: none; background: none; padding: 4px 12px;
+      transition: color var(--transition-fast);
+    }
+    .bottom-nav-item.active { color: var(--color-primary); }
+    .bottom-nav-item svg { width: 20px; height: 20px; }
+
+    /* Mobile form */
+    .mobile-card {
+      background: var(--color-surface); border-radius: var(--radius-card); padding: 16px;
+      box-shadow: var(--shadow-card); border: 1px solid var(--color-border); margin-bottom: 12px;
+    }
+    .mobile-card h3 { font-size: var(--text-body); font-weight: 600; margin-bottom: 12px; }
+    .mobile-form-group { margin-bottom: 14px; }
+    .mobile-form-label { display: block; font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 6px; }
+    .mobile-form-input {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--color-border);
+      border-radius: var(--radius-control); font-size: 14px; font-family: var(--font-sans);
+    }
+    .mobile-form-input:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--shadow-focus); }
+    .mobile-form-textarea { resize: none; min-height: 80px; }
+    .mobile-platform-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .mobile-chip {
+      padding: 6px 12px; border-radius: var(--radius-pill); border: 1px solid var(--color-border);
+      font-size: 12px; font-weight: 500; cursor: pointer; transition: all var(--transition-fast);
+      background: var(--color-surface);
+    }
+    .mobile-chip.selected { background: var(--color-primary-soft); border-color: var(--color-primary); color: var(--color-primary); }
+    .mobile-btn-primary {
+      width: 100%; padding: 12px; background: var(--color-primary); color: white;
+      border: none; border-radius: var(--radius-control); font-size: 14px;
+      font-weight: 600; cursor: pointer; transition: all var(--transition-fast);
+    }
+    .mobile-btn-primary:hover { background: var(--color-primary-hover); }
+
+    /* Step indicator */
+    .step-indicator { display: flex; gap: 4px; margin-bottom: 16px; }
+    .step-dot { height: 4px; flex: 1; border-radius: 2px; background: var(--color-border); }
+    .step-dot.active { background: var(--color-primary); }
+    .step-dot.done { background: var(--color-success); }
+    .step-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .step-subtitle { font-size: 12px; color: var(--color-text-muted); margin-bottom: 16px; }
+
+    /* Mobile timeline */
+    .mobile-timeline-item {
+      padding: 12px 0; border-bottom: 1px solid var(--color-border);
+    }
+    .mobile-timeline-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .mobile-timeline-date { font-size: 11px; color: var(--color-text-muted); }
+    .mobile-timeline-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .mobile-timeline-preview { font-size: 12px; color: var(--color-text-secondary); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .mobile-timeline-meta { display: flex; gap: 6px; margin-top: 8px; }
+    .mobile-badge { padding: 2px 8px; border-radius: var(--radius-pill); font-size: 10px; font-weight: 600; }
+    .badge-tiktok { background: #1a1a2e; color: #fff; }
+    .badge-instagram { background: #fce4ec; color: #c2185b; }
+    .badge-facebook { background: #e3f2fd; color: #1565c0; }
+
+    /* Swipe hint */
+    .swipe-hint {
+      text-align: center; padding: 12px; font-size: 11px; color: var(--color-text-muted);
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* Variant B: Full-width cards */
+    .full-card { border-radius: 0; border-left: none; border-right: none; margin-left: -16px; margin-right: -16px; padding: 16px 16px 16px 16px; }
+
+    /* Variant C: Stacked with progress */
+    .progress-bar { height: 3px; background: var(--color-border); border-radius: 2px; margin-bottom: 16px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--color-primary); border-radius: 2px; transition: width 0.3s ease; }
+
+    /* Results mockup */
+    .result-card {
+      background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card);
+      padding: 14px; margin-bottom: 10px;
+    }
+    .result-platform { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .result-text { font-size: 13px; line-height: 1.5; color: var(--color-text); margin-bottom: 8px; }
+    .result-hashtags { font-size: 12px; color: var(--color-primary); margin-bottom: 8px; }
+    .result-cta {
+      display: inline-block; padding: 6px 12px; background: var(--color-primary-soft); color: var(--color-primary);
+      border-radius: var(--radius-pill); font-size: 11px; font-weight: 600;
+    }
+    .result-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .result-action-btn {
+      flex: 1; padding: 8px; border: 1px solid var(--color-border); border-radius: var(--radius-control);
+      font-size: 11px; font-weight: 500; cursor: pointer; background: var(--color-surface);
+      transition: all var(--transition-fast); display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .result-action-btn:hover { background: var(--color-surface-subtle); }
+    .result-action-btn.primary { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+  </style>
+</head>
+<body>
+
+<div id="variant-nav">
+  <button class="variant-tab active" onclick="showVariant('a')">A: Bottom Nav ★ Selected</button>
+  <button class="variant-tab" onclick="showVariant('b')">B: Full-Width Cards</button>
+  <button class="variant-tab" onclick="showVariant('c')">C: Stacked Steps + Results</button>
+</div>
+
+<!-- ==================== VARIANT A: Bottom Nav ==================== -->
+<div id="variant-a" class="variant active">
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-status-bar">
+      <span>9:41</span>
+      <span>⚡ 87%</span>
+    </div>
+    <div class="mobile-header">
+      <div class="mobile-logo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        Content Hub
+      </div>
+      <button class="mobile-header-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      </button>
+    </div>
+
+    <div class="mobile-body" style="padding-bottom: 80px;">
+      <div class="mobile-card">
+        <div class="step-indicator">
+          <div class="step-dot active"></div>
+          <div class="step-dot"></div>
+          <div class="step-dot"></div>
+        </div>
+        <div class="step-title">Describe your campaign</div>
+        <div class="step-subtitle">Tell us about your business and what you're promoting</div>
+        <div class="mobile-form-group">
+          <label class="mobile-form-label">Business Type</label>
+          <input class="mobile-form-input" placeholder="Coffee shop, SaaS, Fitness..." />
+        </div>
+        <div class="mobile-form-group">
+          <label class="mobile-form-label">What are you promoting?</label>
+          <textarea class="mobile-form-input mobile-form-textarea" placeholder="New summer menu launch with iced drinks..."></textarea>
+        </div>
+      </div>
+
+      <div class="mobile-card">
+        <div class="mobile-form-group" style="margin-bottom: 0;">
+          <label class="mobile-form-label">Pick platforms</label>
+          <div class="mobile-platform-chips">
+            <span class="mobile-chip selected" onclick="this.classList.toggle('selected')">TikTok</span>
+            <span class="mobile-chip" onclick="this.classList.toggle('selected')">Instagram</span>
+            <span class="mobile-chip" onclick="this.classList.toggle('selected')">Facebook</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="mobile-btn-primary" onclick="showToast('Generating...')">Generate Content</button>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="bottom-nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+        Generate
+      </button>
+      <button class="bottom-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <button class="bottom-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VARIANT B: Full-Width Cards ==================== -->
+<div id="variant-b" class="variant" style="display:none;">
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-status-bar">
+      <span>9:41</span>
+      <span>⚡ 87%</span>
+    </div>
+    <div class="mobile-header">
+      <div class="mobile-logo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        Content Hub
+      </div>
+      <button class="mobile-header-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      </button>
+    </div>
+
+    <div class="mobile-body" style="padding: 0; padding-bottom: 72px;">
+      <!-- Dashboard view -->
+      <div style="padding: 16px 16px 8px;">
+        <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">Your Content</h2>
+        <p style="font-size: 12px; color: var(--color-text-muted); margin-bottom: 12px;">2 campaigns this week</p>
+      </div>
+
+      <div class="mobile-card full-card">
+        <div class="mobile-timeline-header">
+          <span class="mobile-badge badge-tiktok">TikTok</span>
+          <span class="mobile-timeline-date">Today</span>
+        </div>
+        <div class="mobile-timeline-title">Summer Sale Campaign</div>
+        <div class="mobile-timeline-preview">Beat the heat with our summer collection! 🌴 30% off all iced drinks and fresh smoothies. Limited time only...</div>
+        <div class="mobile-timeline-meta">
+          <span class="mobile-badge badge-instagram">Instagram</span>
+        </div>
+        <div class="result-actions" style="margin-top: 10px;">
+          <button class="result-action-btn primary" onclick="showToast('Copied!')">Copy</button>
+          <button class="result-action-btn" onclick="showToast('Saved to favorites')">Save</button>
+        </div>
+      </div>
+
+      <div class="mobile-card full-card">
+        <div class="mobile-timeline-header">
+          <span class="mobile-badge badge-facebook">Facebook</span>
+          <span class="mobile-timeline-date">Yesterday</span>
+        </div>
+        <div class="mobile-timeline-title">New Product Launch</div>
+        <div class="mobile-timeline-preview">Introducing our newest addition to the family! Crafted with love and the finest ingredients. Available now in-store...</div>
+        <div class="result-actions" style="margin-top: 10px;">
+          <button class="result-action-btn primary" onclick="showToast('Copied!')">Copy</button>
+          <button class="result-action-btn" onclick="showToast('Saved to favorites')">Save</button>
+        </div>
+      </div>
+
+      <div class="swipe-hint">Pull down to refresh</div>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="bottom-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+        Generate
+      </button>
+      <button class="bottom-nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <button class="bottom-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VARIANT C: Stacked Steps + Results ==================== -->
+<div id="variant-c" class="variant" style="display:none;">
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-status-bar">
+      <span>9:41</span>
+      <span>⚡ 87%</span>
+    </div>
+    <div class="mobile-header">
+      <div class="mobile-logo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        Content Hub
+      </div>
+      <button class="mobile-header-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      </button>
+    </div>
+
+    <div class="mobile-body" style="padding-bottom: 20px;">
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 100%;"></div>
+      </div>
+
+      <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 4px;">Your Content</h2>
+      <p style="font-size: 12px; color: var(--color-text-muted); margin-bottom: 16px;">Ready to copy and post</p>
+
+      <div class="result-card">
+        <div class="result-platform" style="color: var(--color-tiktok);">TikTok</div>
+        <div class="result-text">Beat the heat with our summer collection! 🌴 30% off all iced drinks and fresh smoothies. Limited time only — swing by today!</div>
+        <div class="result-hashtags">#SummerVibes #IcedDrinks #SmoothieLover #CafeLife #SummerSale</div>
+        <span class="result-cta">Shop Now →</span>
+        <div class="result-actions">
+          <button class="result-action-btn primary" onclick="showToast('Copied to clipboard!')">📋 Copy</button>
+          <button class="result-action-btn" onclick="showToast('Saved!')">♡ Save</button>
+        </div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-platform" style="color: var(--color-instagram);">Instagram</div>
+        <div class="result-text">Summer just got sweeter 🍹 Introducing our new tropical smoothie bowl — mango, passion fruit, and coconut. Available now for a limited time.</div>
+        <div class="result-hashtags">#InstaFood #SmoothieBowl #TropicalVibes #Foodie #CafeLife</div>
+        <span class="result-cta">Order Now →</span>
+        <div class="result-actions">
+          <button class="result-action-btn primary" onclick="showToast('Copied to clipboard!')">📋 Copy</button>
+          <button class="result-action-btn" onclick="showToast('Saved!')">♡ Save</button>
+        </div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-platform" style="color: var(--color-facebook);">Facebook</div>
+        <div class="result-text">☀️ SUMMER SALE IS HERE! All iced drinks and smoothies are 30% off this week only. Bring your friends, beat the heat, and enjoy the season with us.</div>
+        <div class="result-hashtags">#SummerSale #LocalCafe #CommunityLove #SupportLocal</div>
+        <span class="result-cta">Learn More →</span>
+        <div class="result-actions">
+          <button class="result-action-btn primary" onclick="showToast('Copied to clipboard!')">📋 Copy</button>
+          <button class="result-action-btn" onclick="showToast('Saved!')">♡ Save</button>
+        </div>
+      </div>
+
+      <button class="mobile-btn-primary" style="margin-top: 8px;" onclick="showToast('Starting new generation...')">+ Generate More</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--color-text);color:white;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:var(--shadow-toast);opacity:0;transition:all 0.225s;z-index:999;"></div>
+
+<!-- Sketch Toolbar -->
+<div id="sketch-tools" style="position:fixed;bottom:12px;right:12px;z-index:9999;font-family:system-ui;font-size:12px;background:rgba(0,0,0,0.7);color:white;padding:8px 12px;border-radius:8px;opacity:0.4;transition:opacity 0.2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.4'">
+  <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'" style="background:transparent;color:white;border:1px solid rgba(255,255,255,0.3);border-radius:4px;padding:2px 4px;font-size:11px;">
+    <option value="default">Default</option>
+  </select>
+</div>
+
+<script>
+function showVariant(id) {
+  document.querySelectorAll('.variant').forEach(v => { v.style.display = 'none'; v.classList.remove('active'); });
+  document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('variant-' + id).style.display = 'flex';
+  document.getElementById('variant-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  t.style.opacity = '1';
+  setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(20px)'; t.style.opacity = '0'; }, 2500);
+}
+</script>
+
+</body>
+</html>

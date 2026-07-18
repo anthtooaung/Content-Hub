@@ -2,8 +2,11 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { ArrowLeft, Sparkles, Copy, Check, AlertTriangle, RefreshCw, Save, ChevronDown, ChevronUp } from 'lucide-react';
 import { clsx } from 'clsx';
+import AppLayout from '@/components/AppLayout';
+import Toast, { useToast } from '@/components/Toast';
+import { getGradeColor } from '@/lib/scoring';
 
 const platforms = [
   { id: 'TikTok', label: 'TikTok', color: 'bg-tiktok' },
@@ -30,6 +33,9 @@ interface PlatformResult {
 }
 
 export default function GeneratePage() {
+  const { toast, showToast, hideToast } = useToast();
+  const [activeTab, setActiveTab] = useState(0);
+  const [editModal, setEditModal] = useState<{ open: boolean; platform: string; text: string }>({ open: false, platform: '', text: '' });
   const [step, setStep] = useState<'form' | 'loading' | 'results'>('form');
 
   // Form state
@@ -147,26 +153,37 @@ export default function GeneratePage() {
   };
 
   return (
-    <div className="min-h-screen bg-page">
-      {/* Header */}
-      <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-8 py-4 max-md:px-4">
-          <Link href="/" className="flex items-center gap-2 text-lg font-bold text-text-primary">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
-              <Sparkles size={16} />
-            </div>
-            Content Hub
-          </Link>
-          <Link
-            href="/dashboard"
-            className="text-sm font-medium text-text-secondary transition-colors hover:text-primary"
-          >
-            Dashboard
-          </Link>
-        </div>
-      </header>
+    <AppLayout>
+      <Toast message={toast.message} show={toast.show} onHide={hideToast} />
 
-      <div className="mx-auto max-w-[720px] px-8 py-10 max-md:px-4 max-md:py-6">
+      {/* Edit Modal */}
+      {editModal.open && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6" onClick={() => setEditModal({ ...editModal, open: false })}>
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="relative w-full max-w-[600px] rounded-panel border border-border bg-surface shadow-modal animate-[modalIn_0.225s_ease]" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-border px-6 py-5">
+              <h3 className="text-base font-semibold">Edit {editModal.platform} Post</h3>
+              <button onClick={() => setEditModal({ ...editModal, open: false })} className="p-1 text-text-muted hover:text-text-primary transition-colors">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="px-6 py-5">
+              <textarea
+                value={editModal.text}
+                onChange={(e) => setEditModal({ ...editModal, text: e.target.value })}
+                className="min-h-[160px] w-full resize-y rounded-control border border-border p-3.5 text-sm font-[inherit] leading-relaxed outline-none transition-shadow focus:border-primary focus:shadow-focus"
+              />
+              <div className="mt-2 text-right text-xs text-text-muted">{editModal.text.length}/280 characters</div>
+            </div>
+            <div className="flex justify-end gap-2 border-t border-border px-6 py-4">
+              <button onClick={() => setEditModal({ ...editModal, open: false })} className="rounded-control border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-surface-subtle transition-all">Cancel</button>
+              <button onClick={() => { setEditModal({ ...editModal, open: false }); showToast('Post updated!'); }} className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600 transition-all">Save Changes</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mx-auto max-w-[720px] px-8 py-10 max-md:px-4 max-md:py-6 pb-24 md:pb-10">
         {/* Wizard Progress */}
         <div className="mb-8 flex items-center gap-3">
           {[
@@ -377,7 +394,7 @@ export default function GeneratePage() {
           </div>
         )}
       </div>
-    </div>
+    </AppLayout>
   );
 }
 
@@ -391,6 +408,9 @@ function ResultCard({
   index: number;
 }) {
   const [copied, setCopied] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [showScoreDetails, setShowScoreDetails] = useState(false);
 
   const platformColors: Record<string, string> = {
     TikTok: 'bg-tiktok',
@@ -412,6 +432,33 @@ function ResultCard({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleSave = async () => {
+    if (saved || saving) return;
+    setSaving(true);
+    try {
+      const response = await fetch('/api/history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          platform: result.platform,
+          post: result.content.post,
+          hashtags: result.content.hashtags,
+          caption: result.content.caption,
+          callToAction: result.content.callToAction,
+        }),
+      });
+      if (response.ok) {
+        setSaved(true);
+      } else {
+        console.error('Failed to save content');
+      }
+    } catch (error) {
+      console.error('Save error:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (result.status === 'loading') {
     return (
       <div className="rounded-panel border border-border bg-surface p-4">
@@ -430,13 +477,15 @@ function ResultCard({
     return (
       <div className="rounded-panel border border-warning bg-warning-soft p-4">
         <div className="mb-2 flex items-center gap-2 text-sm text-warning">
-          ⚠️ {result.error}
+          <AlertTriangle size={16} />
+          {result.error}
         </div>
         <button
           onClick={onRetry}
-          className="mt-2 rounded-control border border-warning bg-surface px-3 py-1.5 text-[13px] font-medium text-warning transition-colors hover:bg-warning-soft"
+          className="mt-2 flex items-center gap-1.5 rounded-control border border-warning bg-surface px-3 py-1.5 text-[13px] font-medium text-warning transition-colors hover:bg-warning-soft"
         >
-          ↻ Retry
+          <RefreshCw size={14} />
+          Retry
         </button>
       </div>
     );
@@ -454,12 +503,6 @@ function ResultCard({
         animation: `fadeSlideIn 0.3s ease forwards ${index * 0.1}s`,
       }}
     >
-      <style>{`
-        @keyframes fadeSlideIn {
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div
@@ -476,7 +519,19 @@ function ResultCard({
           onClick={copyAll}
           className="flex items-center gap-1.5 rounded-control border border-border px-3 py-1.5 text-[13px] font-medium text-text-secondary transition-all hover:border-primary-border hover:bg-primary-50 hover:text-primary"
         >
-          {copied ? '✓ Copied' : '📋 Copy'}
+          {copied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
+        </button>
+        <button
+          onClick={handleSave}
+          disabled={saving || saved}
+          className={clsx(
+            'flex items-center gap-1.5 rounded-control border px-3 py-1.5 text-[13px] font-medium transition-all',
+            saved
+              ? 'border-success bg-success-soft text-success'
+              : 'border-border text-text-secondary hover:border-primary-border hover:bg-primary-50 hover:text-primary'
+          )}
+        >
+          {saving ? 'Saving...' : saved ? <><Check size={14} /> Saved</> : <><Save size={14} /> Save</>}
         </button>
       </div>
 
@@ -501,6 +556,92 @@ function ResultCard({
           CTA: {result.content.callToAction}
         </div>
       )}
+
+      {/* Content Score */}
+      {result.content?.score && (
+        <div className="mt-4 pt-4 border-t border-border">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-text-primary">Score:</span>
+              <span className="text-lg font-bold text-text-primary">
+                {result.content.score.overall}/100
+              </span>
+              <span
+                className={clsx(
+                  'px-2 py-0.5 rounded-full text-xs font-bold',
+                  getGradeColor(result.content.score.grade)
+                )}
+              >
+                {result.content.score.grade}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowScoreDetails(!showScoreDetails)}
+              className="flex items-center gap-1 text-xs text-text-muted hover:text-text-primary transition-colors"
+            >
+              {showScoreDetails ? (
+                <>
+                  <ChevronUp size={14} />
+                  Hide details
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={14} />
+                  View breakdown
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Score Breakdown */}
+          {showScoreDetails && (
+            <div className="mt-3 space-y-2">
+              <ScoreBar label="Readability" score={result.content.score.readability} />
+              <ScoreBar label="Hashtag Relevance" score={result.content.score.hashtagRelevance} />
+              <ScoreBar label="CTA Strength" score={result.content.score.ctaStrength} />
+
+              {/* Suggestions */}
+              {result.content.score.suggestions?.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-border">
+                  <p className="text-xs font-medium text-text-muted mb-2">Suggestions:</p>
+                  <ul className="space-y-1">
+                    {result.content.score.suggestions.map((suggestion: string, i: number) => (
+                      <li key={i} className="text-xs text-text-secondary flex items-start gap-1.5">
+                        <span className="text-primary mt-0.5">•</span>
+                        {suggestion}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ScoreBar({ label, score }: { label: string; score: number }) {
+  const getBarColor = (score: number) => {
+    if (score >= 80) return 'bg-green-500';
+    if (score >= 60) return 'bg-blue-500';
+    if (score >= 40) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-xs text-text-muted w-32 shrink-0">{label}</span>
+      <div className="flex-1 h-2 bg-surface-subtle rounded-full overflow-hidden">
+        <div
+          className={clsx('h-full rounded-full transition-all', getBarColor(score))}
+          style={{ width: `${score}%` }}
+        />
+      </div>
+      <span className="text-xs font-medium text-text-primary w-8 text-right">
+        {score}
+      </span>
     </div>
   );
 }

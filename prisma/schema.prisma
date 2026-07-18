@@ -81,6 +81,8 @@ model users {
   content_generations content_generations[]
   published_posts     published_posts[]
   saved_posts         saved_posts[]
+  contents            Content[]
+  scheduled_posts     ScheduledPost[]
 }
 
 model social_connections {
@@ -102,6 +104,7 @@ model social_connections {
   // Relations
   user            users             @relation(fields: [user_id], references: [id], onDelete: Cascade)
   published_posts published_posts[]
+  scheduled_posts ScheduledPost[]
 
   @@unique([user_id, provider, provider_user_id])
 }
@@ -190,4 +193,78 @@ model saved_posts {
   // Relations
   user        users        @relation(fields: [user_id], references: [id], onDelete: Cascade)
   ai_response ai_responses @relation(fields: [ai_response_id], references: [id], onDelete: Cascade)
+}
+
+model Content {
+  id            String    @id @default(cuid())
+  userId        String    @db.Uuid
+  platform      String
+  tone          String?
+  topic         String?   @db.Text
+  post          String    @db.Text
+  hashtags      String[]
+  caption       String?   @db.Text
+  callToAction  String?   @db.Text
+  createdAt     DateTime  @default(now())
+
+  // Scoring fields (Phase 7)
+  scoreReadability      Int?
+  scoreHashtagRelevance Int?
+  scoreCtaStrength      Int?
+  scoreOverall          Int?
+  scoreGrade            String?   @db.VarChar(2)
+  scoreSuggestions      String?   @db.Text  // JSON array of suggestions
+
+  // Analytics fields (Phase 6)
+  viewCount      Int      @default(0)
+  lastAccessedAt DateTime?
+
+  // Relations
+  user           users           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scheduledPosts ScheduledPost[]
+  postMetrics    PostMetric[]
+
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
+}
+
+model ScheduledPost {
+  id                  String   @id @default(cuid())
+  userId              String   @db.Uuid
+  contentId           String
+  socialConnectionId  String   @db.Uuid
+  platform            String   // "facebook" | "instagram"
+  scheduledAt         DateTime
+  status              String   @default("scheduled") // scheduled | publishing | published | failed | cancelled
+  publishedAt         DateTime?
+  externalPostId      String?  @db.VarChar(255)
+  errorMessage        String?  @db.Text
+  retryCount          Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  user            users             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content         Content           @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  socialConnection social_connections @relation(fields: [socialConnectionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status, scheduledAt])
+}
+
+model PostMetric {
+  id              String   @id @default(cuid())
+  contentId       String
+  platform        String
+  likes           Int      @default(0)
+  comments        Int      @default(0)
+  shares          Int      @default(0)
+  impressions     Int      @default(0)
+  engagementRate  Float    @default(0)
+  fetchedAt       DateTime @default(now())
+
+  // Relations
+  content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@index([contentId])
 }

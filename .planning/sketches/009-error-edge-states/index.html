@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 009: Error & Edge States</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <style>
+    body { padding-top: 0; background: var(--color-page); }
+
+    #variant-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+      background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+      padding: 8px 16px; display: flex; gap: 8px; font-family: var(--font-sans);
+    }
+    .variant-tab {
+      padding: 6px 14px; border-radius: var(--radius-pill); border: 1px solid var(--color-border);
+      background: transparent; color: var(--color-text-secondary); cursor: pointer;
+      font-size: var(--text-small); font-weight: 500; transition: all var(--transition-fast);
+    }
+    .variant-tab:hover { background: var(--color-surface-subtle); }
+    .variant-tab.active { background: var(--color-primary); color: var(--color-text-on-primary); border-color: var(--color-primary); }
+
+    .variant { display: none; padding-top: 52px; min-height: 100vh; }
+    .variant.active { display: block; }
+
+    /* App header */
+    .app-header {
+      background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+      padding: 0 24px; height: 56px; display: flex; align-items: center;
+      justify-content: space-between; position: sticky; top: 52px; z-index: 100;
+    }
+    .app-logo { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; }
+    .app-logo svg { color: var(--color-primary); }
+    .app-nav { display: flex; gap: 4px; }
+    .app-nav-item {
+      padding: 8px 16px; border-radius: var(--radius-pill); font-size: 13px; font-weight: 500;
+      color: var(--color-text-secondary); cursor: pointer; transition: all var(--transition-fast);
+      border: none; background: none;
+    }
+    .app-nav-item:hover { background: var(--color-surface-subtle); color: var(--color-text); }
+    .app-nav-item.active { background: var(--color-primary-soft); color: var(--color-primary); }
+    .app-avatar { width: 32px; height: 32px; border-radius: 9999px; background: var(--color-primary-soft); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--color-primary); }
+
+    .app-body { max-width: 700px; margin: 0 auto; padding: 32px 24px; }
+
+    /* Error states */
+    .error-banner {
+      border-radius: var(--radius-card); padding: 20px; margin-bottom: 20px;
+      display: flex; gap: 14px; align-items: flex-start; animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    .error-banner.error { background: var(--color-error-soft); border: 1px solid #fecaca; }
+    .error-banner.warning { background: var(--color-warning-soft); border: 1px solid var(--color-warning-border); }
+    .error-banner.info { background: var(--color-info-soft); border: 1px solid #bae6fd; }
+    .error-icon {
+      width: 36px; height: 36px; border-radius: 9999px; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+    }
+    .error-icon.error { background: var(--color-error); color: white; }
+    .error-icon.warning { background: var(--color-warning); color: white; }
+    .error-icon.info { background: var(--color-info); color: white; }
+    .error-content { flex: 1; }
+    .error-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .error-title.error { color: var(--color-error); }
+    .error-title.warning { color: var(--color-warning); }
+    .error-title.info { color: var(--color-info); }
+    .error-message { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 10px; }
+    .error-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .error-dismiss {
+      background: none; border: none; cursor: pointer; color: var(--color-text-muted);
+      padding: 4px; transition: color var(--transition-fast); margin-left: auto; flex-shrink: 0;
+    }
+    .error-dismiss:hover { color: var(--color-text); }
+
+    /* Buttons */
+    .btn-primary {
+      padding: 8px 16px; background: var(--color-primary); color: white;
+      border: none; border-radius: var(--radius-control); font-size: 13px;
+      font-weight: 600; cursor: pointer; transition: all var(--transition-fast);
+    }
+    .btn-primary:hover { background: var(--color-primary-hover); }
+    .btn-secondary {
+      padding: 8px 16px; background: var(--color-surface); color: var(--color-text-secondary);
+      border: 1px solid var(--color-border); border-radius: var(--radius-control); font-size: 13px;
+      font-weight: 500; cursor: pointer; transition: all var(--transition-fast);
+    }
+    .btn-secondary:hover { background: var(--color-surface-subtle); border-color: var(--color-border-strong); }
+    .btn-link {
+      background: none; border: none; cursor: pointer; font-size: 13px; font-weight: 500;
+      color: var(--color-primary); padding: 0; transition: opacity var(--transition-fast);
+    }
+    .btn-link:hover { opacity: 0.8; }
+
+    /* Empty states */
+    .empty-state {
+      text-align: center; padding: 60px 24px; background: var(--color-surface);
+      border: 1px solid var(--color-border); border-radius: var(--radius-card);
+    }
+    .empty-icon { margin-bottom: 16px; color: var(--color-text-disabled); }
+    .empty-title { font-size: 18px; font-weight: 600; color: var(--color-text); margin-bottom: 8px; }
+    .empty-message { font-size: 14px; color: var(--color-text-muted); max-width: 360px; margin: 0 auto 20px; line-height: 1.6; }
+
+    /* Form error */
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 6px; }
+    .form-input {
+      width: 100%; padding: 10px 14px; border: 1px solid var(--color-border);
+      border-radius: var(--radius-control); font-size: 14px; font-family: var(--font-sans);
+      transition: border-color var(--transition-fast); background: var(--color-surface);
+    }
+    .form-input:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--shadow-focus); }
+    .form-input.error { border-color: var(--color-error); }
+    .form-error { font-size: 12px; color: var(--color-error); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+    .form-textarea { resize: vertical; min-height: 80px; }
+    .platform-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .platform-chip {
+      padding: 8px 16px; border-radius: 9999px; border: 1px solid var(--color-border);
+      font-size: 13px; font-weight: 500; cursor: pointer; transition: all var(--transition-fast);
+      background: var(--color-surface);
+    }
+    .platform-chip.selected { background: var(--color-primary-soft); border-color: var(--color-primary); color: var(--color-primary); }
+
+    /* Card */
+    .card {
+      background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card);
+      padding: 24px; box-shadow: var(--shadow-card);
+    }
+    .card h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+
+    /* Loading skeleton */
+    .skeleton { background: linear-gradient(90deg, var(--color-surface-subtle) 25%, #e2e8f0 50%, var(--color-surface-subtle) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .skeleton-line { height: 14px; margin-bottom: 10px; }
+    .skeleton-line.short { width: 60%; }
+    .skeleton-line.medium { width: 80%; }
+    .skeleton-block { height: 80px; margin-bottom: 12px; }
+
+    /* Rate limit bar */
+    .rate-limit-bar { height: 6px; background: var(--color-border); border-radius: 3px; overflow: hidden; margin: 12px 0; }
+    .rate-limit-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+    .rate-limit-fill.ok { background: var(--color-success); }
+    .rate-limit-fill.warn { background: var(--color-warning); }
+    .rate-limit-fill.danger { background: var(--color-error); }
+    .rate-limit-text { font-size: 12px; color: var(--color-text-muted); }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; background: var(--color-text);
+      color: white; padding: 10px 20px; border-radius: 8px; font-size: 13px;
+      font-weight: 500; box-shadow: var(--shadow-toast); transform: translateY(20px);
+      opacity: 0; transition: all var(--transition-panel); z-index: 999;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* State switcher */
+    .state-switcher {
+      position: fixed; bottom: 60px; left: 12px; z-index: 9999; font-family: system-ui;
+      font-size: 11px; background: rgba(0,0,0,0.7); color: white; padding: 8px 12px;
+      border-radius: 8px; display: flex; flex-direction: column; gap: 4px;
+    }
+    .state-switcher label { display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 2px 0; }
+    .state-switcher input[type="radio"] { accent-color: var(--color-primary); }
+  </style>
+</head>
+<body>
+
+<div id="variant-nav">
+  <button class="variant-tab active" onclick="showVariant('a')">A: Inline Banners</button>
+  <button class="variant-tab" onclick="showVariant('b')">B: Empty + Onboarding</button>
+  <button class="variant-tab" onclick="showVariant('c')">C: Full-Page Errors ★ Selected</button>
+</div>
+
+<!-- ==================== VARIANT A: Inline Banners ==================== -->
+<div id="variant-a" class="variant active">
+  <header class="app-header">
+    <div class="app-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Content Hub
+    </div>
+    <nav class="app-nav">
+      <button class="app-nav-item active">Generate</button>
+      <button class="app-nav-item">Dashboard</button>
+    </nav>
+    <div class="app-avatar">JD</div>
+  </header>
+
+  <div class="app-body">
+    <!-- Error: Generation failed -->
+    <div class="error-banner error" id="banner-gen-fail">
+      <div class="error-icon error">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      </div>
+      <div class="error-content">
+        <div class="error-title error">Generation failed</div>
+        <div class="error-message">The AI service timed out. This usually resolves on its own — try again in a moment.</div>
+        <div class="error-actions">
+          <button class="btn-primary" onclick="showToast('Retrying...')">Try Again</button>
+          <button class="btn-secondary" onclick="showToast('Switching to backup provider...')">Use Backup Provider</button>
+        </div>
+      </div>
+      <button class="error-dismiss" onclick="this.closest('.error-banner').style.display='none'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Warning: API key missing -->
+    <div class="error-banner warning" id="banner-api-key">
+      <div class="error-icon warning">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div class="error-content">
+        <div class="error-title warning">API key not configured</div>
+        <div class="error-message">Content generation requires an OpenAI or Gemini API key. Add one in Settings to start generating.</div>
+        <div class="error-actions">
+          <button class="btn-primary" onclick="showToast('Opening settings...')">Add API Key</button>
+          <button class="btn-link" onclick="showToast('Opening docs...')">Learn more</button>
+        </div>
+      </div>
+      <button class="error-dismiss" onclick="this.closest('.error-banner').style.display='none'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Info: Rate limit -->
+    <div class="error-banner info" id="banner-rate">
+      <div class="error-icon info">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      </div>
+      <div class="error-content">
+        <div class="error-title info">Approaching rate limit</div>
+        <div class="error-message">You've used 8 of 10 generations this hour. Free tier resets in 42 minutes.</div>
+        <div class="rate-limit-bar"><div class="rate-limit-fill warn" style="width: 80%;"></div></div>
+        <div class="rate-limit-text">8 / 10 generations used · Resets in 42 min</div>
+        <div class="error-actions" style="margin-top: 10px;">
+          <button class="btn-primary" onclick="showToast('Opening upgrade page...')">Upgrade Plan</button>
+        </div>
+      </div>
+      <button class="error-dismiss" onclick="this.closest('.error-banner').style.display='none'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Form with validation errors -->
+    <div class="card" style="margin-top: 24px;">
+      <h2>Generate Content</h2>
+      <div class="form-group">
+        <label class="form-label">Business Type</label>
+        <input class="form-input error" placeholder="e.g. Coffee shop" value="" />
+        <div class="form-error">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Business type is required
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">What are you promoting?</label>
+        <textarea class="form-input form-textarea" placeholder="Describe your campaign..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Platforms</label>
+        <div class="platform-chips">
+          <span class="platform-chip" onclick="this.classList.toggle('selected')">TikTok</span>
+          <span class="platform-chip" onclick="this.classList.toggle('selected')">Instagram</span>
+          <span class="platform-chip" onclick="this.classList.toggle('selected')">Facebook</span>
+        </div>
+        <div class="form-error" style="margin-top: 6px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Select at least one platform
+        </div>
+      </div>
+      <button class="btn-primary" onclick="showToast('Generating...')">Generate Content</button>
+    </div>
+
+    <!-- Partial failure state -->
+    <div class="card" style="margin-top: 24px;">
+      <h2>Generation Results</h2>
+      <div class="error-banner warning" style="margin-bottom: 16px;">
+        <div class="error-icon warning" style="width:28px;height:28px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="error-content">
+          <div class="error-title warning" style="font-size:13px;">Partial failure</div>
+          <div class="error-message" style="margin-bottom:0;font-size:12px;">TikTok and Instagram generated successfully. Facebook failed — try regenerating just that platform.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <span style="padding:4px 10px;border-radius:9999px;font-size:11px;font-weight:600;background:#1a1a2e;color:#fff;">TikTok ✓</span>
+        <span style="padding:4px 10px;border-radius:9999px;font-size:11px;font-weight:600;background:#fce4ec;color:#c2185b;">Instagram ✓</span>
+        <span style="padding:4px 10px;border-radius:9999px;font-size:11px;font-weight:600;background:var(--color-error-soft);color:var(--color-error);border:1px solid #fecaca;">Facebook ✗</span>
+      </div>
+      <button class="btn-secondary" onclick="showToast('Regenerating Facebook...')">🔄 Regenerate Facebook</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VARIANT B: Empty + Onboarding ==================== -->
+<div id="variant-b" class="variant" style="display:none;">
+  <header class="app-header">
+    <div class="app-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Content Hub
+    </div>
+    <nav class="app-nav">
+      <button class="app-nav-item">Generate</button>
+      <button class="app-nav-item active">Dashboard</button>
+    </nav>
+    <div class="app-avatar">JD</div>
+  </header>
+
+  <div class="app-body">
+    <!-- Empty dashboard -->
+    <div class="empty-state" style="margin-bottom: 24px;">
+      <div class="empty-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+      </div>
+      <div class="empty-title">No content yet</div>
+      <div class="empty-message">Generate your first social media post by describing your business and picking your platforms.</div>
+      <button class="btn-primary" onclick="showToast('Switching to Generate...')">+ Create Your First Post</button>
+    </div>
+
+    <!-- Empty generate (no API key) -->
+    <div class="card" style="margin-bottom: 24px;">
+      <h2>Generate Content</h2>
+      <div class="error-banner warning" style="margin-bottom: 16px;">
+        <div class="error-icon warning" style="width:28px;height:28px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="error-content">
+          <div class="error-title warning" style="font-size:13px;">Setup required</div>
+          <div class="error-message" style="margin-bottom:0;font-size:12px;">Add an API key in Settings to start generating content.</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Business Type</label>
+        <input class="form-input" placeholder="e.g. Coffee shop" disabled style="opacity:0.5;" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">What are you promoting?</label>
+        <textarea class="form-input form-textarea" placeholder="Describe your campaign..." disabled style="opacity:0.5;"></textarea>
+      </div>
+      <button class="btn-primary" disabled style="opacity:0.5;cursor:not-allowed;">Generate Content</button>
+    </div>
+
+    <!-- Network error -->
+    <div class="error-banner error">
+      <div class="error-icon error">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+      </div>
+      <div class="error-content">
+        <div class="error-title error">No internet connection</div>
+        <div class="error-message">Content generation requires an internet connection. Check your network and try again.</div>
+        <div class="error-actions">
+          <button class="btn-primary" onclick="showToast('Checking connection...')">Retry</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VARIANT C: Full-Page Errors ==================== -->
+<div id="variant-c" class="variant" style="display:none;">
+  <header class="app-header">
+    <div class="app-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Content Hub
+    </div>
+    <nav class="app-nav">
+      <button class="app-nav-item active">Generate</button>
+      <button class="app-nav-item">Dashboard</button>
+    </nav>
+    <div class="app-avatar">JD</div>
+  </header>
+
+  <div class="app-body">
+    <!-- 404 -->
+    <div class="empty-state" style="margin-bottom: 24px;">
+      <div class="empty-icon">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+      </div>
+      <div class="empty-title">Page not found</div>
+      <div class="empty-message">The page you're looking for doesn't exist or has been moved.</div>
+      <div style="display:flex;gap:8px;justify-content:center;">
+        <button class="btn-primary" onclick="showToast('Going home...')">Go Home</button>
+        <button class="btn-secondary" onclick="showToast('Going back...')">Go Back</button>
+      </div>
+    </div>
+
+    <!-- Server error -->
+    <div class="empty-state" style="margin-bottom: 24px;">
+      <div class="empty-icon">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </div>
+      <div class="empty-title">Something went wrong</div>
+      <div class="empty-message">Our servers hit an unexpected error. The team has been notified. Try again in a moment.</div>
+      <div style="display:flex;gap:8px;justify-content:center;">
+        <button class="btn-primary" onclick="showToast('Retrying...')">Try Again</button>
+        <button class="btn-secondary" onclick="showToast('Opening status page...')">Check Status</button>
+      </div>
+      <div style="margin-top: 16px; padding: 12px; background: var(--color-surface-subtle); border-radius: 8px; font-family: monospace; font-size: 12px; color: var(--color-text-muted); text-align: left;">
+        Error ID: err_7f3a2b1c · 2026-07-18T14:32:00Z
+      </div>
+    </div>
+
+    <!-- Auth expired -->
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div class="empty-title">Session expired</div>
+      <div class="empty-message">Your login session has timed out. Sign in again to continue generating content.</div>
+      <button class="btn-primary" onclick="showToast('Redirecting to login...')">Sign In</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Sketch Toolbar -->
+<div id="sketch-tools" style="position:fixed;bottom:12px;right:12px;z-index:9999;font-family:system-ui;font-size:12px;background:rgba(0,0,0,0.7);color:white;padding:8px 12px;border-radius:8px;opacity:0.4;transition:opacity 0.2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.4'">
+  <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'" style="background:transparent;color:white;border:1px solid rgba(255,255,255,0.3);border-radius:4px;padding:2px 4px;font-size:11px;">
+    <option value="default">Default</option>
+  </select>
+</div>
+
+<script>
+function showVariant(id) {
+  document.querySelectorAll('.variant').forEach(v => { v.style.display = 'none'; v.classList.remove('active'); });
+  document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('variant-' + id).style.display = 'block';
+  document.getElementById('variant-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+
+</body>
+</html>

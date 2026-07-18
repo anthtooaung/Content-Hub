@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Sparkles, Plus, FileText } from 'lucide-react';
+import { Sparkles, Plus, FileText, Copy, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { clsx } from 'clsx';
+import AppLayout from '@/components/AppLayout';
+import EmptyState from '@/components/EmptyState';
+import { getGradeColor } from '@/lib/scoring';
 
 interface ContentItem {
   id: string;
@@ -14,12 +17,24 @@ interface ContentItem {
   caption: string;
   callToAction?: string;
   createdAt: string;
+  scoreOverall?: number;
+  scoreGrade?: string;
+  scoreReadability?: number;
+  scoreHashtagRelevance?: number;
+  scoreCtaStrength?: number;
+  scoreSuggestions?: string;
 }
 
 const platformColors: Record<string, string> = {
   TikTok: 'bg-tiktok',
   Instagram: 'bg-instagram',
   Facebook: 'bg-facebook',
+};
+
+const platformBorders: Record<string, string> = {
+  TikTok: 'border-t-tiktok',
+  Instagram: 'border-t-instagram',
+  Facebook: 'border-t-facebook',
 };
 
 function formatDate(dateStr: string): string {
@@ -78,27 +93,8 @@ export default function DashboardPage() {
   const groups = groupByDate(content);
 
   return (
-    <div className="min-h-screen bg-page">
-      {/* Header */}
-      <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-8 py-4 max-md:px-4">
-          <Link href="/" className="flex items-center gap-2 text-lg font-bold text-text-primary">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
-              <Sparkles size={16} />
-            </div>
-            Content Hub
-          </Link>
-          <Link
-            href="/generate"
-            className="flex items-center gap-1.5 rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-primary-600"
-          >
-            <Plus size={16} />
-            Generate
-          </Link>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-[1200px] px-8 py-10 max-md:px-4 max-md:py-6">
+    <AppLayout>
+      <div className="mx-auto max-w-[1200px] px-8 py-10 max-md:px-4 max-md:py-6 pb-24 md:pb-10">
         <div className="mb-8">
           <h1 className="text-[28px] font-semibold text-text-primary">Dashboard</h1>
           <p className="mt-1 text-text-secondary">Your generated content history</p>
@@ -111,22 +107,20 @@ export default function DashboardPage() {
           </div>
         ) : content.length === 0 ? (
           /* Empty State */
-          <div className="rounded-panel border border-border bg-surface py-20 text-center">
-            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-panel bg-surface-subtle">
-              <FileText size={36} className="text-text-muted" />
-            </div>
-            <h3 className="mb-2 text-lg font-semibold text-text-primary">No content yet</h3>
-            <p className="mb-6 text-text-secondary">
-              Generate your first social media posts and they&apos;ll appear here.
-            </p>
-            <Link
-              href="/generate"
-              className="inline-flex items-center gap-2 rounded-control bg-primary px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-600 active:translate-y-0"
-            >
-              <Sparkles size={16} />
-              Generate your first post
-            </Link>
-          </div>
+          <EmptyState
+            icon={<FileText size={36} />}
+            title="No content yet"
+            message="Generate your first social media posts and they'll appear here."
+            action={
+              <Link
+                href="/generate"
+                className="inline-flex items-center gap-2 rounded-control bg-primary px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-600 active:translate-y-0"
+              >
+                <Sparkles size={16} />
+                Generate your first post
+              </Link>
+            }
+          />
         ) : (
           /* Timeline */
           <div className="relative pl-10">
@@ -146,7 +140,14 @@ export default function DashboardPage() {
                   {items.map((item) => (
                     <div
                       key={item.id}
-                      className="group rounded-panel border border-border bg-surface p-4 transition-all duration-150 hover:shadow-card-hover hover:border-border-strong"
+                      className={clsx(
+                        'group rounded-panel border border-border bg-surface p-4 transition-all duration-150 hover:shadow-card-hover hover:border-border-strong hover:-translate-y-1 border-t-[3px]',
+                        platformBorders[item.platform],
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2'
+                      )}
+                      tabIndex={0}
+                      role="article"
+                      aria-label={`${item.platform} content from ${formatDate(item.createdAt)}`}
                     >
                       <div className="mb-3 flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -198,21 +199,43 @@ export default function DashboardPage() {
                         </div>
                       )}
 
+                      {/* Score Badge */}
+                      {item.scoreOverall !== undefined && item.scoreGrade && (
+                        <div className="mb-2 flex items-center gap-2">
+                          <span className="text-xs text-text-muted">Score:</span>
+                          <span className="text-sm font-bold text-text-primary">
+                            {item.scoreOverall}/100
+                          </span>
+                          <span
+                            className={clsx(
+                              'px-2 py-0.5 rounded-full text-xs font-bold',
+                              getGradeColor(item.scoreGrade)
+                            )}
+                          >
+                            {item.scoreGrade}
+                          </span>
+                        </div>
+                      )}
+
                       {/* Actions */}
                       <div className="flex items-center gap-2 pt-2 border-t border-border">
                         <button
                           onClick={() =>
                             setExpandedId(expandedId === item.id ? null : item.id)
                           }
-                          className="rounded-control border border-border px-3 py-1.5 text-[13px] font-medium text-text-secondary transition-all hover:border-border-strong hover:bg-surface-subtle"
+                          className="flex items-center gap-1.5 rounded-control border border-border px-3 py-1.5 text-[13px] font-medium text-text-secondary transition-all hover:border-border-strong hover:bg-surface-subtle"
                         >
-                          {expandedId === item.id ? 'Show less' : 'Show more'}
+                          {expandedId === item.id ? (
+                            <><ChevronUp size={14} /> Show less</>
+                          ) : (
+                            <><ChevronDown size={14} /> Show more</>
+                          )}
                         </button>
                         <button
                           onClick={() => copyPost(item)}
-                          className="rounded-control border border-border px-3 py-1.5 text-[13px] font-medium text-text-secondary transition-all hover:border-primary-border hover:bg-primary-50 hover:text-primary"
+                          className="flex items-center gap-1.5 rounded-control border border-border px-3 py-1.5 text-[13px] font-medium text-text-secondary transition-all hover:border-primary-border hover:bg-primary-50 hover:text-primary"
                         >
-                          {copiedId === item.id ? '✓ Copied' : '📋 Copy'}
+                          {copiedId === item.id ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
                         </button>
                       </div>
 
@@ -247,6 +270,6 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
-    </div>
+    </AppLayout>
   );
 }

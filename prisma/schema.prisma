@@ -3,192 +3,75 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-// ─── ENUMS ───────────────────────────────────────────────
-
-enum login_provider_type {
-  email
-  google
-  facebook
-  tiktok
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  password      String?
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  content       Content[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
-enum oauth_provider_type {
-  google
-  facebook
-  tiktok
-  instagram
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
 }
 
-enum platform_type {
-  facebook
-  instagram
-  linkedin
-  twitter
-  tiktok
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-enum tone_type {
-  professional
-  casual
-  humorous
-  inspirational
-  educational
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
-enum generation_status {
-  pending
-  processing
-  completed
-  failed
-}
+model Content {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platform    String
+  tone        String
+  topic       String?
+  post        String   @db.Text
+  hashtags    String[]
+  caption     String   @db.Text
+  callToAction String?
+  isFavorite  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-enum ai_response_status {
-  draft
-  ready_to_post
-  posted
-  failed
-}
-
-enum post_status {
-  pending
-  posted
-  failed
-}
-
-// ─── TABLES ──────────────────────────────────────────────
-
-/// Self-managed user table — handles both email/password and OAuth signups.
-/// Password is hashed (bcrypt) at the application layer before storing.
-/// OAuth-only users will have password_hash = NULL.
-model users {
-  id                     String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email                  String               @unique @db.VarChar(255)
-  name                   String?              @db.VarChar(255)
-  avatar_url             String?
-  password_hash          String?              /// bcrypt hash — NULL for OAuth-only users
-  email_verified         Boolean              @default(false)
-  primary_login_provider login_provider_type   @default(email)
-  created_at             DateTime             @default(now()) @db.Timestamptz()
-  updated_at             DateTime             @default(now()) @updatedAt @db.Timestamptz()
-
-  // Relations
-  social_connections  social_connections[]
-  businesses          businesses[]
-  content_generations content_generations[]
-  published_posts     published_posts[]
-  saved_posts         saved_posts[]
-}
-
-model social_connections {
-  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id           String              @db.Uuid
-  provider          oauth_provider_type
-  provider_user_id  String?             @db.VarChar(255)
-  provider_username String?             @db.VarChar(255)
-  access_token      String?
-  refresh_token     String?
-  token_expires_at  DateTime?           @db.Timestamptz()
-  platform_page_id  String?             @db.VarChar(255)
-  used_for_login    Boolean             @default(false)
-  used_for_posting  Boolean             @default(false)
-  is_active         Boolean             @default(true)
-  connected_at      DateTime            @default(now()) @db.Timestamptz()
-  updated_at        DateTime            @default(now()) @updatedAt @db.Timestamptz()
-
-  // Relations
-  user            users             @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  published_posts published_posts[]
-
-  @@unique([user_id, provider, provider_user_id])
-}
-
-model businesses {
-  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id         String    @db.Uuid
-  business_name   String    @db.VarChar(255)
-  industry        String?   @db.VarChar(100)
-  target_audience String?
-  deleted_at      DateTime? @db.Timestamptz()
-  created_at      DateTime  @default(now()) @db.Timestamptz()
-  updated_at      DateTime  @default(now()) @updatedAt @db.Timestamptz()
-
-  // Relations
-  user                users                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  content_generations content_generations[]
-}
-
-model content_generations {
-  id                  String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id             String            @db.Uuid
-  business_id         String?           @db.Uuid
-  platform            platform_type
-  tone                tone_type
-  language            String?           @db.VarChar(10)
-  prompt              String
-  image_url           String?
-  auto_post_requested Boolean           @default(false)
-  status              generation_status @default(pending)
-  created_at          DateTime          @default(now()) @db.Timestamptz()
-
-  // Relations
-  user         users          @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  business     businesses?    @relation(fields: [business_id], references: [id], onDelete: SetNull)
-  ai_responses ai_responses[]
-}
-
-model ai_responses {
-  id                    String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  content_generation_id String             @db.Uuid
-  generated_content     String
-  hashtags              String[]
-  call_to_action        String?
-  ai_model              String?            @db.VarChar(100)
-  tokens_used           Int?
-  status                ai_response_status @default(draft)
-  created_at            DateTime           @default(now()) @db.Timestamptz()
-
-  // Relations
-  content_generation content_generations @relation(fields: [content_generation_id], references: [id], onDelete: Cascade)
-  published_posts    published_posts[]
-  saved_posts        saved_posts[]
-}
-
-model published_posts {
-  id                   String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id              String        @db.Uuid
-  ai_response_id       String        @db.Uuid
-  social_connection_id String        @db.Uuid
-  platform             platform_type
-  external_post_id     String?       @db.VarChar(255)
-  caption_used         String?
-  image_url            String?
-  status               post_status   @default(pending)
-  error_message        String?
-  posted_at            DateTime?     @db.Timestamptz()
-  created_at           DateTime      @default(now()) @db.Timestamptz()
-
-  // Relations
-  user              users              @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  ai_response       ai_responses       @relation(fields: [ai_response_id], references: [id], onDelete: Cascade)
-  social_connection social_connections  @relation(fields: [social_connection_id], references: [id], onDelete: Cascade)
-}
-
-model saved_posts {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id        String   @db.Uuid
-  ai_response_id String   @db.Uuid
-  title          String?  @db.VarChar(255)
-  is_favorite    Boolean  @default(false)
-  notes          String?
-  created_at     DateTime @default(now()) @db.Timestamptz()
-  updated_at     DateTime @default(now()) @updatedAt @db.Timestamptz()
-
-  // Relations
-  user        users        @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  ai_response ai_responses @relation(fields: [ai_response_id], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@index([platform])
+  @@index([createdAt])
 }

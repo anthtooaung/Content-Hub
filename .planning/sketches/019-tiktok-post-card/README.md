@@ -2,7 +2,7 @@
 sketch: 019
 name: tiktok-post-card
 question: "What does a pixel-perfect TikTok post card look like with generated content and user images?"
-winner: null
+winner: "B"
 tags: [tiktok, post-card, pixel-perfect, social-media, dark-mode]
 ---
 
@@ -16,7 +16,7 @@ open .planning/sketches/019-tiktok-post-card/index.html
 
 ## Variants
 - **A: With User Image** — Full TikTok video card (9:16 aspect) with user's image as the video background, right sidebar (profile, like, comment, bookmark, share), bottom caption with hashtags, spinning sound disc. Dark theme.
-- **B: No Image (Prompt)** — Same card structure but with an "Add a video thumbnail or image" placeholder in the video area. Shows the empty state.
+- **B: No Image (Prompt)** ★ Selected — Same card structure but with an "Add a video thumbnail or image" placeholder in the video area. Shows the empty state.
 - **C: Compact Feed View** — Two compact horizontal cards (16:9) for listing multiple posts in a dashboard or results list. Shows with-image and no-image states side by side.
 
 ## What to Look For

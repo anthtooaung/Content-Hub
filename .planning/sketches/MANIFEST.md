@@ -27,7 +27,7 @@ Calm, modern, helpful AI content generation workspace. Blue controls the AI syst
 | 014 | platform-template-cards | How should template cards reflect each platform's brand identity? | C | templates, cards, platform-branding, facebook, tiktok, instagram |
 | 015 | landing-how-it-works | How should the "How It Works" section guide visitors through the product? | C | landing, steps, onboarding, visual-flow |
 | 016 | landing-social-proof | How should the social proof section build credibility without fake testimonials? | A | landing, stats, social-proof, trust, metrics |
-| 017 | image-upload-form | How should the image upload button integrate into the existing generate form? | null | image, upload, form, generate |
-| 018 | facebook-post-card | What does a pixel-perfect Facebook post card look like with generated content and user images? | null | facebook, post-card, pixel-perfect, social-media |
-| 019 | tiktok-post-card | What does a pixel-perfect TikTok post card look like with generated content and user images? | null | tiktok, post-card, pixel-perfect, social-media, dark-mode |
-| 020 | instagram-post-card | What does a pixel-perfect Instagram post card look like with generated content and user images? | null | instagram, post-card, pixel-perfect, social-media, feed |
+| 017 | image-upload-form | How should the image upload button integrate into the existing generate form? | A | image, upload, form, generate |
+| 018 | facebook-post-card | What does a pixel-perfect Facebook post card look like with generated content and user images? | B | facebook, post-card, pixel-perfect, social-media |
+| 019 | tiktok-post-card | What does a pixel-perfect TikTok post card look like with generated content and user images? | B | tiktok, post-card, pixel-perfect, social-media, dark-mode |
+| 020 | instagram-post-card | What does a pixel-perfect Instagram post card look like with generated content and user images? | B | instagram, post-card, pixel-perfect, social-media, feed |

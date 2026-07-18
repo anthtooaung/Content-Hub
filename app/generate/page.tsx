@@ -23,12 +23,7 @@ const platforms = [
 const emotions = [
   { id: 'joy', label: 'Joy', emoji: '😊' },
   { id: 'excitement', label: 'Excitement', emoji: '🔥' },
-  { id: 'trust', label: 'Trust', emoji: '🤝' },
   { id: 'inspiration', label: 'Inspiration', emoji: '✨' },
-  { id: 'urgency', label: 'Urgency', emoji: '⚡' },
-  { id: 'curiosity', label: 'Curiosity', emoji: '👀' },
-  { id: 'pride', label: 'Pride', emoji: '🏆' },
-  { id: 'gratitude', label: 'Gratitude', emoji: '🙏' },
 ];
 
 const ageGroups = [
@@ -487,7 +482,7 @@ function GenerateContent() {
                               'flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] font-medium transition-all duration-150',
                               emotion === e.id
                                 ? 'border-primary bg-primary-50 text-primary shadow-[0_0_0_2px_rgba(37,99,235,0.12)]'
-                                : 'border-border bg-surface text-text-secondary hover:border-border-strong hover:bg-surface-subtle'
+                                : 'border-border-strong bg-surface text-text-secondary hover:border-text-disabled hover:bg-surface-subtle'
                             )}
                           >
                             <span className="text-base">{e.emoji}</span>

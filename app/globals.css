@@ -7,6 +7,7 @@
   --color-primary: #2563EB;
   --color-primary-hover: #1D4ED8;
   --color-primary-active: #1E40AF;
+  --color-primary-50: #EFF6FF;
   --color-primary-soft: #EFF6FF;
   --color-primary-border: #93C5FD;
   --color-focus: #3B82F6;
@@ -83,6 +84,52 @@
   /* Transitions */
   --transition-fast: 150ms;
   --transition-panel: 225ms;
+
+  /* Shadows — light mode color values */
+  --shadow-card-color: rgba(15, 23, 42, 0.06);
+  --shadow-card-hover-color: rgba(15, 23, 42, 0.08);
+  --shadow-modal-color: rgba(15, 23, 42, 0.16);
+  --shadow-toast-color: rgba(15, 23, 42, 0.12);
+}
+
+/* ── Dark Mode ── */
+.dark {
+  /* Colors — Core */
+  --color-primary: #3B82F6;
+  --color-primary-hover: #2563EB;
+  --color-primary-active: #1D4ED8;
+  --color-primary-50: rgba(59, 130, 246, 0.15);
+
+  /* Colors — Surface */
+  --color-page: #0F172A;
+  --color-surface: #1E293B;
+  --color-surface-subtle: #334155;
+
+  /* Colors — Text */
+  --color-text: #F1F5F9;
+  --color-text-secondary: #CBD5E1;
+  --color-text-muted: #94A3B8;
+  --color-text-disabled: #475569;
+
+  /* Colors — Border */
+  --color-border: #334155;
+  --color-border-strong: #475569;
+
+  /* Colors — Semantic */
+  --color-success: #4ADE80;
+  --color-success-soft: rgba(74, 222, 128, 0.1);
+  --color-warning: #FBBF24;
+  --color-warning-soft: rgba(251, 191, 36, 0.1);
+  --color-error: #F87171;
+  --color-error-soft: rgba(248, 113, 113, 0.1);
+  --color-info: #38BDF8;
+  --color-info-soft: rgba(56, 189, 248, 0.1);
+
+  /* Shadows — dark mode */
+  --shadow-card-color: rgba(0, 0, 0, 0.25);
+  --shadow-card-hover-color: rgba(0, 0, 0, 0.35);
+  --shadow-modal-color: rgba(0, 0, 0, 0.5);
+  --shadow-toast-color: rgba(0, 0, 0, 0.4);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -105,6 +152,31 @@ button {
   background: none;
   color: inherit;
   padding: 0;
+}
+
+/* NProgress */
+#nprogress {
+  pointer-events: none;
+}
+#nprogress .bar {
+  background: var(--color-primary);
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+}
+#nprogress .peg {
+  box-shadow: 0 0 10px var(--color-primary), 0 0 5px var(--color-primary);
+  position: fixed;
+  display: block;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 100px;
+  transform: rotate(3deg) translate(0, -4px);
+  opacity: 1;
 }
 
 /* Animations */

@@ -1,56 +1,26 @@
 'use client';
 
-import { useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
-import { User, Link2, Sun, LogOut } from 'lucide-react';
+import { User, Sun, Moon, Monitor, Palette, LogOut } from 'lucide-react';
 import { clsx } from 'clsx';
 import AppLayout from '@/components/AppLayout';
 import Toast, { useToast } from '@/components/Toast';
-
-interface PlatformRow {
-  id: string;
-  name: string;
-  icon: string;
-  iconBg: string;
-  connected: boolean;
-  autoPost: boolean;
-  accountLabel?: string;
-}
-
-const defaultPlatforms: PlatformRow[] = [
-  { id: 'tiktok', name: 'TikTok', icon: 'TT', iconBg: 'bg-tiktok', connected: true, autoPost: true, accountLabel: '@janedoe_business' },
-  { id: 'instagram', name: 'Instagram', icon: 'IG', iconBg: 'bg-instagram', connected: false, autoPost: false },
-  { id: 'facebook', name: 'Facebook', icon: 'FB', iconBg: 'bg-facebook', connected: true, autoPost: true, accountLabel: "Jane's Business Page" },
-];
+import { useTheme } from '@/components/ThemeProvider';
 
 const themes = [
-  { id: 'light', label: 'Light', icon: '☀️', desc: 'Default' },
-  { id: 'dark', label: 'Dark', icon: '🌙', desc: 'Easy on eyes' },
-  { id: 'system', label: 'System', icon: '💻', desc: 'Match OS' },
+  { id: 'light', label: 'Light', icon: Sun, desc: 'Default' },
+  { id: 'dark', label: 'Dark', icon: Moon, desc: 'Easy on eyes' },
+  { id: 'system', label: 'System', icon: Monitor, desc: 'Match OS' },
 ] as const;
 
 export default function SettingsPage() {
   const { data: session } = useSession();
   const { toast, showToast, hideToast } = useToast();
-  const [platforms, setPlatforms] = useState<PlatformRow[]>(defaultPlatforms);
-  const [activeTheme, setActiveTheme] = useState<string>('system');
+  const { theme: activeTheme, setTheme: setActiveTheme } = useTheme();
 
   const userName = (session?.user?.name as string) || 'Jane Doe';
   const userEmail = (session?.user?.email as string) || 'jane@example.com';
   const initials = userName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
-
-  const toggleAutoPost = (id: string) => {
-    setPlatforms((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, autoPost: !p.autoPost } : p))
-    );
-    showToast('Auto-post setting updated');
-  };
-
-  const toggleConnection = (id: string) => {
-    setPlatforms((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, connected: !p.connected, autoPost: p.connected ? false : p.autoPost } : p))
-    );
-  };
 
   return (
     <AppLayout>
@@ -77,77 +47,10 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        {/* Platforms Section */}
-        <section className="mb-5 rounded-panel border border-border bg-surface p-6">
-          <SectionHeader
-            icon={<Link2 size={18} />}
-            title="Platform Connections"
-            desc="Connect your accounts and configure auto-posting"
-          />
-
-          <div className="rounded-control border border-border overflow-hidden">
-            {platforms.map((platform, index) => (
-              <div
-                key={platform.id}
-                className={clsx(
-                  'flex items-center justify-between px-5 py-4 transition-colors duration-150',
-                  index < platforms.length - 1 && 'border-b border-border'
-                )}
-              >
-                {/* Left: Icon + Platform Name */}
-                <div className="flex items-center gap-3">
-                  <div className={clsx('flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold text-white', platform.iconBg)}>
-                    {platform.icon}
-                  </div>
-                  <div>
-                    <div className="text-[14px] font-semibold text-text-primary">{platform.name}</div>
-                    {platform.connected && platform.accountLabel && (
-                      <div className="text-[12px] text-text-muted">{platform.accountLabel}</div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Right: Connect/Disconnect Button + Toggle */}
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => toggleConnection(platform.id)}
-                    className={clsx(
-                      'rounded-control border px-4 py-2 text-[13px] font-semibold transition-colors duration-150',
-                      platform.connected
-                        ? 'border-border bg-surface text-text-secondary hover:bg-surface-subtle hover:border-border-strong'
-                        : 'border-primary bg-primary text-white hover:bg-primary-600'
-                    )}
-                  >
-                    {platform.connected ? 'Disconnect' : 'Connect'}
-                  </button>
-
-                  <button
-                    onClick={() => toggleAutoPost(platform.id)}
-                    disabled={!platform.connected}
-                    aria-label={`Toggle auto-post for ${platform.name}`}
-                    className={clsx(
-                      'relative h-6 w-11 shrink-0 rounded-full transition-colors duration-150',
-                      platform.autoPost && platform.connected ? 'bg-primary' : 'bg-border-strong',
-                      !platform.connected && 'opacity-40 cursor-not-allowed'
-                    )}
-                  >
-                    <span
-                      className={clsx(
-                        'absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-150',
-                        platform.autoPost && platform.connected && 'translate-x-5'
-                      )}
-                    />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* Preferences Section */}
         <section className="mb-5 rounded-panel border border-border bg-surface p-6">
           <SectionHeader
-            icon={<Sun size={18} />}
+            icon={<Palette size={18} />}
             title="Preferences"
             desc="Customize your experience"
           />
@@ -165,7 +68,9 @@ export default function SettingsPage() {
                     : 'border-border bg-surface hover:border-border-strong'
                 )}
               >
-                <div className="mb-1 text-xl">{theme.icon}</div>
+                <div className="mb-1 text-text-primary">
+                  <theme.icon size={24} />
+                </div>
                 <div className="text-sm font-medium text-text-primary">{theme.label}</div>
                 <div className="text-[11px] text-text-muted">{theme.desc}</div>
               </button>

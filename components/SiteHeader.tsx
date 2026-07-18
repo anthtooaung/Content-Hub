@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { Sparkles, Plus, LayoutGrid, User } from 'lucide-react';
+import { Plus, LayoutGrid, User } from 'lucide-react';
+import Logo from '@/components/Logo';
 import { clsx } from 'clsx';
 
 export default function SiteHeader() {
@@ -16,13 +17,10 @@ export default function SiteHeader() {
   const isProfile = pathname === '/profile';
 
   return (
-    <header className="border-b border-border bg-surface">
+    <header className="sticky top-0 z-[9999] border-b border-border bg-surface">
       <div className="mx-auto flex max-w-[1200px] items-center justify-between px-8 py-4 max-md:px-4">
-        <Link href="/" className="flex items-center gap-2 text-lg font-bold text-text-primary">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
-            <Sparkles size={16} />
-          </div>
-          Content Hub
+        <Link href="/" className="flex items-center">
+          <Logo size={28} />
         </Link>
 
         <div className="flex items-center gap-6">

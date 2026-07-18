@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { Suspense, useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ArrowLeft, Sparkles, Copy, Check, AlertTriangle, RefreshCw, Save, ChevronDown, ChevronUp } from 'lucide-react';
@@ -35,6 +35,23 @@ interface PlatformResult {
 }
 
 export default function GeneratePage() {
+  return (
+    <Suspense fallback={
+      <AppLayout>
+        <div className="mx-auto max-w-[720px] px-8 py-10 max-md:px-4 max-md:py-6 pb-24 md:pb-10">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-surface-subtle rounded w-48" />
+            <div className="h-64 bg-surface-subtle rounded-panel" />
+          </div>
+        </div>
+      </AppLayout>
+    }>
+      <GenerateContent />
+    </Suspense>
+  );
+}
+
+function GenerateContent() {
   const searchParams = useSearchParams();
   const { toast, showToast, hideToast } = useToast();
   const [activeTab, setActiveTab] = useState(0);

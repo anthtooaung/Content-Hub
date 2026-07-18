@@ -63,7 +63,7 @@ function formatCountdown(scheduledAt: string): string {
 export default function SchedulePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { addToast } = useToast();
+  const { showToast } = useToast();
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
@@ -97,7 +97,7 @@ export default function SchedulePage() {
       }
     } catch (error) {
       console.error('Failed to fetch scheduled posts:', error);
-      addToast('Failed to load scheduled posts', 'error');
+      showToast('Failed to load scheduled posts');
     } finally {
       setLoading(false);
     }
@@ -116,13 +116,13 @@ export default function SchedulePage() {
             post.id === id ? { ...post, status: 'cancelled' } : post
           )
         );
-        addToast('Scheduled post cancelled', 'success');
+        showToast('Scheduled post cancelled');
       } else {
-        addToast('Failed to cancel scheduled post', 'error');
+        showToast('Failed to cancel scheduled post');
       }
     } catch (error) {
       console.error('Failed to cancel:', error);
-      addToast('Failed to cancel scheduled post', 'error');
+      showToast('Failed to cancel scheduled post');
     } finally {
       setCancellingId(null);
     }
@@ -161,13 +161,17 @@ export default function SchedulePage() {
 
         {scheduledPosts.length === 0 ? (
           <EmptyState
-            icon={Calendar}
+            icon={<Calendar size={40} />}
             title="No scheduled posts"
             message="Schedule your generated content to be published automatically at your preferred time."
-            action={{
-              label: 'Generate Content',
-              onClick: () => router.push('/generate'),
-            }}
+            action={
+              <button
+                onClick={() => router.push('/generate')}
+                className="px-4 py-2 bg-primary text-white rounded-control hover:bg-primary-hover transition-colors"
+              >
+                Generate Content
+              </button>
+            }
           />
         ) : (
           <>

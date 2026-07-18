@@ -104,6 +104,20 @@ function GenerateContent() {
   // Results state
   const [results, setResults] = useState<PlatformResult[]>([]);
 
+  // Ticket state
+  const GENERATION_COST = 3;
+  const [ticketBalance, setTicketBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!session) return;
+    fetch('/api/tickets')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setTicketBalance(data.balance);
+      })
+      .catch(() => {});
+  }, [session]);
+
   const togglePlatform = (id: string) => {
     setSelectedPlatforms((prev) =>
       prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
@@ -179,6 +193,30 @@ function GenerateContent() {
     // If guest user, redirect to login
     if (!session) {
       router.push('/auth/signin?callbackUrl=/generate');
+      return;
+    }
+
+    // Pre-flight ticket spend — charged once per submit regardless of
+    // how many platforms are selected (the actual generation fans out
+    // into N parallel requests below, which can't safely coordinate
+    // a shared decrement).
+    try {
+      const spendRes = await fetch('/api/tickets/spend', { method: 'POST' });
+      const spendData = await spendRes.json();
+
+      if (!spendRes.ok) {
+        setTicketBalance(spendData.balance ?? 0);
+        showToast(
+          spendData.error === 'Not enough tickets'
+            ? 'Not enough tickets — resets at midnight.'
+            : 'Could not check ticket balance. Please try again.'
+        );
+        return;
+      }
+
+      setTicketBalance(spendData.balance);
+    } catch {
+      showToast('Could not check ticket balance. Please try again.');
       return;
     }
 
@@ -503,7 +541,12 @@ function GenerateContent() {
                 {/* Generate Button */}
                 <button
                   onClick={handleGenerate}
-                  disabled={!businessName || !campaign || selectedPlatforms.length === 0}
+                  disabled={
+                    !businessName ||
+                    !campaign ||
+                    selectedPlatforms.length === 0 ||
+                    (session != null && ticketBalance !== null && ticketBalance < GENERATION_COST)
+                  }
                   className="flex h-12 w-full items-center justify-center gap-2.5 rounded-control bg-primary text-[15px] font-semibold text-white transition-all duration-150 hover:bg-primary-600 hover:shadow-[0_4px_16px_rgba(37,99,235,0.3)] active:bg-primary-700 disabled:pointer-events-none disabled:opacity-50"
                 >
                   <Sparkles size={18} />
@@ -511,6 +554,14 @@ function GenerateContent() {
                     ? `Generate ${selectedPlatforms.length} post${selectedPlatforms.length !== 1 ? 's' : ''}`
                     : 'Sign in to generate'}
                 </button>
+                {session && ticketBalance !== null && (
+                  <div className="text-center text-xs text-text-muted">
+                    Costs {GENERATION_COST} tickets · You have {ticketBalance} ticket{ticketBalance !== 1 ? 's' : ''}
+                    {ticketBalance < GENERATION_COST && (
+                      <span className="text-error"> — not enough to generate, resets at midnight</span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}

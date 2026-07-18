@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { generateWithAISDK, ContentRequest } from '@/lib/ai';
 import { scoreContent } from '@/lib/scoring';
 import { generateRequestSchema } from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const parsed = generateRequestSchema.safeParse(body);
     if (!parsed.success) {

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 002 — Generate Form</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <style>
+    #variant-nav { position:fixed;top:0;left:0;right:0;z-index:9998;background:var(--color-surface);border-bottom:1px solid var(--color-border);padding:8px 16px;display:flex;gap:8px;font-family:var(--font-sans); }
+    .variant-tab { padding:6px 14px;border-radius:var(--radius-control);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text-secondary);font-size:13px;font-weight:500;cursor:pointer;transition:all var(--transition-fast); }
+    .variant-tab:hover { background:var(--color-surface-subtle); }
+    .variant-tab.active { background:var(--color-primary-soft);border-color:var(--color-primary-border);color:var(--color-primary); }
+    .variant { padding-top:52px;min-height:100vh; }
+    #sketch-tools { position:fixed;bottom:12px;right:12px;z-index:9999;font-family:system-ui;font-size:12px;background:rgba(0,0,0,0.75);color:white;padding:8px 12px;border-radius:8px;opacity:0.35;transition:opacity 0.2s;display:flex;gap:8px;align-items:center; }
+    #sketch-tools:hover { opacity:1; }
+    #sketch-tools select,#sketch-tools button { background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:white;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer; }
+    #sketch-tools button.active { background:rgba(255,255,255,0.35); }
+
+    .page-container { max-width:1440px;margin:0 auto;padding:0 32px; }
+    @media(max-width:768px){.page-container{padding:0 16px;}}
+
+    /* Header */
+    .site-header { display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--color-border); }
+    .logo { display:flex;align-items:center;gap:8px;font-weight:700;font-size:18px; }
+    .logo-icon { width:32px;height:32px;background:var(--color-primary);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:16px; }
+    .nav-links { display:flex;gap:24px; }
+    .nav-links a { font-size:14px;font-weight:500;color:var(--color-text-secondary);text-decoration:none; }
+    .nav-links a:hover { color:var(--color-primary); }
+    .nav-links a.active { color:var(--color-primary);background:var(--color-primary-soft);padding:6px 12px;border-radius:var(--radius-control); }
+
+    /* Form panel */
+    .form-panel { background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-panel);padding:24px;box-shadow:var(--shadow-card); }
+    .form-panel h2 { font-size:var(--text-h3);font-weight:600;margin-bottom:20px; }
+    .form-group { margin-bottom:20px; }
+    .form-group label { display:block;font-size:14px;font-weight:600;color:var(--color-text);margin-bottom:8px; }
+    .form-group input,.form-group textarea,.form-group select {
+      width:100%;min-height:44px;border-radius:var(--radius-control);border:1px solid var(--color-border-strong);
+      background:var(--color-surface);padding:10px 12px;font-size:var(--text-body);color:var(--color-text);
+      font-family:var(--font-sans);transition:border-color var(--transition-fast),box-shadow var(--transition-fast);
+    }
+    .form-group input:focus,.form-group textarea:focus,.form-group select:focus {
+      border-color:var(--color-focus);outline:none;box-shadow:var(--shadow-focus);
+    }
+    .form-group textarea { min-height:120px;resize:vertical; }
+    .form-group .helper { font-size:14px;color:var(--color-text-muted);margin-top:4px; }
+
+    .generate-btn {
+      width:100%;min-height:48px;border-radius:var(--radius-control);background:var(--color-primary);
+      color:white;border:none;font-size:16px;font-weight:600;cursor:pointer;display:flex;
+      align-items:center;justify-content:center;gap:8px;transition:all var(--transition-fast);
+    }
+    .generate-btn:hover { background:var(--color-primary-hover); }
+    .generate-btn:active { background:var(--color-primary-active); }
+    .generate-btn:disabled { background:var(--color-surface-subtle);color:var(--color-text-disabled);cursor:not-allowed; }
+    .generate-btn .spinner { display:none;width:20px;height:20px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.6s linear infinite; }
+    .generate-btn.loading .spinner { display:block; }
+    .generate-btn.loading .btn-label { display:none; }
+    @keyframes spin { to{transform:rotate(360deg);} }
+
+    /* Result cards */
+    .result-card {
+      background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-panel);
+      padding:16px;margin-bottom:16px;box-shadow:var(--shadow-card);transition:all var(--transition-fast);
+    }
+    .result-card:hover { box-shadow:var(--shadow-card-hover); }
+    .result-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:12px; }
+    .result-platform { display:flex;align-items:center;gap:8px; }
+    .platform-badge { width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700; }
+    .platform-badge.tt { background:var(--color-tiktok); }
+    .platform-badge.ig { background:var(--color-instagram); }
+    .platform-badge.fb { background:var(--color-facebook); }
+    .platform-name { font-size:14px;font-weight:600; }
+    .result-actions { display:flex;gap:8px; }
+    .action-btn { padding:6px 12px;border-radius:var(--radius-control);border:1px solid var(--color-border);background:var(--color-surface);font-size:13px;font-weight:500;cursor:pointer;transition:all var(--transition-fast);display:flex;align-items:center;gap:4px; }
+    .action-btn:hover { border-color:var(--color-primary-border);background:var(--color-primary-soft);color:var(--color-primary); }
+    .result-content { font-size:14px;line-height:1.6;color:var(--color-text);margin-bottom:12px; }
+    .result-hashtags { font-size:13px;color:var(--color-primary);margin-bottom:8px; }
+    .result-cta { font-size:13px;font-weight:600;color:var(--color-text-secondary); }
+
+    /* Skeleton */
+    .skeleton { background:var(--color-border);border-radius:6px;animation:pulse 1.4s ease-in-out infinite; }
+    .skeleton-line { height:12px;margin-bottom:8px; }
+    .skeleton-line.w60 { width:60%; }
+    .skeleton-line.w80 { width:80%; }
+    .skeleton-line.w40 { width:40%; }
+    .skeleton-block { height:80px;margin-bottom:12px;border-radius:var(--radius-panel); }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+    /* Status text */
+    .status-text { text-align:center;font-size:14px;color:var(--color-text-muted);padding:16px 0; }
+
+    /* Toast */
+    .toast { position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--color-text);color:white;padding:12px 20px;border-radius:var(--radius-card);font-size:14px;font-weight:500;opacity:0;transition:all 0.25s ease;box-shadow:var(--shadow-toast);z-index:10000;pointer-events:none; }
+    .toast.show { opacity:1;transform:translateX(-50%) translateY(0); }
+
+    /* Tabs variant */
+    .platform-tabs { display:flex;gap:8px;margin-bottom:16px; }
+    .platform-tab { padding:8px 16px;border-radius:var(--radius-control);border:1px solid var(--color-border);background:var(--color-surface);font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all var(--transition-fast); }
+    .platform-tab.active { background:var(--color-primary-soft);border-color:var(--color-primary-border);color:var(--color-primary); }
+    .platform-tab .dot { width:8px;height:8px;border-radius:50%; }
+
+    /* Wizard */
+    .wizard-progress { display:flex;align-items:center;gap:12px;margin-bottom:32px; }
+    .wizard-step { display:flex;align-items:center;gap:8px;font-size:14px;color:var(--color-text-muted); }
+    .wizard-step.active { color:var(--color-primary);font-weight:600; }
+    .wizard-step.done { color:var(--color-success); }
+    .wizard-num { width:28px;height:28px;border-radius:50%;border:2px solid var(--color-border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600; }
+    .wizard-step.active .wizard-num { border-color:var(--color-primary);background:var(--color-primary-soft);color:var(--color-primary); }
+    .wizard-step.done .wizard-num { border-color:var(--color-success);background:var(--color-success-soft);color:var(--color-success); }
+    .wizard-connector { flex:1;height:2px;background:var(--color-border); }
+    .wizard-connector.done { background:var(--color-success); }
+  </style>
+</head>
+<body>
+
+<div id="variant-nav">
+  <button class="variant-tab active" onclick="showVariant('a')">A: Side-by-Side</button>
+  <button class="variant-tab" onclick="showVariant('b')">B: Tabbed Results</button>
+  <button class="variant-tab" onclick="showVariant('c')">C: Wizard Flow ★</button>
+</div>
+
+<!-- ==================== VARIANT A: Side-by-Side ==================== -->
+<div id="variant-a" class="variant">
+  <div class="page-container">
+    <header class="site-header">
+      <div class="logo"><div class="logo-icon">✦</div>Content Hub</div>
+      <div class="nav-links">
+        <a href="#" class="active">Create content</a>
+        <a href="#">History</a>
+      </div>
+    </header>
+
+    <div style="display:grid;grid-template-columns:5fr 7fr;gap:24px;padding:32px 0;align-items:start;">
+      <!-- Form -->
+      <div class="form-panel">
+        <h2>Campaign brief</h2>
+        <div class="form-group">
+          <label>Business or brand</label>
+          <input type="text" placeholder="e.g. Bloom & Brew Coffee" value="Bloom & Brew Coffee">
+        </div>
+        <div class="form-group">
+          <label>Campaign description</label>
+          <textarea placeholder="What are you promoting? Who's your audience?">Grand opening of our new downtown location with live jazz every Friday night. We're a specialty coffee shop focusing on single-origin beans and locally sourced pastries.</textarea>
+        </div>
+        <div class="form-group">
+          <label>Content goal</label>
+          <select>
+            <option>Brand awareness</option>
+            <option>Drive sales</option>
+            <option>Engagement</option>
+            <option selected>Event promotion</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tone</label>
+          <select>
+            <option>Professional</option>
+            <option selected>Friendly</option>
+            <option>Casual</option>
+            <option>Playful</option>
+            <option>Bold</option>
+          </select>
+        </div>
+        <button class="generate-btn" onclick="generateA(this)">
+          <span class="spinner"></span>
+          <span class="btn-label">Generate all 3 posts</span>
+        </button>
+      </div>
+
+      <!-- Results -->
+      <div id="results-a">
+        <div class="status-text" id="status-a" style="display:none;"></div>
+        <div id="results-list-a"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VARIANT B: Tabbed Results ==================== -->
+<div id="variant-b" class="variant" style="display:none">
+  <div class="page-container">
+    <header class="site-header">
+      <div class="logo"><div class="logo-icon">✦</div>Content Hub</div>
+      <div class="nav-links">
+        <a href="#" class="active">Create content</a>
+        <a href="#">History</a>
+      </div>
+    </header>
+
+    <div style="padding:32px 0;">
+      <div class="form-panel" style="margin-bottom:24px;">
+        <h2>Campaign brief</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Business or brand</label>
+            <input type="text" value="Bloom & Brew Coffee">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Content goal</label>
+            <select><option selected>Event promotion</option><option>Brand awareness</option><option>Drive sales</option><option>Engagement</option></select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:16px;">
+          <label>Campaign description</label>
+          <textarea style="min-height:80px;">Grand opening of our new downtown location with live jazz every Friday night.</textarea>
+        </div>
+        <div style="display:flex;gap:12px;align-items:end;">
+          <div class="form-group" style="margin-bottom:0;flex:1;">
+            <label>Tone</label>
+            <select><option selected>Friendly</option><option>Professional</option><option>Casual</option><option>Playful</option><option>Bold</option></select>
+          </div>
+          <button class="generate-btn" style="width:auto;padding:0 24px;min-height:44px;flex-shrink:0;" onclick="generateB(this)">
+            <span class="spinner"></span>
+            <span class="btn-label">Generate</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="platform-tabs" id="tabs-b" style="display:none;">
+        <button class="platform-tab active" onclick="switchTab(this,'tt')"><span class="dot" style="background:var(--color-tiktok);"></span>TikTok</button>
+        <button class="platform-tab" onclick="switchTab(this,'ig')"><span class="dot" style="background:var(--color-instagram);"></span>Instagram</button>
+        <button class="platform-tab" onclick="switchTab(this,'fb')"><span class="dot" style="background:var(--color-facebook);"></span>Facebook</button>
+      </div>
+
+      <div id="status-b" class="status-text" style="display:none;"></div>
+      <div id="results-b" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VARIANT C: Wizard Flow ==================== -->
+<div id="variant-c" class="variant" style="display:none">
+  <div class="page-container">
+    <header class="site-header">
+      <div class="logo"><div class="logo-icon">✦</div>Content Hub</div>
+      <div class="nav-links">
+        <a href="#" class="active">Create content</a>
+        <a href="#">History</a>
+      </div>
+    </header>
+
+    <div style="padding:32px 0;max-width:720px;margin:0 auto;">
+      <div class="wizard-progress">
+        <div class="wizard-step active" id="ws1"><div class="wizard-num">1</div>Campaign details</div>
+        <div class="wizard-connector" id="wc1"></div>
+        <div class="wizard-step" id="ws2"><div class="wizard-num">2</div>Generating</div>
+        <div class="wizard-connector" id="wc2"></div>
+        <div class="wizard-step" id="ws3"><div class="wizard-num">3</div>Results</div>
+      </div>
+
+      <!-- Step 1: Form -->
+      <div id="wizard-form">
+        <div class="form-panel">
+          <h2>Tell us about your campaign</h2>
+          <div class="form-group">
+            <label>Business or brand</label>
+            <input type="text" placeholder="e.g. Bloom & Brew Coffee" value="Bloom & Brew Coffee">
+          </div>
+          <div class="form-group">
+            <label>What are you promoting?</label>
+            <textarea placeholder="Describe your campaign, event, or content goal...">Grand opening of our new downtown location with live jazz every Friday night. We're a specialty coffee shop focusing on single-origin beans and locally sourced pastries.</textarea>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="form-group">
+              <label>Content goal</label>
+              <select><option selected>Event promotion</option><option>Brand awareness</option><option>Drive sales</option><option>Engagement</option></select>
+            </div>
+            <div class="form-group">
+              <label>Tone</label>
+              <select><option selected>Friendly</option><option>Professional</option><option>Casual</option><option>Playful</option><option>Bold</option></select>
+            </div>
+          </div>
+          <button class="generate-btn" onclick="generateC(this)">
+            <span class="spinner"></span>
+            <span class="btn-label">Generate all 3 posts →</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Loading -->
+      <div id="wizard-loading" style="display:none;text-align:center;padding:48px 0;">
+        <div style="width:48px;height:48px;border:3px solid var(--color-border);border-top-color:var(--color-primary);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 24px;"></div>
+        <div id="wizard-status" style="font-size:16px;color:var(--color-text-secondary);">Understanding your campaign...</div>
+      </div>
+
+      <!-- Step 3: Results -->
+      <div id="wizard-results" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div id="sketch-tools">
+  <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'"><option value="default">Default</option></select>
+  <button onclick="setViewport(375)">📱</button>
+  <button onclick="setViewport(768)">📟</button>
+  <button onclick="setViewport(0)" class="active">🖥</button>
+</div>
+
+<script>
+function showVariant(id) {
+  document.querySelectorAll('.variant').forEach(v => v.style.display='none');
+  document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('variant-'+id).style.display='block';
+  event.target.classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function setViewport(w) {
+  const c = document.querySelector('.page-container');
+  document.querySelectorAll('#sketch-tools button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  c.style.maxWidth = w === 0 ? '1440px' : w + 'px';
+}
+
+const MOCK_RESULTS = {
+  tt: { name:'TikTok', cls:'tt', post:'☕ GRAND OPENING ALERT ☕ Our downtown location is FINALLY here and we\'re bringing the vibes ✨ Live jazz every Friday night 🎵 Come for the single-origin espresso, stay for the locally sourced pastries 🥐 Tag a friend who needs to see this! #BloomAndBrew #GrandOpening', hashtags:'#BloomAndBrew #GrandOpening #CoffeeShop #LiveJazz #Downtown #SpecialtyCoffee #NewSpot #FridayNights', cta:'📍 Visit us at 123 Main St — this Friday, 6pm' },
+  ig: { name:'Instagram', cls:'ig', post:'The wait is over. Bloom & Brew Downtown is officially open. ☕\n\nWe built this space for the moments that matter — your morning ritual, your Friday night wind-down, your "just one more cup" conversations.\n\nJoin us every Friday for live jazz on the patio. Single-origin beans. Locally sourced pastries. The kind of place that feels like yours from the first visit.', hashtags:'#BloomAndBrew #GrandOpening #CoffeeCulture #SpecialtyCoffee #Downtown #LiveJazz #LocalCoffee #ShopLocal', cta:'📍 123 Main St — Grand opening this Friday at 6pm' },
+  fb: { name:'Facebook', cls:'fb', post:'We\'re thrilled to announce that Bloom & Brew Downtown is NOW OPEN! 🎉\n\nAfter months of preparation, our new location at 123 Main St is ready to welcome you. We\'ve got all your favorites — single-origin espresso, pour-overs, and our famous locally sourced pastries — plus a beautiful new patio space.\n\nAnd here\'s the best part: every Friday night, we\'re hosting live jazz on the patio. 🎵\n\nCome celebrate with us this Friday at 6pm. Bring a friend, bring your family, bring your appetite. We can\'t wait to meet you.\n\n📍 123 Main St, Downtown', hashtags:'#BloomAndBrew #GrandOpening #CoffeeShop #LiveJazz #SupportLocal #Downtown #Community #NewBusiness', cta:'RSVP on our page — see you Friday!' }
+};
+
+function buildResultCard(key) {
+  const r = MOCK_RESULTS[key];
+  return `<div class="result-card"><div class="result-header"><div class="result-platform"><div class="platform-badge ${r.cls}">${r.name.substring(0,2).toUpperCase()}</div><span class="platform-name">${r.name}</span></div><div class="result-actions"><button class="action-btn" onclick="copyResult(this,'${r.name}')">📋 Copy</button></div></div><div class="result-content">${r.post.replace(/\n/g,'<br>')}</div><div class="result-hashtags">${r.hashtags}</div><div class="result-cta">CTA: ${r.cta}</div></div>`;
+}
+
+function buildSkeleton() {
+  return `<div class="result-card"><div class="skeleton skeleton-block"></div><div class="skeleton skeleton-line w80"></div><div class="skeleton skeleton-line w60"></div><div class="skeleton skeleton-line w40"></div></div>`;
+}
+
+function copyResult(btn, platform) {
+  showToast(`${platform} post copied!`);
+  btn.textContent = '✓ Copied';
+  setTimeout(() => btn.innerHTML = '📋 Copy', 2000);
+}
+
+// Variant A generation
+async function generateA(btn) {
+  btn.classList.add('loading'); btn.disabled = true;
+  const container = document.getElementById('results-list-a');
+  const status = document.getElementById('status-a');
+  container.innerHTML = buildSkeleton() + buildSkeleton() + buildSkeleton();
+  status.style.display = 'block';
+
+  const msgs = ['Understanding your campaign...','Adapting for three platforms...','Creating CTAs and hashtags...'];
+  for (const m of msgs) { status.textContent = m; await new Promise(r => setTimeout(r, 700)); }
+
+  container.innerHTML = '';
+  status.style.display = 'none';
+  container.innerHTML = buildResultCard('tt') + buildResultCard('ig') + buildResultCard('fb');
+  btn.classList.remove('loading'); btn.disabled = false;
+  showToast('All 3 posts generated!');
+}
+
+// Variant B generation
+let activeTab = 'tt';
+async function generateB(btn) {
+  btn.classList.add('loading'); btn.disabled = true;
+  const status = document.getElementById('status-b');
+  const tabs = document.getElementById('tabs-b');
+  const results = document.getElementById('results-b');
+  tabs.style.display = 'none'; results.style.display = 'none';
+  status.style.display = 'block';
+
+  const msgs = ['Understanding your campaign...','Adapting for three platforms...','Creating CTAs and hashtags...'];
+  for (const m of msgs) { status.textContent = m; await new Promise(r => setTimeout(r, 700)); }
+
+  status.style.display = 'none';
+  tabs.style.display = 'flex';
+  results.style.display = 'block';
+  results.innerHTML = buildResultCard('tt');
+  btn.classList.remove('loading'); btn.disabled = false;
+  showToast('All 3 posts generated!');
+}
+
+function switchTab(tab, platform) {
+  document.querySelectorAll('#tabs-b .platform-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  activeTab = platform;
+  document.getElementById('results-b').innerHTML = buildResultCard(platform);
+}
+
+// Variant C wizard
+async function generateC(btn) {
+  btn.classList.add('loading'); btn.disabled = true;
+  document.getElementById('wizard-form').style.display = 'none';
+  document.getElementById('wizard-loading').style.display = 'block';
+  document.getElementById('ws1').className = 'wizard-step done';
+  document.getElementById('wc1').className = 'wizard-connector done';
+  document.getElementById('ws2').className = 'wizard-step active';
+
+  const status = document.getElementById('wizard-status');
+  const msgs = ['Understanding your campaign...','Adapting for three platforms...','Creating CTAs and hashtags...','Finalizing your content...'];
+  for (const m of msgs) { status.textContent = m; await new Promise(r => setTimeout(r, 600)); }
+
+  document.getElementById('wizard-loading').style.display = 'none';
+  document.getElementById('ws2').className = 'wizard-step done';
+  document.getElementById('wc2').className = 'wizard-connector done';
+  document.getElementById('ws3').className = 'wizard-step active';
+  document.getElementById('wizard-results').style.display = 'block';
+  document.getElementById('wizard-results').innerHTML = buildResultCard('tt') + buildResultCard('ig') + buildResultCard('fb');
+  showToast('All 3 posts generated!');
+}
+</script>
+</body>
+</html>

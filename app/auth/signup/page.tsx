@@ -20,6 +20,8 @@ function getPasswordStrength(pw: string): { score: number; label: string; color:
 
 export default function SignUpPage() {
   const router = useRouter();
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -49,7 +51,7 @@ export default function SignUpPage() {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, name: `${firstName} ${lastName}`.trim() }),
       });
 
       const data = await res.json();
@@ -137,6 +139,8 @@ export default function SignUpPage() {
                 <input
                   type="text"
                   placeholder="Jane"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
                   required
                   className="h-[42px] w-full rounded-control border border-border px-3.5 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
                 />
@@ -146,6 +150,8 @@ export default function SignUpPage() {
                 <input
                   type="text"
                   placeholder="Smith"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
                   required
                   className="h-[42px] w-full rounded-control border border-border px-3.5 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
                 />

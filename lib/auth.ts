@@ -127,8 +127,9 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
       }
-      // Store account provider in token for session
       if (account) {
         token.provider = account.provider;
       }
@@ -137,6 +138,8 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.name = token.name as string | null;
+        session.user.email = token.email as string | null;
       }
       return session;
     },

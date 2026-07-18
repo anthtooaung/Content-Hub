@@ -81,6 +81,7 @@ model users {
   content_generations content_generations[]
   published_posts     published_posts[]
   saved_posts         saved_posts[]
+  contents            Content[]
 }
 
 model social_connections {
@@ -190,4 +191,23 @@ model saved_posts {
   // Relations
   user        users        @relation(fields: [user_id], references: [id], onDelete: Cascade)
   ai_response ai_responses @relation(fields: [ai_response_id], references: [id], onDelete: Cascade)
+}
+
+model Content {
+  id            String    @id @default(cuid())
+  userId        String    @db.Uuid
+  platform      String
+  tone          String?
+  topic         String?   @db.Text
+  post          String    @db.Text
+  hashtags      String[]
+  caption       String?   @db.Text
+  callToAction  String?   @db.Text
+  createdAt     DateTime  @default(now())
+
+  // Relations
+  user users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
 }

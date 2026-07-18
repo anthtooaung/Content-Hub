@@ -11,6 +11,8 @@ import {
   Plus,
   Menu,
   X,
+  Calendar,
+  BarChart3,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useState } from 'react';
@@ -27,6 +29,8 @@ const navSections = [
     items: [
       { href: '/templates', label: 'Templates', icon: LayoutGrid },
       { href: '/dashboard', label: 'Dashboard', icon: FileText },
+      { href: '/schedule', label: 'Schedule', icon: Calendar },
+      { href: '/analytics', label: 'Analytics', icon: BarChart3 },
       { href: '#', label: 'Favorites', icon: Heart, disabled: true },
     ],
   },

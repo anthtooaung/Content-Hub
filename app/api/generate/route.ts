@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateWithOpenAI, generateWithGemini, ContentRequest } from '@/lib/ai';
+import { scoreContent } from '@/lib/scoring';
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,7 +37,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json(content);
+    // Calculate content score
+    const score = scoreContent({
+      post: content.post,
+      hashtags: content.hashtags,
+      callToAction: content.callToAction,
+    });
+
+    return NextResponse.json({
+      ...content,
+      score,
+    });
   } catch (error) {
     console.error('Generation error:', error);
     return NextResponse.json(

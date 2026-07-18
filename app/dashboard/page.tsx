@@ -6,6 +6,7 @@ import { Sparkles, Plus, FileText, Copy, Check, ChevronDown, ChevronUp } from 'l
 import { clsx } from 'clsx';
 import AppLayout from '@/components/AppLayout';
 import EmptyState from '@/components/EmptyState';
+import { getGradeColor } from '@/lib/scoring';
 
 interface ContentItem {
   id: string;
@@ -16,6 +17,12 @@ interface ContentItem {
   caption: string;
   callToAction?: string;
   createdAt: string;
+  scoreOverall?: number;
+  scoreGrade?: string;
+  scoreReadability?: number;
+  scoreHashtagRelevance?: number;
+  scoreCtaStrength?: number;
+  scoreSuggestions?: string;
 }
 
 const platformColors: Record<string, string> = {
@@ -189,6 +196,24 @@ export default function DashboardPage() {
                               {tag}
                             </span>
                           ))}
+                        </div>
+                      )}
+
+                      {/* Score Badge */}
+                      {item.scoreOverall !== undefined && item.scoreGrade && (
+                        <div className="mb-2 flex items-center gap-2">
+                          <span className="text-xs text-text-muted">Score:</span>
+                          <span className="text-sm font-bold text-text-primary">
+                            {item.scoreOverall}/100
+                          </span>
+                          <span
+                            className={clsx(
+                              'px-2 py-0.5 rounded-full text-xs font-bold',
+                              getGradeColor(item.scoreGrade)
+                            )}
+                          >
+                            {item.scoreGrade}
+                          </span>
                         </div>
                       )}
 

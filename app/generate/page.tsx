@@ -2,10 +2,11 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Sparkles, Copy, Check, AlertTriangle, RefreshCw, Save } from 'lucide-react';
+import { ArrowLeft, Sparkles, Copy, Check, AlertTriangle, RefreshCw, Save, ChevronDown, ChevronUp } from 'lucide-react';
 import { clsx } from 'clsx';
 import AppLayout from '@/components/AppLayout';
 import Toast, { useToast } from '@/components/Toast';
+import { getGradeColor } from '@/lib/scoring';
 
 const platforms = [
   { id: 'TikTok', label: 'TikTok', color: 'bg-tiktok' },
@@ -409,6 +410,7 @@ function ResultCard({
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showScoreDetails, setShowScoreDetails] = useState(false);
 
   const platformColors: Record<string, string> = {
     TikTok: 'bg-tiktok',
@@ -554,6 +556,92 @@ function ResultCard({
           CTA: {result.content.callToAction}
         </div>
       )}
+
+      {/* Content Score */}
+      {result.content?.score && (
+        <div className="mt-4 pt-4 border-t border-border">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-text-primary">Score:</span>
+              <span className="text-lg font-bold text-text-primary">
+                {result.content.score.overall}/100
+              </span>
+              <span
+                className={clsx(
+                  'px-2 py-0.5 rounded-full text-xs font-bold',
+                  getGradeColor(result.content.score.grade)
+                )}
+              >
+                {result.content.score.grade}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowScoreDetails(!showScoreDetails)}
+              className="flex items-center gap-1 text-xs text-text-muted hover:text-text-primary transition-colors"
+            >
+              {showScoreDetails ? (
+                <>
+                  <ChevronUp size={14} />
+                  Hide details
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={14} />
+                  View breakdown
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Score Breakdown */}
+          {showScoreDetails && (
+            <div className="mt-3 space-y-2">
+              <ScoreBar label="Readability" score={result.content.score.readability} />
+              <ScoreBar label="Hashtag Relevance" score={result.content.score.hashtagRelevance} />
+              <ScoreBar label="CTA Strength" score={result.content.score.ctaStrength} />
+
+              {/* Suggestions */}
+              {result.content.score.suggestions?.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-border">
+                  <p className="text-xs font-medium text-text-muted mb-2">Suggestions:</p>
+                  <ul className="space-y-1">
+                    {result.content.score.suggestions.map((suggestion: string, i: number) => (
+                      <li key={i} className="text-xs text-text-secondary flex items-start gap-1.5">
+                        <span className="text-primary mt-0.5">•</span>
+                        {suggestion}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ScoreBar({ label, score }: { label: string; score: number }) {
+  const getBarColor = (score: number) => {
+    if (score >= 80) return 'bg-green-500';
+    if (score >= 60) return 'bg-blue-500';
+    if (score >= 40) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-xs text-text-muted w-32 shrink-0">{label}</span>
+      <div className="flex-1 h-2 bg-surface-subtle rounded-full overflow-hidden">
+        <div
+          className={clsx('h-full rounded-full transition-all', getBarColor(score))}
+          style={{ width: `${score}%` }}
+        />
+      </div>
+      <span className="text-xs font-medium text-text-primary w-8 text-right">
+        {score}
+      </span>
     </div>
   );
 }

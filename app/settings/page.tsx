@@ -81,62 +81,78 @@ export default function SettingsPage() {
         <section className="mb-5 rounded-panel border border-border bg-surface p-6">
           <SectionHeader
             icon={<Link2 size={18} />}
-            title="Platforms"
-            desc="Connect accounts and configure auto-posting"
+            title="Platform Connections"
+            desc="Connect your accounts and configure auto-posting"
           />
 
-          <div className="space-y-3">
+          <div className="grid grid-cols-3 gap-4 max-md:grid-cols-1">
             {platforms.map((platform) => (
               <div
                 key={platform.id}
-                className="flex items-center rounded-card border border-border p-4 transition-all hover:border-border-strong"
+                className={clsx(
+                  'rounded-panel border p-5 transition-colors duration-150',
+                  platform.connected
+                    ? 'border-success/30 bg-success-soft/30'
+                    : 'border-border bg-page hover:border-border-strong'
+                )}
               >
-                {/* Platform Icon */}
-                <div className={clsx('mr-3.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-control text-sm font-bold text-white', platform.iconBg)}>
-                  {platform.icon}
-                </div>
-
-                {/* Platform Details */}
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-text-primary">{platform.name}</div>
-                  <div className={clsx('mt-0.5 text-xs', platform.connected ? 'text-success' : 'text-text-muted')}>
-                    {platform.connected && platform.accountLabel
-                      ? `${platform.accountLabel} · Connected`
-                      : 'Not connected'}
+                {/* Platform Header */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={clsx('flex h-12 w-12 items-center justify-center rounded-xl text-base font-bold text-white', platform.iconBg)}>
+                    {platform.icon}
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-[15px] font-semibold text-text-primary">{platform.name}</div>
+                    <div className={clsx('text-[12px] font-medium', platform.connected ? 'text-success' : 'text-text-muted')}>
+                      {platform.connected ? 'Connected' : 'Not connected'}
+                    </div>
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex shrink-0 items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-text-muted whitespace-nowrap">Auto-post</span>
-                    <button
-                      onClick={() => toggleAutoPost(platform.id)}
-                      className={clsx(
-                        'relative h-6 w-11 rounded-full transition-colors',
-                        platform.autoPost ? 'bg-primary' : 'bg-border-strong'
-                      )}
-                    >
-                      <span
-                        className={clsx(
-                          'absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform',
-                          platform.autoPost && 'translate-x-5'
-                        )}
-                      />
-                    </button>
+                {/* Account Info */}
+                {platform.connected && platform.accountLabel && (
+                  <div className="mb-4 rounded-control bg-surface border border-border p-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-text-muted mb-1">Account</div>
+                    <div className="text-[13px] font-medium text-text-primary">{platform.accountLabel}</div>
+                  </div>
+                )}
+
+                {/* Auto-post Toggle */}
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <div className="text-[13px] font-medium text-text-primary">Auto-post</div>
+                    <div className="text-[11px] text-text-muted">Publish content automatically</div>
                   </div>
                   <button
-                    onClick={() => toggleConnection(platform.id)}
+                    onClick={() => toggleAutoPost(platform.id)}
+                    disabled={!platform.connected}
                     className={clsx(
-                      'whitespace-nowrap rounded-control border px-3.5 py-1.5 text-xs font-medium transition-all',
-                      platform.connected
-                        ? 'border-success bg-success-soft text-success'
-                        : 'border-border bg-surface text-text-secondary hover:border-primary hover:text-primary'
+                      'relative h-6 w-11 rounded-full transition-colors duration-150',
+                      platform.autoPost && platform.connected ? 'bg-primary' : 'bg-border-strong',
+                      !platform.connected && 'opacity-50 cursor-not-allowed'
                     )}
                   >
-                    {platform.connected ? 'Connected' : 'Connect'}
+                    <span
+                      className={clsx(
+                        'absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-150',
+                        platform.autoPost && platform.connected && 'translate-x-5'
+                      )}
+                    />
                   </button>
                 </div>
+
+                {/* Connect / Disconnect Button */}
+                <button
+                  onClick={() => toggleConnection(platform.id)}
+                  className={clsx(
+                    'w-full rounded-control border px-4 py-2.5 text-[13px] font-semibold transition-colors duration-150',
+                    platform.connected
+                      ? 'border-success bg-success text-white hover:bg-success/90'
+                      : 'border-primary bg-primary text-white hover:bg-primary-600'
+                  )}
+                >
+                  {platform.connected ? 'Disconnect' : `Connect ${platform.name}`}
+                </button>
               </div>
             ))}
           </div>
@@ -157,7 +173,7 @@ export default function SettingsPage() {
                 key={theme.id}
                 onClick={() => setActiveTheme(theme.id)}
                 className={clsx(
-                  'rounded-control border-2 p-3.5 text-center transition-all',
+                  'rounded-control border-2 p-3.5 text-center transition-colors duration-150',
                   activeTheme === theme.id
                     ? 'border-primary bg-primary-50'
                     : 'border-border bg-surface hover:border-border-strong'
@@ -175,7 +191,7 @@ export default function SettingsPage() {
         <section className="rounded-panel border border-red-200 bg-error-soft p-5">
           <button
             onClick={() => signOut({ callbackUrl: '/' })}
-            className="flex items-center gap-2.5 rounded-control border border-error bg-surface px-5 py-2.5 text-sm font-medium text-error transition-all hover:bg-error hover:text-white"
+            className="flex items-center gap-2.5 rounded-control border border-error bg-surface px-5 py-2.5 text-sm font-medium text-error transition-colors duration-150 hover:bg-error hover:text-white"
           >
             <LogOut size={18} />
             Log Out

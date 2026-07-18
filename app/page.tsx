@@ -1,22 +1,29 @@
 import Link from 'next/link';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
+import { ClipboardPen, Cpu, Send, Quote } from 'lucide-react';
 
 const steps = [
   {
     num: 1,
     title: 'Describe',
     desc: 'Fill out one simple form with your business details, campaign topic, and preferred tone.',
+    icon: ClipboardPen,
+    color: 'bg-primary-50 text-primary',
   },
   {
     num: 2,
     title: 'Generate',
     desc: 'AI creates tailored posts for TikTok, Instagram, and Facebook — each optimized for the platform.',
+    icon: Cpu,
+    color: 'bg-tiktok text-white',
   },
   {
     num: 3,
     title: 'Publish',
     desc: 'Copy your content with one click and paste it into your scheduling tool or post right away.',
+    icon: Send,
+    color: 'bg-facebook text-white',
   },
 ];
 
@@ -69,13 +76,13 @@ export default function Home() {
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
                 href="/auth/signup"
-                className="inline-flex min-h-[48px] items-center gap-2 rounded-control bg-primary px-7 py-3.5 text-base font-semibold text-white transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:translate-y-0 active:bg-primary-700"
+                className="inline-flex min-h-[48px] items-center gap-2 rounded-control bg-primary px-7 py-3.5 text-base font-semibold text-white transition-colors duration-150 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:bg-primary-700"
               >
                 Try it now
               </Link>
               <a
                 href="#how"
-                className="inline-flex min-h-[48px] items-center gap-2 rounded-control border-2 border-primary bg-primary-50 px-7 py-3.5 text-base font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
+                className="inline-flex min-h-[48px] items-center gap-2 rounded-control border-2 border-primary-200 bg-primary-50 px-7 py-3.5 text-base font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
               >
                 See how it works
               </a>
@@ -130,44 +137,76 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How It Works — Horizontal Process Flow */}
-      <section id="how" className="px-8 py-16 max-md:px-4 max-md:py-12">
+      {/* How It Works — Visual Step Timeline */}
+      <section id="how" className="px-8 py-20 max-md:px-4 max-md:py-14">
         <div className="mx-auto max-w-[1000px]">
-          <div className="text-center mb-12">
-            <h2 className="text-[28px] font-semibold text-text-primary max-md:text-[22px]">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-[12px] font-semibold text-primary mb-4">
+              Simple workflow
+            </div>
+            <h2 className="text-[32px] font-semibold text-text-primary max-md:text-[24px]">
               How it works
             </h2>
             <p className="mt-3 text-base text-text-secondary max-md:text-sm">
               One form. Three platforms. Zero guesswork.
             </p>
           </div>
-          <div className="flex max-md:flex-col">
-            {steps.map((step, i) => (
-              <div
-                key={step.num}
-                className="group flex-1 relative bg-surface border border-border px-8 py-8 text-center transition-all duration-200 hover:bg-primary-50 hover:border-primary-200 max-md:border-b-0 max-md:px-6 max-md:py-6 first:rounded-l-panel last:rounded-r-panel max-md:first:rounded-t-panel max-md:last:rounded-b-panel max-md:last:border-b max-md:border-b-border"
-              >
-                {/* Step badge */}
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-[12px] font-semibold text-primary mb-4">
-                  Step {step.num}
-                </div>
-                <h3 className="mb-2 text-lg font-semibold text-text-primary">{step.title}</h3>
-                <p className="text-[13px] leading-relaxed text-text-secondary">{step.desc}</p>
-                {/* Arrow connector — desktop only */}
-                {i < steps.length - 1 && (
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 hidden max-md:hidden">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-surface text-[13px] text-primary font-medium">
-                      →
+
+          {/* Timeline */}
+          <div className="relative">
+            {/* Vertical connecting line — desktop */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-border max-md:hidden" />
+
+            <div className="space-y-12 max-md:space-y-8">
+              {steps.map((step, i) => {
+                const Icon = step.icon;
+                const isLeft = i % 2 === 0;
+                return (
+                  <div key={step.num} className="relative flex items-center max-md:flex-col max-md:items-start">
+                    {/* Desktop: alternating layout */}
+                    <div className={`hidden max-md:hidden md:flex w-full items-center gap-8 ${isLeft ? '' : 'flex-row-reverse'}`}>
+                      {/* Content side */}
+                      <div className={`flex-1 ${isLeft ? 'text-right' : 'text-left'}`}>
+                        <div className="inline-block rounded-panel border border-border bg-surface p-6 transition-colors duration-200 hover:border-primary-200 hover:shadow-card-hover">
+                          <h3 className="mb-2 text-[18px] font-semibold text-text-primary">{step.title}</h3>
+                          <p className="text-[14px] leading-relaxed text-text-secondary">{step.desc}</p>
+                        </div>
+                      </div>
+
+                      {/* Center node */}
+                      <div className="relative z-10 flex shrink-0 items-center justify-center">
+                        <div className={`flex h-12 w-12 items-center justify-center rounded-full ${step.color} shadow-card`}>
+                          <Icon size={20} />
+                        </div>
+                      </div>
+
+                      {/* Empty side */}
+                      <div className="flex-1" />
+                    </div>
+
+                    {/* Mobile: stacked layout */}
+                    <div className="md:hidden flex items-start gap-4 w-full">
+                      <div className="relative z-10 flex shrink-0 items-center justify-center">
+                        <div className={`flex h-10 w-10 items-center justify-center rounded-full ${step.color} shadow-card`}>
+                          <Icon size={18} />
+                        </div>
+                      </div>
+                      <div className="flex-1 rounded-panel border border-border bg-surface p-5 transition-colors duration-200 hover:border-primary-200">
+                        <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-text-muted">Step {step.num}</div>
+                        <h3 className="mb-1.5 text-[16px] font-semibold text-text-primary">{step.title}</h3>
+                        <p className="text-[13px] leading-relaxed text-text-secondary">{step.desc}</p>
+                      </div>
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
+                );
+              })}
+            </div>
           </div>
-          <div className="mt-10 text-center">
+
+          <div className="mt-14 text-center">
             <Link
               href="/auth/signup"
-              className="inline-flex min-h-[48px] items-center gap-2 rounded-control bg-primary px-7 py-3.5 text-base font-semibold text-white transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:translate-y-0 active:bg-primary-700"
+              className="inline-flex min-h-[48px] items-center gap-2 rounded-control bg-primary px-8 py-3.5 text-base font-semibold text-white transition-colors duration-150 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:bg-primary-700"
             >
               Get started free →
             </Link>
@@ -175,11 +214,54 @@ export default function Home() {
         </div>
       </section>
 
+      {/* What People Say — Testimonials */}
+      <section id="proof" className="px-8 py-20 max-md:px-4 max-md:py-14 bg-surface">
+        <div className="mx-auto max-w-[1000px]">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-[12px] font-semibold text-primary mb-4">
+              Testimonials
+            </div>
+            <h2 className="text-[32px] font-semibold text-text-primary max-md:text-[24px]">
+              What people say
+            </h2>
+            <p className="mt-3 text-base text-text-secondary max-md:text-sm">
+              Real feedback from small business owners and marketers.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-6 max-lg:grid-cols-2 max-md:grid-cols-1">
+            {testimonials.map((t, i) => (
+              <div
+                key={i}
+                className="flex flex-col rounded-panel border border-border bg-page p-6 transition-colors duration-200 hover:border-primary-200 hover:shadow-card-hover"
+              >
+                <Quote size={24} className="mb-4 text-primary/30" />
+                <p className="flex-1 mb-6 text-[14px] leading-relaxed text-text-secondary">
+                  &ldquo;{t.text}&rdquo;
+                </p>
+                <div className="flex items-center gap-3 pt-4 border-t border-border">
+                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-white ${t.color}`}>
+                    {t.initials}
+                  </div>
+                  <div>
+                    <div className="text-[13px] font-semibold text-text-primary">{t.author}</div>
+                    <div className="text-[12px] text-text-muted">{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Social Proof — Stat Cards */}
-      <section id="proof" className="px-8 py-16 max-md:px-4 max-md:py-12 bg-surface-subtle/50">
+      <section className="px-8 py-20 max-md:px-4 max-md:py-14 bg-surface-subtle/50">
         <div className="mx-auto max-w-[900px]">
-          <div className="text-center mb-12">
-            <h2 className="text-[28px] font-semibold text-text-primary max-md:text-[22px]">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-[12px] font-semibold text-primary mb-4">
+              By the numbers
+            </div>
+            <h2 className="text-[32px] font-semibold text-text-primary max-md:text-[24px]">
               Built for speed
             </h2>
             <p className="mt-3 text-base text-text-secondary max-md:text-sm">
@@ -190,7 +272,7 @@ export default function Home() {
             {stats.map((s) => (
               <div
                 key={s.label}
-                className="rounded-panel border border-border bg-surface p-7 text-center transition-all duration-200 hover:border-primary-200 hover:shadow-card-hover hover:-translate-y-0.5 group"
+                className="rounded-panel border border-border bg-surface p-7 text-center transition-colors duration-200 hover:border-primary-200 hover:shadow-card-hover group"
               >
                 <div className="text-[36px] font-bold text-primary leading-none mb-2 tabular-nums max-md:text-[28px]">
                   {s.value}

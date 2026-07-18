@@ -38,7 +38,7 @@ export default function GeneratePage() {
   return (
     <Suspense fallback={
       <AppLayout>
-        <div className="mx-auto max-w-[720px] px-8 py-10 max-md:px-4 max-md:py-6 pb-24 md:pb-10">
+        <div className="mx-auto max-w-[860px] px-8 py-10 max-md:px-4 max-md:py-6 pb-24 md:pb-10">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-surface-subtle rounded w-48" />
             <div className="h-64 bg-surface-subtle rounded-panel" />
@@ -209,25 +209,25 @@ function GenerateContent() {
               <div className="mt-2 text-right text-xs text-text-muted">{editModal.text.length}/280 characters</div>
             </div>
             <div className="flex justify-end gap-2 border-t border-border px-6 py-4">
-              <button onClick={() => setEditModal({ ...editModal, open: false })} className="rounded-control border-2 border-primary bg-primary-50 px-4 py-2 text-sm font-medium text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">Cancel</button>
-              <button onClick={() => { setEditModal({ ...editModal, open: false }); showToast('Post updated!'); }} className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">Save Changes</button>
+              <button onClick={() => setEditModal({ ...editModal, open: false })} className="rounded-control border-2 border-primary-200 bg-primary-50 px-4 py-2 text-sm font-medium text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">Cancel</button>
+              <button onClick={() => { setEditModal({ ...editModal, open: false }); showToast('Post updated!'); }} className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors duration-150 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]">Save Changes</button>
             </div>
           </div>
         </div>
       )}
 
-      <div className="mx-auto max-w-[720px] px-8 py-10 max-md:px-4 max-md:py-6 pb-24 md:pb-10">
-        {/* Wizard Progress */}
-        <div className="mb-8 flex items-center gap-3">
+      <div className="mx-auto max-w-[860px] px-8 py-10 max-md:px-4 max-md:py-6 pb-24 md:pb-10">
+        {/* Wizard Progress — spans full width */}
+        <div className="mb-8 flex items-center gap-2 w-full">
           {[
             { num: 1, label: 'Campaign details' },
             { num: 2, label: 'Generating' },
             { num: 3, label: 'Results' },
           ].map((s, i) => (
-            <div key={s.num} className="flex items-center gap-3 last:flex-0">
+            <div key={s.num} className="flex items-center gap-2 flex-1 last:flex-none">
               <div
                 className={clsx(
-                  'flex items-center gap-2 text-sm',
+                  'flex items-center gap-2 text-sm whitespace-nowrap',
                   step === 'form' && i === 0 && 'font-semibold text-primary',
                   step === 'loading' && i === 1 && 'font-semibold text-primary',
                   step === 'results' && i === 2 && 'font-semibold text-primary',
@@ -239,7 +239,7 @@ function GenerateContent() {
               >
                 <div
                   className={clsx(
-                    'flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-semibold',
+                    'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold',
                     step === 'form' && i === 0 && 'border-primary bg-primary-50 text-primary',
                     step === 'loading' && i === 1 && 'border-primary bg-primary-50 text-primary',
                     step === 'results' && i === 2 && 'border-primary bg-primary-50 text-primary',
@@ -256,7 +256,7 @@ function GenerateContent() {
               {i < 2 && (
                 <div
                   className={clsx(
-                    'h-0.5 w-12',
+                    'h-0.5 flex-1 min-w-[20px]',
                     (i === 0 && step !== 'form') || (i === 1 && step === 'results')
                       ? 'bg-success'
                       : 'bg-border'
@@ -311,7 +311,7 @@ function GenerateContent() {
                       key={p.id}
                       onClick={() => togglePlatform(p.id)}
                       className={clsx(
-                        'flex items-center gap-2 rounded-control border px-4 py-2 text-sm font-medium transition-all',
+                        'flex items-center gap-2 rounded-control border px-4 py-2 text-sm font-medium transition-colors duration-150',
                         selectedPlatforms.includes(p.id)
                           ? 'border-primary bg-primary-50 text-primary'
                           : 'border-border bg-surface text-text-secondary hover:border-border-strong'
@@ -359,7 +359,7 @@ function GenerateContent() {
             <button
               onClick={handleGenerate}
               disabled={!businessName || !campaign || selectedPlatforms.length === 0}
-              className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-primary text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:translate-y-0 active:bg-primary-700 disabled:pointer-events-none disabled:opacity-50"
+              className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-primary text-base font-semibold text-white transition-colors duration-150 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:bg-primary-700 disabled:pointer-events-none disabled:opacity-50"
             >
               <Sparkles size={18} />
               Generate {selectedPlatforms.length} post{selectedPlatforms.length !== 1 ? 's' : ''} →
@@ -408,7 +408,7 @@ function GenerateContent() {
               <h2 className="text-[20px] font-semibold text-text-primary">Your content</h2>
               <button
                 onClick={handleNewGeneration}
-                className="rounded-control border-2 border-primary bg-primary-50 px-4 py-2 text-sm font-semibold text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
+                className="rounded-control border-2 border-primary-200 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
               >
                 + New generation
               </button>
@@ -445,17 +445,25 @@ function ResultCard({
   const [saved, setSaved] = useState(false);
   const [showScoreDetails, setShowScoreDetails] = useState(false);
 
-  const platformColors: Record<string, string> = {
-    TikTok: 'bg-tiktok',
-    Instagram: 'bg-instagram',
-    Facebook: 'bg-facebook',
+  const platformStyles: Record<string, { header: string; icon: string; accent: string }> = {
+    TikTok: {
+      header: 'bg-gradient-to-r from-[#010101] to-[#1a1a2e]',
+      icon: 'bg-[#00F2EA]',
+      accent: 'text-[#00F2EA]',
+    },
+    Instagram: {
+      header: 'bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737]',
+      icon: 'bg-white/20',
+      accent: 'text-instagram',
+    },
+    Facebook: {
+      header: 'bg-gradient-to-r from-[#1877F2] to-[#0d5bbd]',
+      icon: 'bg-white/20',
+      accent: 'text-facebook',
+    },
   };
 
-  const platformBorders: Record<string, string> = {
-    TikTok: 'border-t-tiktok',
-    Instagram: 'border-t-instagram',
-    Facebook: 'border-t-facebook',
-  };
+  const style = platformStyles[result.platform] || platformStyles.Facebook;
 
   const copyAll = () => {
     if (!result.content) return;
@@ -494,14 +502,17 @@ function ResultCard({
 
   if (result.status === 'loading') {
     return (
-      <div className="rounded-panel border border-border bg-surface p-4">
-        <div className="mb-3 flex items-center gap-2">
-          <div className="h-7 w-7 animate-pulse rounded-md bg-border" />
-          <div className="h-4 w-20 animate-pulse rounded bg-border" />
+      <div className="rounded-panel border border-border bg-surface overflow-hidden">
+        <div className="h-20 bg-surface-subtle animate-pulse" />
+        <div className="p-5">
+          <div className="mb-3 flex items-center gap-2">
+            <div className="h-4 w-4 animate-pulse rounded bg-border" />
+            <div className="h-4 w-24 animate-pulse rounded bg-border" />
+          </div>
+          <div className="mb-2 h-3 w-[85%] animate-pulse rounded bg-border" />
+          <div className="mb-2 h-3 w-[65%] animate-pulse rounded bg-border" />
+          <div className="h-3 w-[45%] animate-pulse rounded bg-border" />
         </div>
-        <div className="mb-2 h-3 w-[80%] animate-pulse rounded bg-border" />
-        <div className="mb-2 h-3 w-[60%] animate-pulse rounded bg-border" />
-        <div className="h-3 w-[40%] animate-pulse rounded bg-border" />
       </div>
     );
   }
@@ -515,7 +526,7 @@ function ResultCard({
         </div>
         <button
           onClick={onRetry}
-          className="mt-2 flex items-center gap-1.5 rounded-control border border-warning bg-surface px-3 py-1.5 text-[13px] font-medium text-warning transition-colors hover:bg-warning-soft"
+          className="mt-2 flex items-center gap-1.5 rounded-control border border-warning bg-surface px-3 py-1.5 text-[13px] font-medium text-warning transition-colors duration-150 hover:bg-warning-soft"
         >
           <RefreshCw size={14} />
           Retry
@@ -526,131 +537,150 @@ function ResultCard({
 
   return (
     <div
-      className={clsx(
-        'rounded-panel border border-border bg-surface p-4 border-t-[3px] transition-all duration-200',
-        platformBorders[result.platform]
-      )}
+      className="rounded-panel border border-border bg-surface overflow-hidden transition-colors duration-200"
       style={{
         opacity: 0,
         transform: 'translateY(8px)',
         animation: `fadeSlideIn 0.3s ease forwards ${index * 0.1}s`,
       }}
     >
-      <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div
+      {/* Platform-specific header */}
+      <div className={clsx('relative flex items-center gap-3 px-5 py-4', style.header)}>
+        {/* Decorative elements */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full border border-white/30" />
+          <div className="absolute right-10 bottom-1 h-6 w-6 rounded-sm border border-white/20 rotate-12" />
+        </div>
+
+        <div className={clsx('relative flex h-9 w-9 items-center justify-center rounded-lg text-[13px] font-bold text-white', style.icon)}>
+          {result.platform === 'TikTok' ? 'TT' : result.platform === 'Instagram' ? 'IG' : 'FB'}
+        </div>
+        <div className="relative flex-1">
+          <span className="text-[15px] font-semibold text-white">{result.platform}</span>
+          <span className="ml-2 text-[12px] text-white/60">Generated content</span>
+        </div>
+
+        {/* Action buttons in header */}
+        <div className="relative flex items-center gap-2">
+          <button
+            onClick={copyAll}
+            className="flex items-center gap-1.5 rounded-control bg-white/15 backdrop-blur-sm px-3 py-1.5 text-[13px] font-medium text-white transition-colors duration-150 hover:bg-white/25"
+          >
+            {copied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving || saved}
             className={clsx(
-              'flex h-7 w-7 items-center justify-center rounded-md text-[11px] font-bold text-white',
-              platformColors[result.platform]
+              'flex items-center gap-1.5 rounded-control px-3 py-1.5 text-[13px] font-medium transition-colors duration-150',
+              saved
+                ? 'bg-white/20 text-white'
+                : 'bg-white text-text-primary hover:bg-white/90'
             )}
           >
-            {result.platform === 'TikTok' ? 'TT' : result.platform === 'Instagram' ? 'IG' : 'FB'}
+            {saving ? 'Saving...' : saved ? <><Check size={14} /> Saved</> : <><Save size={14} /> Save</>}
+          </button>
+        </div>
+      </div>
+
+      {/* Content body */}
+      <div className="p-5">
+        <div className="mb-4 text-[14px] leading-relaxed text-text-primary whitespace-pre-wrap">
+          {result.content?.post}
+        </div>
+
+        {result.content?.hashtags?.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-1.5">
+            {result.content.hashtags.map((tag: string, i: number) => (
+              <span
+                key={i}
+                className={clsx(
+                  'rounded-full bg-primary-50 px-2.5 py-0.5 text-[12px] font-medium',
+                  style.accent
+                )}
+              >
+                {tag}
+              </span>
+            ))}
           </div>
-          <span className="text-sm font-semibold text-text-primary">{result.platform}</span>
-        </div>
-        <button
-          onClick={copyAll}
-          className="flex items-center gap-1.5 rounded-control border-2 border-primary bg-primary-50 px-3 py-1.5 text-[13px] font-semibold text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
-        >
-          {copied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
-        </button>
-        <button
-          onClick={handleSave}
-          disabled={saving || saved}
-          className={clsx(
-            'flex items-center gap-1.5 rounded-control border px-3 py-1.5 text-[13px] font-medium transition-all',
-            saved
-              ? 'border-success bg-success-soft text-success'
-              : 'border-2 border-primary bg-primary-50 text-primary hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]'
-          )}
-        >
-          {saving ? 'Saving...' : saved ? <><Check size={14} /> Saved</> : <><Save size={14} /> Save</>}
-        </button>
+        )}
+
+        {result.content?.caption && (
+          <div className="mb-3 rounded-control bg-surface-subtle p-3">
+            <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-text-muted">Caption</div>
+            <p className="text-[13px] leading-relaxed text-text-secondary">{result.content.caption}</p>
+          </div>
+        )}
+
+        {result.content?.callToAction && (
+          <div className="mb-3 flex items-center gap-2 rounded-control bg-primary-50 px-3 py-2">
+            <span className="text-[12px] font-semibold text-primary">CTA:</span>
+            <span className="text-[13px] font-medium text-text-primary">{result.content.callToAction}</span>
+          </div>
+        )}
       </div>
-
-      <div className="mb-3 text-sm leading-relaxed text-text-primary">
-        {result.content?.post}
-      </div>
-
-      {result.content?.hashtags?.length > 0 && (
-        <div className="mb-2 text-[13px] text-primary">
-          {result.content.hashtags.join(' ')}
-        </div>
-      )}
-
-      {result.content?.caption && (
-        <div className="mb-2 text-[13px] text-text-secondary">
-          {result.content.caption}
-        </div>
-      )}
-
-      {result.content?.callToAction && (
-        <div className="text-[13px] font-semibold text-text-secondary">
-          CTA: {result.content.callToAction}
-        </div>
-      )}
 
       {/* Content Score */}
       {result.content?.score && (
-        <div className="mt-4 pt-4 border-t border-border">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-text-primary">Score:</span>
-              <span className="text-lg font-bold text-text-primary">
-                {result.content.score.overall}/100
-              </span>
-              <span
-                className={clsx(
-                  'px-2 py-0.5 rounded-full text-xs font-bold',
-                  getGradeColor(result.content.score.grade)
-                )}
+          <div className="mt-4 pt-4 border-t border-border">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-text-primary">Score:</span>
+                <span className="text-lg font-bold text-text-primary">
+                  {result.content.score.overall}/100
+                </span>
+                <span
+                  className={clsx(
+                    'px-2 py-0.5 rounded-full text-xs font-bold',
+                    getGradeColor(result.content.score.grade)
+                  )}
+                >
+                  {result.content.score.grade}
+                </span>
+              </div>
+              <button
+                onClick={() => setShowScoreDetails(!showScoreDetails)}
+                className="flex items-center gap-1 text-xs text-text-muted hover:text-text-primary transition-colors"
               >
-                {result.content.score.grade}
-              </span>
+                {showScoreDetails ? (
+                  <>
+                    <ChevronUp size={14} />
+                    Hide details
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={14} />
+                    View breakdown
+                  </>
+                )}
+              </button>
             </div>
-            <button
-              onClick={() => setShowScoreDetails(!showScoreDetails)}
-              className="flex items-center gap-1 text-xs text-text-muted hover:text-text-primary transition-colors"
-            >
-              {showScoreDetails ? (
-                <>
-                  <ChevronUp size={14} />
-                  Hide details
-                </>
-              ) : (
-                <>
-                  <ChevronDown size={14} />
-                  View breakdown
-                </>
-              )}
-            </button>
+
+            {/* Score Breakdown */}
+            {showScoreDetails && (
+              <div className="mt-3 space-y-2">
+                <ScoreBar label="Readability" score={result.content.score.readability} />
+                <ScoreBar label="Hashtag Relevance" score={result.content.score.hashtagRelevance} />
+                <ScoreBar label="CTA Strength" score={result.content.score.ctaStrength} />
+
+                {/* Suggestions */}
+                {result.content.score.suggestions?.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <p className="text-xs font-medium text-text-muted mb-2">Suggestions:</p>
+                    <ul className="space-y-1">
+                      {result.content.score.suggestions.map((suggestion: string, i: number) => (
+                        <li key={i} className="text-xs text-text-secondary flex items-start gap-1.5">
+                          <span className="text-primary mt-0.5">•</span>
+                          {suggestion}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-
-          {/* Score Breakdown */}
-          {showScoreDetails && (
-            <div className="mt-3 space-y-2">
-              <ScoreBar label="Readability" score={result.content.score.readability} />
-              <ScoreBar label="Hashtag Relevance" score={result.content.score.hashtagRelevance} />
-              <ScoreBar label="CTA Strength" score={result.content.score.ctaStrength} />
-
-              {/* Suggestions */}
-              {result.content.score.suggestions?.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-border">
-                  <p className="text-xs font-medium text-text-muted mb-2">Suggestions:</p>
-                  <ul className="space-y-1">
-                    {result.content.score.suggestions.map((suggestion: string, i: number) => (
-                      <li key={i} className="text-xs text-text-secondary flex items-start gap-1.5">
-                        <span className="text-primary mt-0.5">•</span>
-                        {suggestion}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+        )}
     </div>
   );
 }

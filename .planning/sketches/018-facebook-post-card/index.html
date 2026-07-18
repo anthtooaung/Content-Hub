@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 018: Facebook Post Card</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --fb-blue: #1877F2;
+      --fb-green: #42B72A;
+      --fb-bg: #F0F2F5;
+      --fb-surface: #FFFFFF;
+      --fb-border: #CED0D4;
+      --fb-text: #050505;
+      --fb-text-secondary: #65676B;
+      --fb-hover: #F2F2F2;
+      --fb-reaction-bg: #F0F2F5;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: var(--fb-bg); color: var(--fb-text); }
+
+    /* Variant nav */
+    #variant-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+      background: var(--fb-surface); border-bottom: 1px solid #E4E6EB;
+      padding: 8px 16px; display: flex; gap: 8px; font-family: system-ui; align-items: center;
+    }
+    .variant-tab {
+      padding: 6px 14px; border-radius: 8px; border: 1px solid #E4E6EB;
+      background: var(--fb-surface); color: var(--fb-text-secondary);
+      font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s ease;
+    }
+    .variant-tab:hover { border-color: var(--fb-blue); color: var(--fb-blue); }
+    .variant-tab.active { background: var(--fb-blue); color: white; border-color: var(--fb-blue); }
+    .variant { display: none; padding: 72px 24px 24px; max-width: 680px; margin: 0 auto; }
+    .variant.active { display: block; }
+
+    /* ========== FACEBOOK POST CARD ========== */
+    .fb-post {
+      background: var(--fb-surface);
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    /* Header */
+    .fb-post-header {
+      display: flex; align-items: center; padding: 12px 16px; gap: 8px;
+    }
+    .fb-avatar {
+      width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
+      background: #E4E6EB;
+    }
+    .fb-avatar-placeholder {
+      width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #4A90D9 0%, #2563EB 100%);
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 16px;
+    }
+    .fb-post-meta { flex: 1; }
+    .fb-post-author {
+      font-size: 15px; font-weight: 600; color: var(--fb-text);
+      line-height: 1.3;
+    }
+    .fb-post-author:hover { text-decoration: underline; cursor: pointer; }
+    .fb-post-info {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 13px; color: var(--fb-text-secondary); line-height: 1.3;
+    }
+    .fb-post-info span { display: flex; align-items: center; gap: 2px; }
+    .fb-globe { width: 12px; height: 12px; opacity: 0.6; }
+    .fb-more-btn {
+      width: 36px; height: 36px; border: none; background: none;
+      border-radius: 50%; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; color: var(--fb-text-secondary); font-size: 20px;
+    }
+    .fb-more-btn:hover { background: var(--fb-hover); }
+
+    /* Post text */
+    .fb-post-text {
+      padding: 0 16px 12px; font-size: 15px; line-height: 1.5;
+      color: var(--fb-text); white-space: pre-wrap;
+    }
+    .fb-post-text .fb-more { color: var(--fb-text-secondary); cursor: pointer; font-weight: 600; }
+    .fb-post-text .fb-more:hover { text-decoration: underline; }
+    .fb-hashtag { color: var(--fb-blue); cursor: pointer; }
+    .fb-hashtag:hover { text-decoration: underline; }
+
+    /* Post image */
+    .fb-post-image {
+      width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block;
+      cursor: pointer;
+    }
+    .fb-post-image-placeholder {
+      width: 100%; aspect-ratio: 16/9; background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 50%, #BFDBFE 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; color: var(--fb-blue);
+    }
+    .fb-post-image-placeholder svg { width: 48px; height: 48px; opacity: 0.5; }
+    .fb-post-image-placeholder span { font-size: 14px; font-weight: 500; opacity: 0.7; }
+
+    /* Reactions summary */
+    .fb-reactions-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; font-size: 15px; color: var(--fb-text-secondary);
+    }
+    .fb-reactions-left { display: flex; align-items: center; gap: 4px; }
+    .fb-reaction-icons { display: flex; }
+    .fb-reaction-icon {
+      width: 20px; height: 20px; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; font-size: 12px;
+      margin-left: -2px; border: 2px solid white;
+    }
+    .fb-reaction-icon:first-child { margin-left: 0; }
+    .fb-reaction-like { background: var(--fb-blue); color: white; }
+    .fb-reaction-love { background: #F33E58; color: white; }
+    .fb-reaction-haha { background: #F7B928; color: white; }
+    .fb-reactions-count { margin-left: 6px; }
+    .fb-reactions-right { display: flex; gap: 12px; }
+    .fb-reactions-right span { cursor: pointer; }
+    .fb-reactions-right span:hover { text-decoration: underline; }
+
+    /* Action buttons */
+    .fb-actions {
+      display: flex; border-top: 1px solid #E4E6EB; border-bottom: 1px solid #E4E6EB;
+      margin: 0 16px; padding: 4px 0;
+    }
+    .fb-action-btn {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 8px 0; border: none; background: none;
+      font-size: 15px; font-weight: 600; color: var(--fb-text-secondary);
+      cursor: pointer; border-radius: 4px; transition: background 0.1s;
+    }
+    .fb-action-btn:hover { background: var(--fb-hover); }
+    .fb-action-btn svg { width: 20px; height: 20px; }
+
+    /* Comments section */
+    .fb-comments { padding: 12px 16px; }
+    .fb-comment-input {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+    }
+    .fb-comment-avatar {
+      width: 32px; height: 32px; border-radius: 50%; background: #E4E6EB;
+      flex-shrink: 0;
+    }
+    .fb-comment-field {
+      flex: 1; background: var(--fb-reaction-bg); border: none; border-radius: 20px;
+      padding: 8px 12px; font-size: 15px; color: var(--fb-text-secondary);
+      outline: none; cursor: text;
+    }
+    .fb-comment-field:hover { background: #E4E6EB; }
+    .fb-comment {
+      display: flex; gap: 8px; margin-bottom: 8px;
+    }
+    .fb-comment-body {
+      background: var(--fb-reaction-bg); border-radius: 18px; padding: 8px 12px;
+    }
+    .fb-comment-name { font-size: 13px; font-weight: 600; }
+    .fb-comment-text { font-size: 15px; line-height: 1.4; margin-top: 2px; }
+    .fb-comment-actions {
+      display: flex; gap: 12px; padding-left: 12px; margin-top: 4px;
+      font-size: 12px; font-weight: 700; color: var(--fb-text-secondary);
+    }
+    .fb-comment-actions span { cursor: pointer; }
+    .fb-comment-actions span:hover { text-decoration: underline; }
+
+    /* ========== APP WRAPPER (for context) ========== */
+    .app-wrapper {
+      max-width: 680px; margin: 0 auto;
+    }
+    .app-header {
+      background: var(--fb-surface); padding: 8px 16px; border-bottom: 1px solid #E4E6EB;
+      margin-bottom: 16px; border-radius: 0 0 8px 8px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .app-logo { font-size: 24px; font-weight: 700; color: var(--fb-blue); }
+    .app-card-label {
+      font-size: 12px; font-weight: 600; color: var(--fb-text-secondary);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+      padding: 0 4px;
+    }
+
+    /* Generated content overlay badge */
+    .generated-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #EFF6FF; color: #2563EB; font-size: 11px; font-weight: 600;
+      padding: 3px 8px; border-radius: 6px; margin-bottom: 8px;
+    }
+
+    /* ========== SKETCH TOOLBAR ========== */
+    #sketch-tools {
+      position: fixed; bottom: 12px; right: 12px; z-index: 9999;
+      font-family: system-ui; font-size: 12px; background: rgba(0,0,0,0.7);
+      color: white; padding: 8px 12px; border-radius: 8px; opacity: 0.4;
+      transition: opacity 0.2s; display: flex; gap: 8px; align-items: center;
+    }
+    #sketch-tools:hover { opacity: 1; }
+    #sketch-tools select {
+      background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 4px; padding: 2px 6px; font-size: 11px;
+    }
+    .viewport-btn {
+      padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2);
+      background: transparent; color: white; font-size: 11px; cursor: pointer;
+    }
+    .viewport-btn:hover, .viewport-btn.active { background: rgba(255,255,255,0.2); }
+
+    /* State toggle */
+    .state-toggle {
+      display: flex; gap: 6px; margin-bottom: 16px;
+    }
+    .state-btn {
+      padding: 6px 12px; border-radius: 6px; border: 1px solid #E4E6EB;
+      background: white; font-size: 12px; font-weight: 500; cursor: pointer;
+      color: var(--fb-text-secondary); transition: all 0.15s;
+    }
+    .state-btn.active { background: var(--fb-blue); color: white; border-color: var(--fb-blue); }
+    .state-btn:hover:not(.active) { border-color: var(--fb-blue); color: var(--fb-blue); }
+  </style>
+</head>
+<body>
+
+  <!-- Variant Nav -->
+  <div id="variant-nav">
+    <button class="variant-tab active" onclick="showVariant('a')">A: With User Image</button>
+    <button class="variant-tab" onclick="showVariant('b')">B: No Image (Prompt)</button>
+    <button class="variant-tab" onclick="showVariant('c')">C: Feed Context</button>
+  </div>
+
+  <!-- ==================== VARIANT A: With User Image ==================== -->
+  <div id="variant-a" class="variant active">
+    <div class="app-card-label">Generated Facebook Post — With Image</div>
+
+    <div class="fb-post">
+      <!-- Header -->
+      <div class="fb-post-header">
+        <div class="fb-avatar-placeholder">B</div>
+        <div class="fb-post-meta">
+          <div class="fb-post-author">Bloom & Brew Coffee</div>
+          <div class="fb-post-info">
+            <span>Just now</span>
+            <span>·</span>
+            <svg class="fb-globe" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm.5 4.5v3.793l2.146 2.147a.5.5 0 01-.708.708l-2.5-2.5A.5.5 0 017.5 8.5v-4a.5.5 0 011 0z"/></svg>
+          </div>
+        </div>
+        <button class="fb-more-btn">···</button>
+      </div>
+
+      <!-- Post text -->
+      <div class="fb-post-text">Summer just got cooler! ☀️🍦
+
+Introducing our new Iced Latte Collection — crafted with single-origin beans and real fruit flavors.
+
+This weekend only: Buy one, get one FREE on all iced lattes!
+
+Stop by or order through our app 📱</div>
+
+      <!-- User's uploaded image -->
+      <img class="fb-post-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='680' height='383'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23DBEAFE'/%3E%3Cstop offset='50%25' stop-color='%23BFDBFE'/%3E%3Cstop offset='100%25' stop-color='%2393C5FD'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23g)' width='680' height='383'/%3E%3Ctext x='340' y='180' text-anchor='middle' fill='%232563EB' font-size='28' font-family='system-ui' font-weight='600'%3E☕ Iced Latte Collection%3C/text%3E%3Ctext x='340' y='220' text-anchor='middle' fill='%2360A5FA' font-size='16' font-family='system-ui'%3EBuy One Get One Free%3C/text%3E%3C/svg%3E" alt="Campaign image">
+
+      <!-- Reactions -->
+      <div class="fb-reactions-bar">
+        <div class="fb-reactions-left">
+          <div class="fb-reaction-icons">
+            <div class="fb-reaction-icon fb-reaction-like">👍</div>
+            <div class="fb-reaction-icon fb-reaction-love">❤️</div>
+            <div class="fb-reaction-icon fb-reaction-haha">😂</div>
+          </div>
+          <span class="fb-reactions-count">1.2K</span>
+        </div>
+        <div class="fb-reactions-right">
+          <span>342 Comments</span>
+          <span>89 Shares</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="fb-actions">
+        <button class="fb-action-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+          Like
+        </button>
+        <button class="fb-action-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Comment
+        </button>
+        <button class="fb-action-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16,6 12,2 8,6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          Share
+        </button>
+      </div>
+
+      <!-- Comments -->
+      <div class="fb-comments">
+        <div class="fb-comment-input">
+          <div class="fb-comment-avatar"></div>
+          <input class="fb-comment-field" placeholder="Write a comment…" readonly>
+        </div>
+        <div class="fb-comment">
+          <div class="fb-comment-avatar" style="background:linear-gradient(135deg,#A78BFA,#7C3AED);width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700">S</div>
+          <div>
+            <div class="fb-comment-body">
+              <div class="fb-comment-name">Sarah M.</div>
+              <div class="fb-comment-text">OMG the mango iced latte is incredible! 🥭☕</div>
+            </div>
+            <div class="fb-comment-actions">
+              <span>Like</span>
+              <span>Reply</span>
+              <span style="font-weight:400">2h</span>
+            </div>
+          </div>
+        </div>
+        <div class="fb-comment">
+          <div class="fb-comment-avatar" style="background:linear-gradient(135deg,#34D399,#059669);width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700">J</div>
+          <div>
+            <div class="fb-comment-body">
+              <div class="fb-comment-name">Jake T.</div>
+              <div class="fb-comment-text">Be there Saturday! 🔥</div>
+            </div>
+            <div class="fb-comment-actions">
+              <span>Like</span>
+              <span>Reply</span>
+              <span style="font-weight:400">1h</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== VARIANT B: No Image (Prompt) ==================== -->
+  <div id="variant-b" class="variant">
+    <div class="app-card-label">Generated Facebook Post — No Image (Add Image Prompt)</div>
+
+    <div class="fb-post">
+      <!-- Header -->
+      <div class="fb-post-header">
+        <div class="fb-avatar-placeholder">B</div>
+        <div class="fb-post-meta">
+          <div class="fb-post-author">Bloom & Brew Coffee</div>
+          <div class="fb-post-info">
+            <span>Just now</span>
+            <span>·</span>
+            <svg class="fb-globe" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm.5 4.5v3.793l2.146 2.147a.5.5 0 01-.708.708l-2.5-2.5A.5.5 0 017.5 8.5v-4a.5.5 0 011 0z"/></svg>
+          </div>
+        </div>
+        <button class="fb-more-btn">···</button>
+      </div>
+
+      <!-- Post text -->
+      <div class="fb-post-text">Summer just got cooler! ☀️🍦
+
+Introducing our new Iced Latte Collection — crafted with single-origin beans and real fruit flavors.
+
+This weekend only: Buy one, get one FREE on all iced lattes!
+
+Stop by or order through our app 📱</div>
+
+      <!-- Empty image state — "Add image" prompt -->
+      <div class="fb-post-image-placeholder" style="cursor:pointer;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <path d="m21 15-5-5L5 21"/>
+        </svg>
+        <span>Add an image to this post</span>
+      </div>
+
+      <!-- Reactions -->
+      <div class="fb-reactions-bar">
+        <div class="fb-reactions-left">
+          <div class="fb-reaction-icons">
+            <div class="fb-reaction-icon fb-reaction-like">👍</div>
+            <div class="fb-reaction-icon fb-reaction-love">❤️</div>
+          </div>
+          <span class="fb-reactions-count">847</span>
+        </div>
+        <div class="fb-reactions-right">
+          <span>128 Comments</span>
+          <span>45 Shares</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="fb-actions">
+        <button class="fb-action-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+          Like
+        </button>
+        <button class="fb-action-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Comment
+        </button>
+        <button class="fb-action-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16,6 12,2 8,6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          Share
+        </button>
+      </div>
+
+      <!-- Comments -->
+      <div class="fb-comments">
+        <div class="fb-comment-input">
+          <div class="fb-comment-avatar"></div>
+          <input class="fb-comment-field" placeholder="Write a comment…" readonly>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== VARIANT C: Feed Context ==================== -->
+  <div id="variant-c" class="variant">
+    <div class="app-card-label">Generated Post in Feed Context</div>
+
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <!-- Previous post (context) -->
+      <div class="fb-post" style="opacity:0.5;">
+        <div class="fb-post-header">
+          <div class="fb-avatar-placeholder" style="background:linear-gradient(135deg,#F472B6,#EC4899);font-size:14px">J</div>
+          <div class="fb-post-meta">
+            <div class="fb-post-author">Jessica Park</div>
+            <div class="fb-post-info">
+              <span>2 hours ago</span>
+              <span>·</span>
+              <svg class="fb-globe" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm.5 4.5v3.793l2.146 2.147a.5.5 0 01-.708.708l-2.5-2.5A.5.5 0 017.5 8.5v-4a.5.5 0 011 0z"/></svg>
+            </div>
+          </div>
+          <button class="fb-more-btn">···</button>
+        </div>
+        <div class="fb-post-text">Perfect morning for an iced coffee! ☕</div>
+      </div>
+
+      <!-- Our generated post -->
+      <div>
+        <div class="generated-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+          Generated by Content Hub
+        </div>
+        <div class="fb-post" style="border: 2px solid #BFDBFE;">
+          <div class="fb-post-header">
+            <div class="fb-avatar-placeholder">B</div>
+            <div class="fb-post-meta">
+              <div class="fb-post-author">Bloom & Brew Coffee</div>
+              <div class="fb-post-info">
+                <span>Just now</span>
+                <span>·</span>
+                <svg class="fb-globe" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm.5 4.5v3.793l2.146 2.147a.5.5 0 01-.708.708l-2.5-2.5A.5.5 0 017.5 8.5v-4a.5.5 0 011 0z"/></svg>
+              </div>
+            </div>
+            <button class="fb-more-btn">···</button>
+          </div>
+          <div class="fb-post-text">Summer just got cooler! ☀️🍦
+
+Introducing our new Iced Latte Collection — crafted with single-origin beans and real fruit flavors.
+
+This weekend only: Buy one, get one FREE on all iced lattes!
+
+Stop by or order through our app 📱</div>
+          <img class="fb-post-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='680' height='383'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23DBEAFE'/%3E%3Cstop offset='50%25' stop-color='%23BFDBFE'/%3E%3Cstop offset='100%25' stop-color='%2393C5FD'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23g)' width='680' height='383'/%3E%3Ctext x='340' y='180' text-anchor='middle' fill='%232563EB' font-size='28' font-family='system-ui' font-weight='600'%3E☕ Iced Latte Collection%3C/text%3E%3Ctext x='340' y='220' text-anchor='middle' fill='%2360A5FA' font-size='16' font-family='system-ui'%3EBuy One Get One Free%3C/text%3E%3C/svg%3E" alt="Campaign image">
+          <div class="fb-reactions-bar">
+            <div class="fb-reactions-left">
+              <div class="fb-reaction-icons">
+                <div class="fb-reaction-icon fb-reaction-like">👍</div>
+                <div class="fb-reaction-icon fb-reaction-love">❤️</div>
+              </div>
+              <span class="fb-reactions-count">1.2K</span>
+            </div>
+            <div class="fb-reactions-right">
+              <span>342 Comments</span>
+              <span>89 Shares</span>
+            </div>
+          </div>
+          <div class="fb-actions">
+            <button class="fb-action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+              Like
+            </button>
+            <button class="fb-action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Comment
+            </button>
+            <button class="fb-action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16,6 12,2 8,6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+              Share
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next post (context) -->
+      <div class="fb-post" style="opacity:0.5;">
+        <div class="fb-post-header">
+          <div class="fb-avatar-placeholder" style="background:linear-gradient(135deg,#FBBF24,#F59E0B);font-size:14px">M</div>
+          <div class="fb-post-meta">
+            <div class="fb-post-author">Mike's Fitness</div>
+            <div class="fb-post-info">
+              <span>3 hours ago</span>
+              <span>·</span>
+              <svg class="fb-globe" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm.5 4.5v3.793l2.146 2.147a.5.5 0 01-.708.708l-2.5-2.5A.5.5 0 017.5 8.5v-4a.5.5 0 011 0z"/></svg>
+            </div>
+          </div>
+          <button class="fb-more-btn">···</button>
+        </div>
+        <div class="fb-post-text">New class schedule posted! 💪</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sketch Toolbar -->
+  <div id="sketch-tools">
+    <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'">
+      <option value="default">Default</option>
+    </select>
+    <button class="viewport-btn" onclick="setViewport('375px')" title="Phone">📱</button>
+    <button class="viewport-btn" onclick="setViewport('768px')" title="Tablet">Tablet</button>
+    <button class="viewport-btn active" onclick="setViewport('100%')" title="Desktop">Desktop</button>
+  </div>
+
+  <script>
+    function showVariant(id) {
+      document.querySelectorAll('.variant').forEach(v => v.style.display = 'none');
+      document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('variant-' + id).style.display = 'block';
+      event.target.classList.add('active');
+    }
+
+    function setViewport(width) {
+      document.querySelectorAll('.variant').forEach(v => v.style.maxWidth = width);
+      document.querySelectorAll('.viewport-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    // Hover effects on action buttons
+    document.querySelectorAll('.fb-action-btn').forEach(btn => {
+      btn.addEventListener('mouseenter', () => btn.style.background = '#F2F2F2');
+      btn.addEventListener('mouseleave', () => btn.style.background = '');
+    });
+  </script>
+</body>
+</html>

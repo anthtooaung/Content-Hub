@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sketch 017: Image Upload Form Integration</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-bg: #F8FAFC;
+      --color-surface: #FFFFFF;
+      --color-border: #E2E8F0;
+      --color-border-strong: #CBD5E1;
+      --color-text: #0F172A;
+      --color-text-secondary: #475569;
+      --color-text-muted: #64748B;
+      --color-primary: #2563EB;
+      --color-primary-hover: #1D4ED8;
+      --color-primary-50: #EFF6FF;
+      --color-primary-300: #93C5FD;
+      --color-success: #15803D;
+      --color-success-soft: #F0FDF4;
+      --color-tiktok: #111827;
+      --color-instagram: #E1306C;
+      --color-facebook: #1877F2;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--color-bg); color: var(--color-text); }
+
+    /* Variant nav */
+    #variant-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+      background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+      padding: 8px 16px; display: flex; gap: 8px; font-family: system-ui; align-items: center;
+    }
+    .variant-tab {
+      padding: 6px 14px; border-radius: 8px; border: 1px solid var(--color-border);
+      background: var(--color-surface); color: var(--color-text-secondary);
+      font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s ease;
+    }
+    .variant-tab:hover { border-color: var(--color-primary-300); color: var(--color-primary); }
+    .variant-tab.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+    .variant { display: none; padding: 72px 24px 24px; max-width: 720px; margin: 0 auto; }
+    .variant.active { display: block; }
+
+    /* Form card */
+    .form-card {
+      background: var(--color-surface); border: 1px solid var(--color-border);
+      border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(15,23,42,0.06);
+    }
+    .form-title { font-size: 20px; font-weight: 600; margin-bottom: 24px; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--color-text); }
+    .form-input {
+      width: 100%; height: 44px; border: 1px solid var(--color-border-strong);
+      border-radius: 10px; padding: 0 12px; font-size: 14px; font-family: inherit;
+      outline: none; transition: box-shadow 0.15s ease;
+    }
+    .form-input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.22); }
+    .form-textarea {
+      width: 100%; min-height: 120px; resize: vertical; border: 1px solid var(--color-border-strong);
+      border-radius: 10px; padding: 10px 12px; font-size: 14px; font-family: inherit;
+      outline: none; transition: box-shadow 0.15s ease;
+    }
+    .form-textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.22); }
+
+    /* Platform buttons */
+    .platform-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .platform-btn {
+      display: flex; align-items: center; gap: 8px; padding: 8px 16px;
+      border-radius: 10px; border: 1px solid var(--color-border); background: var(--color-surface);
+      font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s ease;
+      color: var(--color-text-secondary);
+    }
+    .platform-btn:hover { border-color: var(--color-border-strong); }
+    .platform-btn.selected { border-color: var(--color-primary); background: var(--color-primary-50); color: var(--color-primary); }
+    .platform-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* Grid row */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
+
+    /* Select */
+    .form-select {
+      width: 100%; height: 44px; border: 1px solid var(--color-border-strong);
+      border-radius: 10px; padding: 0 12px; font-size: 14px; font-family: inherit;
+      outline: none; background: var(--color-surface); cursor: pointer;
+    }
+
+    /* Generate button */
+    .generate-btn {
+      width: 100%; height: 48px; border: none; border-radius: 10px;
+      background: var(--color-primary); color: white; font-size: 16px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all 0.15s ease; margin-top: 24px;
+    }
+    .generate-btn:hover { background: var(--color-primary-hover); box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+
+    /* ========== UPLOAD STYLES ========== */
+
+    /* Variant A: Compact inline button */
+    .upload-inline { display: flex; align-items: center; gap: 12px; }
+    .upload-btn-compact {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border: 1px dashed var(--color-border-strong);
+      border-radius: 10px; background: var(--color-surface-subtle, #F1F5F9);
+      font-size: 13px; font-weight: 500; color: var(--color-text-secondary);
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .upload-btn-compact:hover { border-color: var(--color-primary); color: var(--color-primary); background: var(--color-primary-50); }
+    .upload-btn-compact svg { width: 16px; height: 16px; }
+    .upload-hint { font-size: 12px; color: var(--color-text-muted); }
+
+    /* Variant B: Above campaign, with preview */
+    .upload-area {
+      border: 2px dashed var(--color-border-strong); border-radius: 12px;
+      padding: 20px; text-align: center; cursor: pointer;
+      transition: all 0.15s ease; background: var(--color-surface-subtle, #F1F5F9);
+    }
+    .upload-area:hover { border-color: var(--color-primary); background: var(--color-primary-50); }
+    .upload-area.has-image { border-style: solid; border-color: var(--color-primary-300); padding: 12px; text-align: left; }
+    .upload-icon { width: 32px; height: 32px; margin: 0 auto 8px; color: var(--color-text-muted); }
+    .upload-text { font-size: 14px; font-weight: 500; color: var(--color-text-secondary); }
+    .upload-subtext { font-size: 12px; color: var(--color-text-muted); margin-top: 4px; }
+
+    /* Image preview */
+    .image-preview { display: flex; align-items: center; gap: 12px; }
+    .image-thumb {
+      width: 64px; height: 64px; border-radius: 8px; object-fit: cover;
+      border: 1px solid var(--color-border);
+    }
+    .image-info { flex: 1; }
+    .image-name { font-size: 13px; font-weight: 500; color: var(--color-text); }
+    .image-size { font-size: 12px; color: var(--color-text-muted); margin-top: 2px; }
+    .image-remove {
+      padding: 4px; border: none; background: none; color: var(--color-text-muted);
+      cursor: pointer; border-radius: 4px; transition: all 0.15s ease;
+    }
+    .image-remove:hover { color: #B91C1C; background: #FEF2F2; }
+
+    /* Variant C: Separate section with drag hint */
+    .upload-section {
+      border: 1px solid var(--color-border); border-radius: 12px;
+      padding: 16px; background: var(--color-surface);
+    }
+    .upload-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .upload-section-title { font-size: 14px; font-weight: 600; }
+    .upload-section-badge {
+      font-size: 11px; padding: 2px 8px; border-radius: 9999px;
+      background: var(--color-surface-subtle, #F1F5F9); color: var(--color-text-muted);
+    }
+    .upload-dropzone {
+      border: 2px dashed var(--color-border-strong); border-radius: 10px;
+      padding: 24px; text-align: center; cursor: pointer;
+      transition: all 0.15s ease; background: var(--color-surface-subtle, #F1F5F9);
+    }
+    .upload-dropzone:hover { border-color: var(--color-primary); background: var(--color-primary-50); }
+    .upload-dropzone.dragover { border-color: var(--color-primary); background: var(--color-primary-50); transform: scale(1.01); }
+
+    /* Empty image state in cards */
+    .card-image-empty {
+      background: var(--color-surface-subtle, #F1F5F9); border-radius: 8px;
+      padding: 20px; text-align: center; border: 1px dashed var(--color-border-strong);
+    }
+    .card-image-empty-icon { width: 24px; height: 24px; margin: 0 auto 6px; color: var(--color-text-muted); }
+    .card-image-empty-text { font-size: 12px; color: var(--color-text-muted); }
+    .card-image-empty-link { color: var(--color-primary); font-weight: 500; cursor: pointer; }
+
+    /* ========== SKETCH TOOLBAR ========== */
+    #sketch-tools {
+      position: fixed; bottom: 12px; right: 12px; z-index: 9999;
+      font-family: system-ui; font-size: 12px; background: rgba(0,0,0,0.7);
+      color: white; padding: 8px 12px; border-radius: 8px; opacity: 0.4;
+      transition: opacity 0.2s; display: flex; gap: 8px; align-items: center;
+    }
+    #sketch-tools:hover { opacity: 1; }
+    #sketch-tools select {
+      background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 4px; padding: 2px 6px; font-size: 11px;
+    }
+    .viewport-btn {
+      padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2);
+      background: transparent; color: white; font-size: 11px; cursor: pointer;
+    }
+    .viewport-btn:hover, .viewport-btn.active { background: rgba(255,255,255,0.2); }
+  </style>
+</head>
+<body>
+
+  <!-- Variant Nav -->
+  <div id="variant-nav">
+    <button class="variant-tab active" onclick="showVariant('a')">A: Compact Inline</button>
+    <button class="variant-tab" onclick="showVariant('b')">B: Above Campaign</button>
+    <button class="variant-tab" onclick="showVariant('c')">C: Separate Section</button>
+  </div>
+
+  <!-- ==================== VARIANT A: Compact Inline ==================== -->
+  <div id="variant-a" class="variant active">
+    <div class="form-card">
+      <h2 class="form-title">Tell us about your campaign</h2>
+
+      <div class="form-group">
+        <label class="form-label">Business or brand</label>
+        <input type="text" class="form-input" placeholder="e.g. Bloom & Brew Coffee" value="Bloom & Brew Coffee">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">What are you promoting?</label>
+        <textarea class="form-textarea" placeholder="Describe your campaign, product, or event...">Launch our new summer iced latte collection with a buy-one-get-one offer this weekend.</textarea>
+      </div>
+
+      <!-- IMAGE UPLOAD: Compact inline button below textarea -->
+      <div class="form-group">
+        <div class="upload-inline">
+          <button class="upload-btn-compact" onclick="simulateUploadA()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            Add image
+          </button>
+          <span class="upload-hint">Optional — product photo, promo image, etc.</span>
+        </div>
+        <!-- Preview (hidden by default, shown after upload) -->
+        <div id="preview-a" style="display:none; margin-top: 12px;">
+          <div class="image-preview">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect fill='%23DBEAFE' width='64' height='64'/%3E%3Ctext x='32' y='36' text-anchor='middle' fill='%232563EB' font-size='12' font-family='system-ui'%3Eiced latte%3C/text%3E%3C/svg%3E" class="image-thumb" alt="Preview">
+            <div class="image-info">
+              <div class="image-name">summer-latte-promo.jpg</div>
+              <div class="image-size">2.4 MB</div>
+            </div>
+            <button class="image-remove" onclick="removeImageA()" title="Remove image">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Platforms</label>
+        <div class="platform-btns">
+          <button class="platform-btn selected"><div class="platform-dot" style="background:var(--color-tiktok)"></div>TikTok</button>
+          <button class="platform-btn selected"><div class="platform-dot" style="background:var(--color-instagram)"></div>Instagram</button>
+          <button class="platform-btn selected"><div class="platform-dot" style="background:var(--color-facebook)"></div>Facebook</button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Content goal</label>
+          <select class="form-select">
+            <option>Awareness</option><option>Engagement</option><option selected>Sales</option><option>Community Building</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tone</label>
+          <select class="form-select">
+            <option>Professional</option><option selected>Casual</option><option>Playful</option><option>Bold</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="generate-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+        Generate 3 posts →
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== VARIANT B: Above Campaign ==================== -->
+  <div id="variant-b" class="variant">
+    <div class="form-card">
+      <h2 class="form-title">Tell us about your campaign</h2>
+
+      <div class="form-group">
+        <label class="form-label">Business or brand</label>
+        <input type="text" class="form-input" placeholder="e.g. Bloom & Brew Coffee" value="Bloom & Brew Coffee">
+      </div>
+
+      <!-- IMAGE UPLOAD: Above campaign textarea, with drop zone -->
+      <div class="form-group">
+        <label class="form-label">Campaign image <span style="font-weight:400;color:var(--color-text-muted)">(optional)</span></label>
+        <div class="upload-area" id="upload-area-b" onclick="simulateUploadB()">
+          <div id="upload-empty-b">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            <div class="upload-text">Click to upload or drag and drop</div>
+            <div class="upload-subtext">PNG, JPG, GIF up to 10MB</div>
+          </div>
+          <div id="upload-preview-b" style="display:none;">
+            <div class="image-preview">
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect fill='%23DBEAFE' width='64' height='64'/%3E%3Ctext x='32' y='36' text-anchor='middle' fill='%232563EB' font-size='12' font-family='system-ui'%3Eiced latte%3C/text%3E%3C/svg%3E" class="image-thumb" alt="Preview">
+              <div class="image-info">
+                <div class="image-name">summer-latte-promo.jpg</div>
+                <div class="image-size">2.4 MB</div>
+              </div>
+              <button class="image-remove" onclick="event.stopPropagation(); removeImageB()" title="Remove image">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">What are you promoting?</label>
+        <textarea class="form-textarea" placeholder="Describe your campaign, product, or event...">Launch our new summer iced latte collection with a buy-one-get-one offer this weekend.</textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Platforms</label>
+        <div class="platform-btns">
+          <button class="platform-btn selected"><div class="platform-dot" style="background:var(--color-tiktok)"></div>TikTok</button>
+          <button class="platform-btn selected"><div class="platform-dot" style="background:var(--color-instagram)"></div>Instagram</button>
+          <button class="platform-btn selected"><div class="platform-dot" style="background:var(--color-facebook)"></div>Facebook</button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Content goal</label>
+          <select class="form-select">
+            <option>Awareness</option><option>Engagement</option><option selected>Sales</option><option>Community Building</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tone</label>
+          <select class="form-select">
+            <option>Professional</option><option selected>Casual</option><option>Playful</option><option>Bold</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="generate-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+        Generate 3 posts →
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== VARIANT C: Separate Section ==================== -->
+  <div id="variant-c" class="variant">
+    <div class="form-card">
+      <h2 class="form-title">Tell us about your campaign</h2>
+
+      <div class="form-group">
+        <label class="form-label">Business or brand</label>
+        <input type="text" class="form-input" placeholder="e.g. Bloom & Brew Coffee" value="Bloom & Brew Coffee">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">What are you promoting?</label>
+        <textarea class="form-textarea" placeholder="Describe your campaign, product, or event...">Launch our new summer iced latte collection with a buy-one-get-one offer this weekend.</textarea>
+      </div>
+
+      <!-- IMAGE UPLOAD: Separate bordered section -->
+      <div class="form-group">
+        <div class="upload-section">
+          <div class="upload-section-header">
+            <span class="upload-section-title">Campaign image</span>
+            <span class="upload-section-badge">Optional</span>
+          </div>
+          <div class="upload-dropzone" id="dropzone-c" onclick="simulateUploadC()">
+            <div id="dropzone-empty-c">
+              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:28px;height:28px;margin:0 auto 8px;color:var(--color-text-muted)"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+              <div class="upload-text">Drop your image here</div>
+              <div class="upload-subtext">or click to browse · PNG, JPG, GIF up to 10MB</div>
+            </div>
+            <div id="dropzone-preview-c" style="display:none;">
+              <div class="image-preview">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect fill='%23DBEAFE' width='64' height='64'/%3E%3Ctext x='32' y='36' text-anchor='middle' fill='%232563EB' font-size='12' font-family='system-ui'%3Eiced latte%3C/text%3E%3C/svg%3E" class="image-thumb" alt="Preview">
+                <div class="image-info">
+                  <div class="image-name">summer-latte-promo.jpg</div>
+                  <div class="image-size">2.4 MB</div>
+                </div>
+                <button class="image-remove" onclick="event.stopPropagation(); removeImageC()" title="Remove image">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Platforms</label>
+        <div class="platform-btns">
+          <button class="platform-btn selected"><div class="platform-dot" style="background:var(--color-tiktok)"></div>TikTok</button>
+          <button class="platform-btn selected"><div class="platform-dot" style="background:var(--color-instagram)"></div>Instagram</button>
+          <button class="platform-btn selected"><div class="platform-dot" style="background:var(--color-facebook)"></div>Facebook</button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Content goal</label>
+          <select class="form-select">
+            <option>Awareness</option><option>Engagement</option><option selected>Sales</option><option>Community Building</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tone</label>
+          <select class="form-select">
+            <option>Professional</option><option selected>Casual</option><option>Playful</option><option>Bold</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="generate-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+        Generate 3 posts →
+      </button>
+    </div>
+  </div>
+
+  <!-- Sketch Toolbar -->
+  <div id="sketch-tools">
+    <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'">
+      <option value="default">Default</option>
+    </select>
+    <button class="viewport-btn" onclick="setViewport('375px')" title="Phone">📱</button>
+    <button class="viewport-btn" onclick="setViewport('768px')" title="Tablet"> Tablet</button>
+    <button class="viewport-btn active" onclick="setViewport('100%')" title="Desktop">Desktop</button>
+  </div>
+
+  <script>
+    function showVariant(id) {
+      document.querySelectorAll('.variant').forEach(v => v.style.display = 'none');
+      document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('variant-' + id).style.display = 'block';
+      event.target.classList.add('active');
+    }
+
+    function setViewport(width) {
+      document.querySelectorAll('.variant').forEach(v => v.style.maxWidth = width);
+      document.querySelectorAll('.viewport-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    // Variant A: compact button
+    function simulateUploadA() {
+      document.getElementById('preview-a').style.display = 'block';
+      event.target.closest('.upload-btn-compact').style.display = 'none';
+    }
+    function removeImageA() {
+      document.getElementById('preview-a').style.display = 'none';
+      document.querySelector('#variant-a .upload-btn-compact').style.display = 'inline-flex';
+    }
+
+    // Variant B: above campaign
+    function simulateUploadB() {
+      document.getElementById('upload-empty-b').style.display = 'none';
+      document.getElementById('upload-preview-b').style.display = 'block';
+      document.getElementById('upload-area-b').classList.add('has-image');
+    }
+    function removeImageB() {
+      document.getElementById('upload-empty-b').style.display = 'block';
+      document.getElementById('upload-preview-b').style.display = 'none';
+      document.getElementById('upload-area-b').classList.remove('has-image');
+    }
+
+    // Variant C: separate section
+    function simulateUploadC() {
+      document.getElementById('dropzone-empty-c').style.display = 'none';
+      document.getElementById('dropzone-preview-c').style.display = 'block';
+      document.getElementById('dropzone-c').classList.add('has-image');
+      document.getElementById('dropzone-c').style.borderStyle = 'solid';
+    }
+    function removeImageC() {
+      document.getElementById('dropzone-empty-c').style.display = 'block';
+      document.getElementById('dropzone-preview-c').style.display = 'none';
+      document.getElementById('dropzone-c').classList.remove('has-image');
+      document.getElementById('dropzone-c').style.borderStyle = 'dashed';
+    }
+
+    // Platform button toggles
+    document.querySelectorAll('.platform-btn').forEach(btn => {
+      btn.addEventListener('click', () => btn.classList.toggle('selected'));
+    });
+  </script>
+</body>
+</html>

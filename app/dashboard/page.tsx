@@ -114,7 +114,7 @@ export default function DashboardPage() {
             action={
               <Link
                 href="/generate"
-                className="inline-flex items-center gap-2 rounded-control bg-primary px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:translate-y-0"
+                className="inline-flex items-center gap-2 rounded-control bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors duration-150 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
               >
                 <Sparkles size={16} />
                 Generate your first post
@@ -141,7 +141,7 @@ export default function DashboardPage() {
                     <div
                       key={item.id}
                       className={clsx(
-                        'group rounded-panel border border-border bg-surface p-4 transition-all duration-150 hover:shadow-card-hover hover:border-border-strong hover:-translate-y-1 border-t-[3px]',
+                        'group rounded-panel border border-border bg-surface p-4 transition-colors duration-150 hover:shadow-card-hover hover:border-border-strong border-t-[3px]',
                         platformBorders[item.platform],
                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2'
                       )}
@@ -223,7 +223,7 @@ export default function DashboardPage() {
                           onClick={() =>
                             setExpandedId(expandedId === item.id ? null : item.id)
                           }
-                          className="flex items-center gap-1.5 rounded-control border border-primary-300 bg-primary-50 px-3 py-1.5 text-[13px] font-medium text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
+                          className="flex items-center gap-1.5 rounded-control border border-primary-300 bg-primary-50 px-3 py-1.5 text-[13px] font-medium text-primary transition-colors duration-150 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
                         >
                           {expandedId === item.id ? (
                             <><ChevronUp size={14} /> Show less</>
@@ -233,7 +233,7 @@ export default function DashboardPage() {
                         </button>
                         <button
                           onClick={() => copyPost(item)}
-                          className="flex items-center gap-1.5 rounded-control border border-primary-300 bg-primary-50 px-3 py-1.5 text-[13px] font-medium text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
+                          className="flex items-center gap-1.5 rounded-control border border-primary-300 bg-primary-50 px-3 py-1.5 text-[13px] font-medium text-primary transition-colors duration-150 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
                         >
                           {copiedId === item.id ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
                         </button>

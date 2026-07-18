@@ -77,16 +77,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               {section.items.map((item) => (
                 <Link
                   key={item.label}
-                  href={item.disabled ? '#' : item.href}
+                  href={item.href}
                   className={clsx(
                     'flex items-center gap-3 px-4 py-2.5 rounded-control text-sm font-medium transition-all',
-                    item.disabled
-                      ? 'text-text-disabled cursor-not-allowed'
-                      : isActive(item.href)
+                    isActive(item.href)
                       ? 'bg-primary-50 text-primary'
                       : 'text-text-secondary hover:bg-surface-subtle hover:text-text-primary'
                   )}
-                  onClick={(e) => item.disabled && e.preventDefault()}
                 >
                   <item.icon size={18} />
                   {item.label}
@@ -146,19 +143,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   {section.items.map((item) => (
                     <Link
                       key={item.label}
-                      href={item.disabled ? '#' : item.href}
+                      href={item.href}
                       className={clsx(
                         'flex items-center gap-3 px-4 py-2.5 rounded-control text-sm font-medium transition-all',
-                        item.disabled
-                          ? 'text-text-disabled cursor-not-allowed'
-                          : isActive(item.href)
+                        isActive(item.href)
                           ? 'bg-primary-50 text-primary'
                           : 'text-text-secondary hover:bg-surface-subtle hover:text-text-primary'
                       )}
-                      onClick={(e) => {
-                        if (item.disabled) { e.preventDefault(); return; }
-                        setMobileNavOpen(false);
-                      }}
+                      onClick={() => setMobileNavOpen(false)}
                     >
                       <item.icon size={18} />
                       {item.label}

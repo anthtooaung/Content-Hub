@@ -18,15 +18,15 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Invalid credentials');
         }
 
-        const user = await prisma.user.findUnique({
+        const user = await prisma.users.findUnique({
           where: { email: credentials.email },
         });
 
-        if (!user || !user.password) {
+        if (!user || !user.password_hash) {
           throw new Error('Invalid credentials');
         }
 
-        const isPasswordValid = await compare(credentials.password, user.password);
+        const isPasswordValid = await compare(credentials.password, user.password_hash);
 
         if (!isPasswordValid) {
           throw new Error('Invalid credentials');

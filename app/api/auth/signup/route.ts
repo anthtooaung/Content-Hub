@@ -37,6 +37,7 @@ export async function POST(req: Request) {
       data: {
         email,
         password_hash: hashedPassword,
+        primary_login_provider: 'email',
       },
     });
 

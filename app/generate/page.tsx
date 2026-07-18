@@ -20,8 +20,25 @@ const platforms = [
   { id: 'Facebook', label: 'Facebook', color: 'bg-facebook' },
 ];
 
-const tones = ['Professional', 'Casual', 'Playful', 'Bold', 'Inspirational', 'Educational'];
-const goals = ['Awareness', 'Engagement', 'Sales', 'Community Building', 'Brand Story'];
+const emotions = [
+  { id: 'joy', label: 'Joy', emoji: '😊' },
+  { id: 'excitement', label: 'Excitement', emoji: '🔥' },
+  { id: 'trust', label: 'Trust', emoji: '🤝' },
+  { id: 'inspiration', label: 'Inspiration', emoji: '✨' },
+  { id: 'urgency', label: 'Urgency', emoji: '⚡' },
+  { id: 'curiosity', label: 'Curiosity', emoji: '👀' },
+  { id: 'pride', label: 'Pride', emoji: '🏆' },
+  { id: 'gratitude', label: 'Gratitude', emoji: '🙏' },
+];
+
+const ageGroups = [
+  { id: 'gen-alpha', label: 'Gen Alpha', range: '2013–2025' },
+  { id: 'gen-z', label: 'Gen Z', range: '1997–2012' },
+  { id: 'millennials', label: 'Millennials', range: '1981–1996' },
+  { id: 'gen-x', label: 'Gen X', range: '1965–1980' },
+  { id: 'boomers', label: 'Boomers', range: '1946–1964' },
+  { id: 'all', label: 'All Ages', range: 'Everyone' },
+];
 
 const statusMessages = [
   'Understanding your campaign...',
@@ -75,8 +92,8 @@ function GenerateContent() {
   const [businessName, setBusinessName] = useState('');
   const [campaign, setCampaign] = useState('');
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['TikTok', 'Instagram', 'Facebook']);
-  const [tone, setTone] = useState('Professional');
-  const [goal, setGoal] = useState('Awareness');
+  const [emotion, setEmotion] = useState('');
+  const [ageGroup, setAgeGroup] = useState('');
   const [images, setImages] = useState<UploadedImage[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -124,7 +141,6 @@ function GenerateContent() {
       const template = getTemplateById(templateId);
       if (template) {
         setSelectedPlatforms([template.platform]);
-        setTone(template.tone);
         setCampaign(template.prompt);
       }
     }
@@ -138,7 +154,9 @@ function GenerateContent() {
         body: JSON.stringify({
           businessType: businessName,
           platform,
-          tone,
+          tone: 'Professional',
+          emotion: emotion || undefined,
+          ageGroup: ageGroup || undefined,
           topic: campaign,
         }),
       });
@@ -212,7 +230,7 @@ function GenerateContent() {
       setResults(generated);
       setStep('results');
     }, 400);
-  }, [businessName, campaign, selectedPlatforms, tone, session, router]);
+  }, [businessName, campaign, selectedPlatforms, emotion, ageGroup, session, router]);
 
   const handleRetry = async (platform: string) => {
     setResults((prev) =>
@@ -264,307 +282,305 @@ function GenerateContent() {
         </div>
       )}
 
-      <div className="mx-auto max-w-[860px] px-8 py-10 max-md:px-4 max-md:py-6 pb-24 md:pb-10">
-        {/* Wizard Progress — spans full width to match content box */}
-        <div className="mb-8 flex items-stretch gap-2 w-full">
-          {[
-            { num: 1, label: 'Campaign details' },
-            { num: 2, label: 'Generating' },
-            { num: 3, label: 'Results' },
-          ].map((s, i) => (
-            <div key={s.num} className="flex items-center gap-2 flex-1">
-              <div
-                className={clsx(
-                  'flex items-center gap-2 text-sm whitespace-nowrap',
-                  step === 'form' && i === 0 && 'font-semibold text-primary',
-                  step === 'loading' && i === 1 && 'font-semibold text-primary',
-                  step === 'results' && i === 2 && 'font-semibold text-primary',
-                  i > 0 && step === 'form' && 'text-text-disabled',
-                  i > 1 && step === 'loading' && 'text-text-disabled',
-                  i === 0 && step !== 'form' && 'text-success',
-                  i === 1 && step === 'results' && 'text-success'
-                )}
-              >
-                <div
-                  className={clsx(
-                    'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold',
-                    step === 'form' && i === 0 && 'border-primary bg-primary-50 text-primary',
-                    step === 'loading' && i === 1 && 'border-primary bg-primary-50 text-primary',
-                    step === 'results' && i === 2 && 'border-primary bg-primary-50 text-primary',
-                    i === 0 && step !== 'form' && 'border-success bg-success-soft text-success',
-                    i === 1 && step === 'results' && 'border-success bg-success-soft text-success',
-                    i > 0 && step === 'form' && 'border-border bg-surface text-text-disabled',
-                    i > 1 && step === 'loading' && 'border-border bg-surface text-text-disabled'
+      {/* Workspace: flex column filling available height */}
+      <div className="flex h-[calc(100vh-64px)] flex-col">
+
+        {/* Scrollable content area */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="mx-auto max-w-[860px] px-8 pt-8 pb-6 max-md:px-4 max-md:pt-6 max-md:pb-4">
+            {/* Wizard Progress */}
+            <div className="mb-8 flex items-stretch gap-2 w-full">
+              {[
+                { num: 1, label: 'Campaign details' },
+                { num: 2, label: 'Generating' },
+                { num: 3, label: 'Results' },
+              ].map((s, i) => (
+                <div key={s.num} className="flex items-center gap-2 flex-1">
+                  <div
+                    className={clsx(
+                      'flex items-center gap-2 text-sm whitespace-nowrap',
+                      step === 'form' && i === 0 && 'font-semibold text-primary',
+                      step === 'loading' && i === 1 && 'font-semibold text-primary',
+                      step === 'results' && i === 2 && 'font-semibold text-primary',
+                      i > 0 && step === 'form' && 'text-text-disabled',
+                      i > 1 && step === 'loading' && 'text-text-disabled',
+                      i === 0 && step !== 'form' && 'text-success',
+                      i === 1 && step === 'results' && 'text-success'
+                    )}
+                  >
+                    <div
+                      className={clsx(
+                        'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold',
+                        step === 'form' && i === 0 && 'border-primary bg-primary-50 text-primary',
+                        step === 'loading' && i === 1 && 'border-primary bg-primary-50 text-primary',
+                        step === 'results' && i === 2 && 'border-primary bg-primary-50 text-primary',
+                        i === 0 && step !== 'form' && 'border-success bg-success-soft text-success',
+                        i === 1 && step === 'results' && 'border-success bg-success-soft text-success',
+                        i > 0 && step === 'form' && 'border-border bg-surface text-text-disabled',
+                        i > 1 && step === 'loading' && 'border-border bg-surface text-text-disabled'
+                      )}
+                    >
+                      {i === 0 && step !== 'form' ? '✓' : i === 1 && step === 'results' ? '✓' : s.num}
+                    </div>
+                    <span className="max-md:hidden">{s.label}</span>
+                  </div>
+                  {i < 2 && (
+                    <div
+                      className={clsx(
+                        'h-0.5 flex-1 min-w-[20px]',
+                        (i === 0 && step !== 'form') || (i === 1 && step === 'results')
+                          ? 'bg-success'
+                          : 'bg-border'
+                      )}
+                    />
                   )}
-                >
-                  {i === 0 && step !== 'form' ? '✓' : i === 1 && step === 'results' ? '✓' : s.num}
                 </div>
-                <span className="max-md:hidden">{s.label}</span>
-              </div>
-              {i < 2 && (
-                <div
-                  className={clsx(
-                    'h-0.5 flex-1 min-w-[20px]',
-                    (i === 0 && step !== 'form') || (i === 1 && step === 'results')
-                      ? 'bg-success'
-                      : 'bg-border'
-                  )}
-                />
-              )}
+              ))}
             </div>
-          ))}
+
+            {/* Step 2: Loading */}
+            {step === 'loading' && (
+              <div className="relative rounded-panel border border-border bg-surface p-6 shadow-card">
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-panel bg-page/85">
+                  <div className="h-9 w-9 rounded-full border-[3px] border-border border-t-primary [animation:spin_0.8s_linear_infinite]" />
+                  <div className="text-sm text-text-secondary">
+                    {statusMessages[currentStatus]}
+                  </div>
+                  <div className="h-1.5 w-[200px] overflow-hidden rounded-[3px] border border-border">
+                    <div
+                      className="h-full rounded-[3px] bg-primary transition-all duration-300"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-4 opacity-30">
+                  {selectedPlatforms.map((p) => (
+                    <div key={p} className="rounded-panel border border-border bg-surface p-4">
+                      <div className="mb-3 flex items-center gap-2">
+                        <div className="h-7 w-7 animate-pulse rounded-md bg-border" />
+                        <div className="h-4 w-20 animate-pulse rounded bg-border" />
+                      </div>
+                      <div className="mb-2 h-3 w-[80%] animate-pulse rounded bg-border" />
+                      <div className="mb-2 h-3 w-[60%] animate-pulse rounded bg-border" />
+                      <div className="h-3 w-[40%] animate-pulse rounded bg-border" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Results */}
+            {step === 'results' && (
+              <div>
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-[20px] font-semibold text-text-primary">Your content</h2>
+                  <button
+                    onClick={handleNewGeneration}
+                    className="rounded-control border-2 border-primary-200 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
+                  >
+                    + New generation
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {results.map((r, i) => {
+                    if (r.status === 'loading') {
+                      return (
+                        <div key={r.platform} className="rounded-panel border border-border bg-surface overflow-hidden">
+                          <div className="h-20 bg-surface-subtle animate-pulse" />
+                          <div className="p-5">
+                            <div className="mb-3 flex items-center gap-2">
+                              <div className="h-4 w-4 animate-pulse rounded bg-border" />
+                              <div className="h-4 w-24 animate-pulse rounded bg-border" />
+                            </div>
+                            <div className="mb-2 h-3 w-[85%] animate-pulse rounded bg-border" />
+                            <div className="mb-2 h-3 w-[65%] animate-pulse rounded bg-border" />
+                            <div className="h-3 w-[45%] animate-pulse rounded bg-border" />
+                          </div>
+                        </div>
+                      );
+                    }
+                    if (r.status === 'error') {
+                      return (
+                        <div key={r.platform} className="rounded-panel border border-warning bg-warning-soft p-4">
+                          <div className="mb-2 flex items-center gap-2 text-sm text-warning">
+                            <AlertTriangle size={16} />
+                            {r.error}
+                          </div>
+                          <button
+                            onClick={() => handleRetry(r.platform)}
+                            className="mt-2 flex items-center gap-1.5 rounded-control border border-warning bg-surface px-3 py-1.5 text-[13px] font-medium text-warning transition-colors duration-150 hover:bg-warning-soft"
+                          >
+                            <RefreshCw size={14} />
+                            Retry
+                          </button>
+                        </div>
+                      );
+                    }
+                    if (r.platform === 'Facebook') {
+                      return <FacebookPostCard key={r.platform} content={r.content} images={images} index={i} />;
+                    }
+                    if (r.platform === 'TikTok') {
+                      return <TikTokPostCard key={r.platform} content={r.content} images={images} index={i} />;
+                    }
+                    if (r.platform === 'Instagram') {
+                      return <InstagramPostCard key={r.platform} content={r.content} images={images} index={i} />;
+                    }
+                    return null;
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Step 1: Form */}
+        {/* Bottom-pinned input panel */}
         {step === 'form' && (
-          <div className="rounded-panel border border-border bg-surface p-6 shadow-card">
-            <h2 className="mb-6 text-[20px] font-semibold text-text-primary">
-              Tell us about your campaign
-            </h2>
-
-            <div className="space-y-5">
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-text-primary">
-                  Business or brand
-                </label>
-                <input
-                  type="text"
-                  value={businessName}
-                  onChange={(e) => setBusinessName(e.target.value)}
-                  placeholder="e.g. Bloom & Brew Coffee"
-                  className="h-11 w-full rounded-control border border-border-strong px-3 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-text-primary">
-                  What are you promoting?
-                </label>
-                <textarea
-                  value={campaign}
-                 onChange={(e) => setCampaign(e.target.value)}
-                  placeholder="Describe your campaign, product, or event..."
-                  rows={4}
-                  className="min-h-[120px] w-full resize-y rounded-control border border-border-strong px-3 py-2.5 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
-                />
-              </div>
-
-              {/* Image Upload */}
-              <div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-                <div className="flex items-center gap-3">
+          <div className="shrink-0 border-t border-border bg-surface shadow-[0_-4px_20px_rgba(15,23,42,0.06)]">
+            <div className="mx-auto max-w-[860px] px-8 py-5 max-md:px-4 max-md:py-4">
+              {/* Row 1: Business + Campaign + Image */}
+              <div className="mb-4 grid grid-cols-[1fr_1.5fr_auto] gap-4 items-end max-md:grid-cols-1 max-md:items-stretch">
+                <div>
+                  <label className="mb-1.5 block text-[13px] font-semibold text-text-primary">
+                    Business or brand
+                  </label>
+                  <input
+                    type="text"
+                    value={businessName}
+                    onChange={(e) => setBusinessName(e.target.value)}
+                    placeholder="e.g. Bloom & Brew Coffee"
+                    className="h-10 w-full rounded-control border border-border-strong px-3 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-[13px] font-semibold text-text-primary">
+                    What are you promoting?
+                  </label>
+                  <input
+                    type="text"
+                    value={campaign}
+                    onChange={(e) => setCampaign(e.target.value)}
+                    placeholder="Describe your campaign, product, or event..."
+                    className="h-10 w-full rounded-control border border-border-strong px-3 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
+                  />
+                </div>
+                <div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="inline-flex items-center gap-2 rounded-control border border-dashed border-border-strong bg-surface-subtle px-4 py-2.5 text-[13px] font-medium text-text-secondary transition-all duration-150 hover:border-primary hover:bg-primary-50 hover:text-primary"
                   >
                     <ImagePlus size={16} />
-                    Add image
+                    Image
                   </button>
-                  <span className="text-[12px] text-text-muted">
-                    Optional — product photo, promo image, etc.
-                  </span>
-                </div>
-
-                {/* Multi-image thumbnail grid */}
-                {images.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {images.map((img) => (
-                      <div
-                        key={img.id}
-                        className="group relative h-20 w-20 overflow-hidden rounded-lg border border-border"
-                      >
-                        <img
-                          src={img.url}
-                          alt={img.name}
-                          className="h-full w-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(img.id)}
-                          className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {images.length > 0 && (
-                  <div className="mt-2 text-[12px] text-text-muted">
-                    {images.length} image{images.length > 1 ? 's' : ''} selected
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-text-primary">
-                  Platforms
-                </label>
-                <div className="flex gap-2">
-                  {platforms.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => togglePlatform(p.id)}
-                      className={clsx(
-                        'flex items-center gap-2 rounded-control border px-4 py-2 text-sm font-medium transition-colors duration-150',
-                        selectedPlatforms.includes(p.id)
-                          ? 'border-primary bg-primary-50 text-primary'
-                          : 'border-border bg-surface text-text-secondary hover:border-border-strong'
-                      )}
-                    >
-                      <div className={clsx('h-2 w-2 rounded-full', p.color)} />
-                      {p.label}
-                    </button>
-                  ))}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-text-primary">
-                    Content goal
-                  </label>
-                  <select
-                    value={goal}
-                    onChange={(e) => setGoal(e.target.value)}
-                    className="h-11 w-full rounded-control border border-border-strong px-3 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
-                  >
-                    {goals.map((g) => (
-                      <option key={g} value={g}>{g}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-text-primary">
-                    Tone
-                  </label>
-                  <select
-                    value={tone}
-                    onChange={(e) => setTone(e.target.value)}
-                    className="h-11 w-full rounded-control border border-border-strong px-3 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
-                  >
-                    {tones.map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={handleGenerate}
-              disabled={!businessName || !campaign || selectedPlatforms.length === 0}
-              className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-primary text-base font-semibold text-white transition-colors duration-150 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:bg-primary-700 disabled:pointer-events-none disabled:opacity-50"
-            >
-              <Sparkles size={18} />
-              {session
-                ? `Generate ${selectedPlatforms.length} post${selectedPlatforms.length !== 1 ? 's' : ''} →`
-                : 'Sign in to generate →'}
-            </button>
-          </div>
-        )}
-
-        {/* Step 2: Loading */}
-        {step === 'loading' && (
-          <div className="relative rounded-panel border border-border bg-surface p-6 shadow-card">
-            {/* Progress Overlay */}
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-panel bg-page/85">
-              <div className="h-9 w-9 rounded-full border-[3px] border-border border-t-primary [animation:spin_0.8s_linear_infinite]" />
-              <div className="text-sm text-text-secondary">
-                {statusMessages[currentStatus]}
-              </div>
-              <div className="h-1.5 w-[200px] overflow-hidden rounded-[3px] border border-border">
-                <div
-                  className="h-full rounded-[3px] bg-primary transition-all duration-300"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Skeleton cards behind overlay */}
-            <div className="space-y-4 opacity-30">
-              {selectedPlatforms.map((p) => (
-                <div key={p} className="rounded-panel border border-border bg-surface p-4">
-                  <div className="mb-3 flex items-center gap-2">
-                    <div className="h-7 w-7 animate-pulse rounded-md bg-border" />
-                    <div className="h-4 w-20 animate-pulse rounded bg-border" />
-                  </div>
-                  <div className="mb-2 h-3 w-[80%] animate-pulse rounded bg-border" />
-                  <div className="mb-2 h-3 w-[60%] animate-pulse rounded bg-border" />
-                  <div className="h-3 w-[40%] animate-pulse rounded bg-border" />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Results */}
-        {step === 'results' && (
-          <div>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-[20px] font-semibold text-text-primary">Your content</h2>
-              <button
-                onClick={handleNewGeneration}
-                className="rounded-control border-2 border-primary-200 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
-              >
-                + New generation
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {results.map((r, i) => {
-                if (r.status === 'loading') {
-                  return (
-                    <div key={r.platform} className="rounded-panel border border-border bg-surface overflow-hidden">
-                      <div className="h-20 bg-surface-subtle animate-pulse" />
-                      <div className="p-5">
-                        <div className="mb-3 flex items-center gap-2">
-                          <div className="h-4 w-4 animate-pulse rounded bg-border" />
-                          <div className="h-4 w-24 animate-pulse rounded bg-border" />
-                        </div>
-                        <div className="mb-2 h-3 w-[85%] animate-pulse rounded bg-border" />
-                        <div className="mb-2 h-3 w-[65%] animate-pulse rounded bg-border" />
-                        <div className="h-3 w-[45%] animate-pulse rounded bg-border" />
-                      </div>
-                    </div>
-                  );
-                }
-                if (r.status === 'error') {
-                  return (
-                    <div key={r.platform} className="rounded-panel border border-warning bg-warning-soft p-4">
-                      <div className="mb-2 flex items-center gap-2 text-sm text-warning">
-                        <AlertTriangle size={16} />
-                        {r.error}
-                      </div>
+              {/* Image thumbnails */}
+              {images.length > 0 && (
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {images.map((img) => (
+                    <div key={img.id} className="group relative h-14 w-14 overflow-hidden rounded-lg border border-border">
+                      <img src={img.url} alt={img.name} className="h-full w-full object-cover" />
                       <button
-                        onClick={() => handleRetry(r.platform)}
-                        className="mt-2 flex items-center gap-1.5 rounded-control border border-warning bg-surface px-3 py-1.5 text-[13px] font-medium text-warning transition-colors duration-150 hover:bg-warning-soft"
+                        type="button"
+                        onClick={() => removeImage(img.id)}
+                        className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
                       >
-                        <RefreshCw size={14} />
-                        Retry
+                        <X size={10} />
                       </button>
                     </div>
-                  );
-                }
-                if (r.platform === 'Facebook') {
-                  return <FacebookPostCard key={r.platform} content={r.content} images={images} index={i} />;
-                }
-                if (r.platform === 'TikTok') {
-                  return <TikTokPostCard key={r.platform} content={r.content} images={images} index={i} />;
-                }
-                if (r.platform === 'Instagram') {
-                  return <InstagramPostCard key={r.platform} content={r.content} images={images} index={i} />;
-                }
-                return null;
-              })}
+                  ))}
+                </div>
+              )}
+
+              {/* Row 2: Emotion tags + Age Group + Platforms + Generate */}
+              <div className="flex items-end gap-4 max-md:flex-col max-md:items-stretch">
+                {/* Emotion — tag group */}
+                <div className="flex-1">
+                  <label className="mb-1.5 block text-[13px] font-semibold text-text-primary">
+                    Emotion
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {emotions.map((e) => (
+                      <button
+                        key={e.id}
+                        onClick={() => setEmotion(emotion === e.id ? '' : e.id)}
+                        className={clsx(
+                          'flex items-center gap-1 rounded-full border px-3 py-1.5 text-[12px] font-medium transition-all duration-150',
+                          emotion === e.id
+                            ? 'border-primary bg-primary-50 text-primary shadow-[0_0_0_2px_rgba(37,99,235,0.12)]'
+                            : 'border-border bg-surface text-text-secondary hover:border-border-strong hover:bg-surface-subtle'
+                        )}
+                      >
+                        <span>{e.emoji}</span>
+                        <span>{e.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Age Group */}
+                <div className="w-[180px] shrink-0 max-md:w-full">
+                  <label className="mb-1.5 block text-[13px] font-semibold text-text-primary">
+                    Age group
+                  </label>
+                  <select
+                    value={ageGroup}
+                    onChange={(e) => setAgeGroup(e.target.value)}
+                    className="h-10 w-full rounded-control border border-border-strong px-3 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
+                  >
+                    <option value="">Any age</option>
+                    {ageGroups.map((ag) => (
+                      <option key={ag.id} value={ag.id}>{ag.label} ({ag.range})</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Platforms */}
+                <div className="shrink-0">
+                  <label className="mb-1.5 block text-[13px] font-semibold text-text-primary">
+                    Platforms
+                  </label>
+                  <div className="flex gap-1.5">
+                    {platforms.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => togglePlatform(p.id)}
+                        className={clsx(
+                          'flex items-center gap-1.5 rounded-control border px-3 py-2 text-[13px] font-medium transition-colors duration-150',
+                          selectedPlatforms.includes(p.id)
+                            ? 'border-primary bg-primary-50 text-primary'
+                            : 'border-border bg-surface text-text-secondary hover:border-border-strong'
+                        )}
+                      >
+                        <div className={clsx('h-2 w-2 rounded-full', p.color)} />
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Generate button */}
+                <button
+                  onClick={handleGenerate}
+                  disabled={!businessName || !campaign || selectedPlatforms.length === 0}
+                  className="flex h-10 shrink-0 items-center justify-center gap-2 rounded-control bg-primary px-6 text-sm font-semibold text-white transition-colors duration-150 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:bg-primary-700 disabled:pointer-events-none disabled:opacity-50"
+                >
+                  <Sparkles size={16} />
+                  {session
+                    ? `Generate ${selectedPlatforms.length} post${selectedPlatforms.length !== 1 ? 's' : ''}`
+                    : 'Sign in to generate'}
+                </button>
+              </div>
             </div>
           </div>
         )}

@@ -223,7 +223,7 @@ export default function DashboardPage() {
                           onClick={() =>
                             setExpandedId(expandedId === item.id ? null : item.id)
                           }
-                          className="flex items-center gap-1.5 rounded-control border border-border px-3 py-1.5 text-[13px] font-medium text-text-secondary transition-all hover:border-border-strong hover:bg-surface-subtle"
+                          className="flex items-center gap-1.5 rounded-control border border-primary-300 bg-primary-50 px-3 py-1.5 text-[13px] font-medium text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
                         >
                           {expandedId === item.id ? (
                             <><ChevronUp size={14} /> Show less</>
@@ -233,7 +233,7 @@ export default function DashboardPage() {
                         </button>
                         <button
                           onClick={() => copyPost(item)}
-                          className="flex items-center gap-1.5 rounded-control border border-border px-3 py-1.5 text-[13px] font-medium text-text-secondary transition-all hover:border-primary-border hover:bg-primary-50 hover:text-primary"
+                          className="flex items-center gap-1.5 rounded-control border border-primary-300 bg-primary-50 px-3 py-1.5 text-[13px] font-medium text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
                         >
                           {copiedId === item.id ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
                         </button>

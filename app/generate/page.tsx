@@ -510,7 +510,7 @@ function GenerateContent() {
                       <select
                         value={ageGroup}
                         onChange={(e) => setAgeGroup(e.target.value)}
-                        className="h-11 w-full rounded-control border border-border-strong px-3.5 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
+                        className="h-11 w-full rounded-control border border-border-strong bg-surface px-3.5 text-sm text-text-primary outline-none transition-shadow focus:border-primary focus:shadow-focus"
                       >
                         <option value="">Any age</option>
                         {ageGroups.map((ag) => (

@@ -414,7 +414,7 @@ function GenerateContent() {
                         value={businessName}
                         onChange={(e) => setBusinessName(e.target.value)}
                         placeholder="e.g. Bloom & Brew Coffee"
-                        className="h-11 w-full rounded-control border border-border-strong px-3.5 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
+                        className="h-11 w-full rounded-control border border-border-strong bg-surface px-3.5 text-sm text-text-primary outline-none transition-shadow focus:border-primary focus:shadow-focus"
                       />
                     </div>
                     <div>
@@ -426,7 +426,7 @@ function GenerateContent() {
                         onChange={(e) => setCampaign(e.target.value)}
                         placeholder="Describe your campaign, product, or event..."
                         rows={3}
-                        className="min-h-[88px] w-full resize-y rounded-control border border-border-strong px-3.5 py-2.5 text-sm outline-none transition-shadow focus:border-primary focus:shadow-focus"
+                        className="min-h-[88px] w-full resize-y rounded-control border border-border-strong bg-surface px-3.5 py-2.5 text-sm text-text-primary outline-none transition-shadow focus:border-primary focus:shadow-focus"
                       />
                     </div>
                   </div>

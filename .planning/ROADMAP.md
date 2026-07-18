@@ -55,10 +55,11 @@ Plans:
   3. Each saved item displays the platform badge, preview text, and creation date
   4. User can click a saved item to view the full content details
   5. Cards have hover lift effects, focus rings are visible for keyboard navigation, and platform-specific colors are applied correctly
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md — Fix Prisma schema, wire save flow from generate page to database
+- [ ] 03-02-PLAN.md — Dashboard polish: SiteHeader, hover lift, focus rings, platform colors, reduced-motion
 
 ## Progress
 
@@ -69,4 +70,4 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Landing & Design Foundation | 0/1 | Not started | - |
 | 2. Content Generation Wizard | 0/1 | Not started | - |
-| 3. Dashboard & Polish | 0/1 | Not started | - |
+| 3. Dashboard & Polish | 0/2 | Not started | - |

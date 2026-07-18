@@ -176,7 +176,7 @@ export default function TikTokPostCard({
 
       {/* Copy / Save / Score controls below the card */}
       <div className="border-t border-white/10 px-4 py-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-end gap-2">
           <button
             onClick={copyAll}
             className="flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-white/20"

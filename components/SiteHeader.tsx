@@ -2,12 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Plus } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export default function SiteHeader() {
   const pathname = usePathname();
   const isLanding = pathname === '/';
+  const isGenerate = pathname === '/generate';
+  const isDashboard = pathname === '/dashboard';
 
   return (
     <header className="border-b border-border bg-surface">
@@ -20,6 +22,7 @@ export default function SiteHeader() {
         </Link>
 
         <div className="flex items-center gap-6">
+          {/* Landing page nav */}
           {isLanding && (
             <nav className="flex gap-6 max-md:hidden">
               <a href="#how" className="text-sm font-medium text-text-secondary transition-colors hover:text-primary">
@@ -30,12 +33,37 @@ export default function SiteHeader() {
               </a>
             </nav>
           )}
-          <Link
-            href="/auth/signin"
-            className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-600"
-          >
-            Sign in
-          </Link>
+
+          {/* Generate page nav */}
+          {isGenerate && (
+            <Link
+              href="/dashboard"
+              className="text-sm font-medium text-text-secondary transition-colors hover:text-primary"
+            >
+              Dashboard
+            </Link>
+          )}
+
+          {/* Dashboard page nav */}
+          {isDashboard && (
+            <Link
+              href="/generate"
+              className="flex items-center gap-1.5 rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-primary-600"
+            >
+              <Plus size={16} />
+              Generate
+            </Link>
+          )}
+
+          {/* Auth button - only on landing */}
+          {isLanding && (
+            <Link
+              href="/auth/signin"
+              className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-600"
+            >
+              Sign in
+            </Link>
+          )}
         </div>
       </div>
     </header>

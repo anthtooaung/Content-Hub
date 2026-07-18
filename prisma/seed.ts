@@ -7,12 +7,12 @@ async function main() {
   const email = 'test@test.com';
   const password = await hash('password123', 12);
 
-  const user = await prisma.user.upsert({
+  const user = await prisma.users.upsert({
     where: { email },
     update: {},
     create: {
       email,
-      password,
+      password_hash: password,
       name: 'Test User',
     },
   });

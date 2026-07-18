@@ -1,13 +1,16 @@
 'use client';
 
-import { Suspense, useState, useCallback, useEffect } from 'react';
+import { Suspense, useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { ArrowLeft, Sparkles, Copy, Check, AlertTriangle, RefreshCw, Save, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, Sparkles, Copy, Check, AlertTriangle, RefreshCw, Save, ChevronDown, ChevronUp, ImagePlus, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import AppLayout from '@/components/AppLayout';
 import Toast, { useToast } from '@/components/Toast';
+import FacebookPostCard from '@/components/FacebookPostCard';
+import TikTokPostCard from '@/components/TikTokPostCard';
+import InstagramPostCard from '@/components/InstagramPostCard';
 import { getGradeColor } from '@/lib/scoring';
 import { getTemplateById } from '@/lib/templates';
 
@@ -33,6 +36,13 @@ interface PlatformResult {
   content: any;
   error?: string;
   status: 'pending' | 'loading' | 'done' | 'error';
+}
+
+interface UploadedImage {
+  id: string;
+  name: string;
+  size: string;
+  url: string;
 }
 
 export default function GeneratePage() {
@@ -67,6 +77,8 @@ function GenerateContent() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['TikTok', 'Instagram', 'Facebook']);
   const [tone, setTone] = useState('Professional');
   const [goal, setGoal] = useState('Awareness');
+  const [images, setImages] = useState<UploadedImage[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Loading state
   const [currentStatus, setCurrentStatus] = useState(0);
@@ -79,6 +91,30 @@ function GenerateContent() {
     setSelectedPlatforms((prev) =>
       prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
     );
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const newImages: UploadedImage[] = Array.from(files).map((file) => ({
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      name: file.name,
+      size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+      url: URL.createObjectURL(file),
+    }));
+
+    setImages((prev) => [...prev, ...newImages]);
+    // Reset input so same file can be selected again
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeImage = (id: string) => {
+    setImages((prev) => {
+      const img = prev.find((i) => i.id === id);
+      if (img) URL.revokeObjectURL(img.url);
+      return prev.filter((i) => i.id !== id);
+    });
   };
 
   // Pre-fill form from template if templateId is in URL
@@ -192,6 +228,9 @@ function GenerateContent() {
     setResults([]);
     setProgress(0);
     setCurrentStatus(0);
+    // Clear images and revoke URLs
+    images.forEach((img) => URL.revokeObjectURL(img.url));
+    setImages([]);
   };
 
   return (
@@ -310,6 +349,61 @@ function GenerateContent() {
                 />
               </div>
 
+              {/* Image Upload */}
+              <div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="inline-flex items-center gap-2 rounded-control border border-dashed border-border-strong bg-surface-subtle px-4 py-2.5 text-[13px] font-medium text-text-secondary transition-all duration-150 hover:border-primary hover:bg-primary-50 hover:text-primary"
+                  >
+                    <ImagePlus size={16} />
+                    Add image
+                  </button>
+                  <span className="text-[12px] text-text-muted">
+                    Optional — product photo, promo image, etc.
+                  </span>
+                </div>
+
+                {/* Multi-image thumbnail grid */}
+                {images.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {images.map((img) => (
+                      <div
+                        key={img.id}
+                        className="group relative h-20 w-20 overflow-hidden rounded-lg border border-border"
+                      >
+                        <img
+                          src={img.url}
+                          alt={img.name}
+                          className="h-full w-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(img.id)}
+                          className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {images.length > 0 && (
+                  <div className="mt-2 text-[12px] text-text-muted">
+                    {images.length} image{images.length > 1 ? 's' : ''} selected
+                  </div>
+                )}
+              </div>
+
               <div>
                 <label className="mb-2 block text-sm font-semibold text-text-primary">
                   Platforms
@@ -426,14 +520,51 @@ function GenerateContent() {
             </div>
 
             <div className="space-y-4">
-              {results.map((r, i) => (
-                <ResultCard
-                  key={r.platform}
-                  result={r}
-                  onRetry={() => handleRetry(r.platform)}
-                  index={i}
-                />
-              ))}
+              {results.map((r, i) => {
+                if (r.status === 'loading') {
+                  return (
+                    <div key={r.platform} className="rounded-panel border border-border bg-surface overflow-hidden">
+                      <div className="h-20 bg-surface-subtle animate-pulse" />
+                      <div className="p-5">
+                        <div className="mb-3 flex items-center gap-2">
+                          <div className="h-4 w-4 animate-pulse rounded bg-border" />
+                          <div className="h-4 w-24 animate-pulse rounded bg-border" />
+                        </div>
+                        <div className="mb-2 h-3 w-[85%] animate-pulse rounded bg-border" />
+                        <div className="mb-2 h-3 w-[65%] animate-pulse rounded bg-border" />
+                        <div className="h-3 w-[45%] animate-pulse rounded bg-border" />
+                      </div>
+                    </div>
+                  );
+                }
+                if (r.status === 'error') {
+                  return (
+                    <div key={r.platform} className="rounded-panel border border-warning bg-warning-soft p-4">
+                      <div className="mb-2 flex items-center gap-2 text-sm text-warning">
+                        <AlertTriangle size={16} />
+                        {r.error}
+                      </div>
+                      <button
+                        onClick={() => handleRetry(r.platform)}
+                        className="mt-2 flex items-center gap-1.5 rounded-control border border-warning bg-surface px-3 py-1.5 text-[13px] font-medium text-warning transition-colors duration-150 hover:bg-warning-soft"
+                      >
+                        <RefreshCw size={14} />
+                        Retry
+                      </button>
+                    </div>
+                  );
+                }
+                if (r.platform === 'Facebook') {
+                  return <FacebookPostCard key={r.platform} content={r.content} images={images} index={i} />;
+                }
+                if (r.platform === 'TikTok') {
+                  return <TikTokPostCard key={r.platform} content={r.content} images={images} index={i} />;
+                }
+                if (r.platform === 'Instagram') {
+                  return <InstagramPostCard key={r.platform} content={r.content} images={images} index={i} />;
+                }
+                return null;
+              })}
             </div>
           </div>
         )}

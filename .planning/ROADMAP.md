@@ -9,6 +9,10 @@ Content Hub goes from existing scaffolded pages with default styling to a polish
 - [ ] **Phase 1: Landing & Design Foundation** - Product-first landing page with design tokens, navigation, and responsive layout
 - [ ] **Phase 2: Content Generation Wizard** - End-to-end generate flow: form, loading overlay, result cards with copy buttons
 - [ ] **Phase 3: Dashboard & Polish** - Saved content timeline, empty states, save-to-database, and final animation polish
+- [ ] **Phase 4: Social Auth & User Management** - Google/Facebook OAuth, account linking, profile management
+- [ ] **Phase 5: Scheduling & Publishing** - Real posting to Facebook/Instagram via APIs, content scheduling
+- [ ] **Phase 6: Analytics & Reporting** - Usage stats, charts, activity timeline
+- [ ] **Phase 7: Content Optimization** - Rules-based content scoring, improvement suggestions
 
 ## Phase Details
 
@@ -55,18 +59,87 @@ Plans:
   3. Each saved item displays the platform badge, preview text, and creation date
   4. User can click a saved item to view the full content details
   5. Cards have hover lift effects, focus rings are visible for keyboard navigation, and platform-specific colors are applied correctly
+**Plans:** 2 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Fix Prisma schema, wire save flow from generate page to database
+- [ ] 03-02-PLAN.md — Dashboard polish: SiteHeader, hover lift, focus rings, platform colors, reduced-motion
+
+### Phase 4: Social Auth & User Management
+**Goal**: Users can sign in with Google or Facebook OAuth and manage their linked platform accounts
+**Mode:** mvp
+**Depends on**: Phase 1
+**Requirements**: AUTH-06, AUTH-07, AUTH-08, AUTH-09, AUTH-10
+**Success Criteria** (what must be TRUE):
+  1. User can sign in with Google and see their profile photo
+  2. User can sign in with Facebook and see their profile photo
+  3. User can link/unlink accounts from profile page
+  4. Sessions persist across browser refresh
+  5. Existing email/password login still works
 **Plans**: TBD
 
 Plans:
-- [ ] 03-01: TBD
+- [ ] 04-01: TBD
+
+### Phase 5: Scheduling & Publishing
+**Goal**: Users can schedule and publish generated content directly to Facebook and Instagram via their APIs
+**Mode:** mvp
+**Depends on**: Phase 4
+**Requirements**: SCHED-01, SCHED-02, SCHED-03, SCHED-04, SCHED-05
+**Success Criteria** (what must be TRUE):
+  1. User can schedule a post to Facebook with a date/time
+  2. User can schedule a post to Instagram with a date/time
+  3. Scheduled posts publish automatically at the scheduled time
+  4. Failed posts retry once, then show error with retry button
+  5. User can view and cancel scheduled posts in dashboard
+**Plans**: TBD
+
+Plans:
+- [ ] 05-01: TBD
+
+### Phase 6: Analytics & Reporting
+**Goal**: Users can view usage statistics for their generated content and see basic activity trends
+**Mode:** mvp
+**Depends on**: Nothing (can run in parallel)
+**Requirements**: AN-01, AN-02, AN-03, AN-04, AN-05
+**Success Criteria** (what must be TRUE):
+  1. User can see total posts generated count
+  2. User can see posts by platform breakdown
+  3. User can see activity timeline (posts over last 30 days)
+  4. Charts render correctly on desktop and mobile
+  5. Analytics page loads in under 2 seconds
+**Plans**: TBD
+
+Plans:
+- [ ] 06-01: TBD
+
+### Phase 7: Content Optimization
+**Goal**: Generated content is scored for quality with actionable improvement suggestions
+**Mode:** mvp
+**Depends on**: Nothing (can run in parallel)
+**Requirements**: OPT-01, OPT-02, OPT-03, OPT-04, OPT-05
+**Success Criteria** (what must be TRUE):
+  1. Each generated content item has a readability score
+  2. Each generated content item has a hashtag relevance score
+  3. Each generated content item has a CTA strength score
+  4. Overall score and grade are displayed on result cards
+  5. 2-3 actionable suggestions are shown for each post
+**Plans**: TBD
+
+Plans:
+- [ ] 07-01: TBD
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Landing & Design Foundation | 0/1 | Not started | - |
 | 2. Content Generation Wizard | 0/1 | Not started | - |
-| 3. Dashboard & Polish | 0/1 | Not started | - |
+| 3. Dashboard & Polish | 0/2 | Not started | - |
+| 4. Social Auth & User Management | 0/1 | Not started | - |
+| 5. Scheduling & Publishing | 0/1 | Not started | - |
+| 6. Analytics & Reporting | 0/1 | Not started | - |
+| 7. Content Optimization | 0/1 | Not started | - |

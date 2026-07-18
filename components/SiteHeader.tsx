@@ -2,15 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sparkles, Plus, LayoutGrid } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { Sparkles, Plus, LayoutGrid, User } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export default function SiteHeader() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const isLanding = pathname === '/';
   const isGenerate = pathname === '/generate';
   const isDashboard = pathname === '/dashboard';
   const isTemplates = pathname === '/templates';
+  const isProfile = pathname === '/profile';
 
   return (
     <header className="border-b border-border bg-surface">
@@ -68,8 +71,32 @@ export default function SiteHeader() {
             </nav>
           )}
 
-          {/* Auth button - only on landing */}
-          {isLanding && (
+          {/* Profile link - when logged in */}
+          {session && (
+            <Link
+              href="/profile"
+              className={clsx(
+                'flex items-center gap-1.5 rounded-control px-3 py-2 text-sm font-medium transition-colors',
+                isProfile
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-text-secondary hover:text-primary hover:bg-surface-subtle'
+              )}
+            >
+              {session.user?.image ? (
+                <img
+                  src={session.user.image}
+                  alt={session.user.name || 'Profile'}
+                  className="h-6 w-6 rounded-full"
+                />
+              ) : (
+                <User size={16} />
+              )}
+              <span className="max-md:hidden">Profile</span>
+            </Link>
+          )}
+
+          {/* Auth button - only on landing when not logged in */}
+          {isLanding && !session && (
             <Link
               href="/auth/signin"
               className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-600"

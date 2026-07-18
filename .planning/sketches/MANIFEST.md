@@ -16,3 +16,8 @@ Calm, modern, helpful AI content generation workspace. Blue controls the AI syst
 | 002 | generate-form | How should the campaign form and platform results be composed together? | C | generate, form, results, core-flow |
 | 003 | dashboard-history | What does the saved content list feel like when populated vs empty? | C | dashboard, history, list, empty-state |
 | 004 | loading-transitions | How do skeletons, progress, and state transitions feel? | B | loading, skeleton, transitions, polish |
+| 005 | app-shell-navigation | How do the header, nav, and page transitions feel between Generate and Dashboard? | B | app-shell, header, navigation, layout |
+| 006 | mobile-responsive | How does the wizard form and timeline dashboard feel at 375px? | A | mobile, responsive, phone, viewport |
+| 007 | auth-screens | What do login/signup feel like in the calm, professional aesthetic? | A | auth, login, signup, trust |
+| 008 | post-generation | What happens after content is generated — copy, save, edit, share? | C | post-gen, interactions, copy, save |
+| 009 | error-edge-states | How do failed generation, empty API keys, and network errors feel? | C | error, edge-case, failure, empty-state |

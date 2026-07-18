@@ -32,9 +32,6 @@ export default function SiteHeader() {
               <a href="#how" className="text-sm font-medium text-text-secondary transition-colors hover:text-primary">
                 How it works
               </a>
-              <a href="#proof" className="text-sm font-medium text-text-secondary transition-colors hover:text-primary">
-                What people say
-              </a>
             </nav>
           )}
 

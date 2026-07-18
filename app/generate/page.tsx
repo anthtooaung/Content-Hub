@@ -2,7 +2,8 @@
 
 import { Suspense, useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { ArrowLeft, Sparkles, Copy, Check, AlertTriangle, RefreshCw, Save, ChevronDown, ChevronUp } from 'lucide-react';
 import { clsx } from 'clsx';
 import AppLayout from '@/components/AppLayout';
@@ -53,6 +54,8 @@ export default function GeneratePage() {
 
 function GenerateContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { data: session } = useSession();
   const { toast, showToast, hideToast } = useToast();
   const [activeTab, setActiveTab] = useState(0);
   const [editModal, setEditModal] = useState<{ open: boolean; platform: string; text: string }>({ open: false, platform: '', text: '' });
@@ -119,6 +122,12 @@ function GenerateContent() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleGenerate = useCallback(async () => {
+    // If guest user, redirect to login
+    if (!session) {
+      router.push('/auth/signin?callbackUrl=/generate');
+      return;
+    }
+
     setStep('loading');
     setCurrentStatus(0);
     setProgress(0);
@@ -167,7 +176,7 @@ function GenerateContent() {
       setResults(generated);
       setStep('results');
     }, 400);
-  }, [businessName, campaign, selectedPlatforms, tone]);
+  }, [businessName, campaign, selectedPlatforms, tone, session, router]);
 
   const handleRetry = async (platform: string) => {
     setResults((prev) =>
@@ -217,14 +226,14 @@ function GenerateContent() {
       )}
 
       <div className="mx-auto max-w-[860px] px-8 py-10 max-md:px-4 max-md:py-6 pb-24 md:pb-10">
-        {/* Wizard Progress — spans full width */}
-        <div className="mb-8 flex items-center gap-2 w-full">
+        {/* Wizard Progress — spans full width to match content box */}
+        <div className="mb-8 flex items-stretch gap-2 w-full">
           {[
             { num: 1, label: 'Campaign details' },
             { num: 2, label: 'Generating' },
             { num: 3, label: 'Results' },
           ].map((s, i) => (
-            <div key={s.num} className="flex items-center gap-2 flex-1 last:flex-none">
+            <div key={s.num} className="flex items-center gap-2 flex-1">
               <div
                 className={clsx(
                   'flex items-center gap-2 text-sm whitespace-nowrap',
@@ -362,7 +371,9 @@ function GenerateContent() {
               className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-primary text-base font-semibold text-white transition-colors duration-150 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:bg-primary-700 disabled:pointer-events-none disabled:opacity-50"
             >
               <Sparkles size={18} />
-              Generate {selectedPlatforms.length} post{selectedPlatforms.length !== 1 ? 's' : ''} →
+              {session
+                ? `Generate ${selectedPlatforms.length} post${selectedPlatforms.length !== 1 ? 's' : ''} →`
+                : 'Sign in to generate →'}
             </button>
           </div>
         )}

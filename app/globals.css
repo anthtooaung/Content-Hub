@@ -97,6 +97,16 @@ body {
 img { max-width: 100%; display: block; }
 a { text-decoration: none; }
 
+/* Button base reset — ensures consistent rendering across all browsers */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
 /* Animations */
 @keyframes spin {
   to { transform: rotate(360deg); }

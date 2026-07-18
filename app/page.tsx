@@ -1,7 +1,10 @@
+'use client';
+
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
-import { ClipboardPen, Cpu, Send, Quote } from 'lucide-react';
+import { ClipboardPen, Cpu, Send, Star, Quote } from 'lucide-react';
 
 const steps = [
   {
@@ -27,30 +30,6 @@ const steps = [
   },
 ];
 
-const testimonials = [
-  {
-    text: 'I used to spend 2 hours writing social posts. Now I describe my weekend special and have content for all three platforms in under a minute.',
-    author: 'Sarah Chen',
-    role: 'Owner, Bloom & Brew Coffee',
-    initials: 'SC',
-    color: 'bg-instagram',
-  },
-  {
-    text: 'The platform-specific optimization is spot on. TikTok posts feel like TikTok, Instagram feels like Instagram. No more one-size-fits-all.',
-    author: 'Marcus Johnson',
-    role: 'Freelance Marketer',
-    initials: 'MJ',
-    color: 'bg-primary',
-  },
-  {
-    text: 'Finally, an AI tool that doesn\'t try to do everything. It does one thing really well — and that\'s exactly what I needed.',
-    author: 'Priya Patel',
-    role: 'Fitness Coach, MoveStudio',
-    initials: 'PP',
-    color: 'bg-tiktok',
-  },
-];
-
 const stats = [
   { value: '3', label: 'Platforms', sublabel: 'TikTok, Instagram, Facebook' },
   { value: '<10s', label: 'Avg. generation', sublabel: 'From idea to ready-to-post' },
@@ -58,7 +37,30 @@ const stats = [
   { value: '5+', label: 'Content types', sublabel: 'Posts, captions, hashtags, CTAs' },
 ];
 
+const testimonials = [
+  {
+    name: 'Sarah Chen',
+    initials: 'SC',
+    role: 'Coffee Shop Owner',
+    quote: 'I used to spend hours writing Instagram captions. Now I describe my weekly specials and get three platform-ready posts in under 10 seconds. Game changer.',
+  },
+  {
+    name: 'Marcus Rivera',
+    initials: 'MR',
+    role: 'Fitness Coach',
+    quote: 'The hashtag suggestions alone save me 20 minutes per post. My TikTok engagement went up 40% since I started using Content Hub for my training tips.',
+  },
+  {
+    name: 'Priya Sharma',
+    initials: 'PS',
+    role: 'Boutique Owner',
+    quote: 'As a one-person business, I need content that sounds professional across all platforms. Content Hub nails the tone for each one — it feels like having a content team.',
+  },
+];
+
 export default function Home() {
+  const { data: session } = useSession();
+
   return (
     <div className="min-h-screen bg-page">
       <SiteHeader />
@@ -74,15 +76,32 @@ export default function Home() {
               Describe your campaign. Pick your platforms. Get ready-to-post content powered by AI.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Link
-                href="/auth/signup"
-                className="inline-flex min-h-[48px] items-center gap-2 rounded-control bg-primary px-7 py-3.5 text-base font-semibold text-white transition-colors duration-150 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:bg-primary-700"
-              >
-                Try it now
-              </Link>
+              {session ? (
+                <Link
+                  href="/generate"
+                  className="inline-flex min-h-[48px] items-center gap-2 rounded-control bg-primary px-7 py-3.5 text-base font-semibold text-white transition-colors duration-150 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:bg-primary-700"
+                >
+                  Generate Content →
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/auth/signup"
+                    className="inline-flex min-h-[48px] items-center gap-2 rounded-control bg-primary px-7 py-3.5 text-base font-semibold text-white transition-colors duration-150 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:bg-primary-700"
+                  >
+                    Try it now
+                  </Link>
+                  <Link
+                    href="/generate"
+                    className="inline-flex min-h-[48px] items-center gap-2 rounded-control border-2 border-primary-200 bg-primary-50 px-7 py-3.5 text-base font-semibold text-primary transition-all duration-150 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
+                  >
+                    Preview generate page
+                  </Link>
+                </>
+              )}
               <a
                 href="#how"
-                className="inline-flex min-h-[48px] items-center gap-2 rounded-control border-2 border-primary-200 bg-primary-50 px-7 py-3.5 text-base font-semibold text-primary transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
+                className="inline-flex min-h-[48px] items-center gap-2 rounded-control border-2 border-border bg-surface px-7 py-3.5 text-base font-semibold text-text-secondary transition-all duration-150 hover:border-border-strong hover:text-text-primary"
               >
                 See how it works
               </a>
@@ -167,7 +186,10 @@ export default function Home() {
                     <div className={`hidden max-md:hidden md:flex w-full items-center gap-8 ${isLeft ? '' : 'flex-row-reverse'}`}>
                       {/* Content side */}
                       <div className={`flex-1 ${isLeft ? 'text-right' : 'text-left'}`}>
-                        <div className="inline-block rounded-panel border border-border bg-surface p-6 transition-colors duration-200 hover:border-primary-200 hover:shadow-card-hover">
+                        <div className="relative inline-block rounded-panel border border-border bg-surface p-6 transition-colors duration-200 hover:border-primary-200 hover:shadow-card-hover">
+                          <span className="absolute -top-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-[13px] font-bold text-white shadow-card">
+                            {step.num}
+                          </span>
                           <h3 className="mb-2 text-[18px] font-semibold text-text-primary">{step.title}</h3>
                           <p className="text-[14px] leading-relaxed text-text-secondary">{step.desc}</p>
                         </div>
@@ -175,8 +197,8 @@ export default function Home() {
 
                       {/* Center node */}
                       <div className="relative z-10 flex shrink-0 items-center justify-center">
-                        <div className={`flex h-12 w-12 items-center justify-center rounded-full ${step.color} shadow-card`}>
-                          <Icon size={20} />
+                        <div className={`flex h-14 w-14 items-center justify-center rounded-full ${step.color} shadow-card`}>
+                          <Icon size={24} />
                         </div>
                       </div>
 
@@ -187,11 +209,14 @@ export default function Home() {
                     {/* Mobile: stacked layout */}
                     <div className="md:hidden flex items-start gap-4 w-full">
                       <div className="relative z-10 flex shrink-0 items-center justify-center">
-                        <div className={`flex h-10 w-10 items-center justify-center rounded-full ${step.color} shadow-card`}>
-                          <Icon size={18} />
+                        <div className={`flex h-12 w-12 items-center justify-center rounded-full ${step.color} shadow-card`}>
+                          <Icon size={20} />
                         </div>
                       </div>
-                      <div className="flex-1 rounded-panel border border-border bg-surface p-5 transition-colors duration-200 hover:border-primary-200">
+                      <div className="relative flex-1 rounded-panel border border-border bg-surface p-5 transition-colors duration-200 hover:border-primary-200">
+                        <span className="absolute -top-2.5 -right-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-[12px] font-bold text-white shadow-card">
+                          {step.num}
+                        </span>
                         <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-text-muted">Step {step.num}</div>
                         <h3 className="mb-1.5 text-[16px] font-semibold text-text-primary">{step.title}</h3>
                         <p className="text-[13px] leading-relaxed text-text-secondary">{step.desc}</p>
@@ -205,46 +230,56 @@ export default function Home() {
 
           <div className="mt-14 text-center">
             <Link
-              href="/auth/signup"
+              href={session ? '/generate' : '/auth/signup'}
               className="inline-flex min-h-[48px] items-center gap-2 rounded-control bg-primary px-8 py-3.5 text-base font-semibold text-white transition-colors duration-150 hover:bg-primary-600 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] active:bg-primary-700"
             >
-              Get started free →
+              {session ? 'Start generating →' : 'Get started free →'}
             </Link>
           </div>
         </div>
       </section>
 
       {/* What People Say — Testimonials */}
-      <section id="proof" className="px-8 py-20 max-md:px-4 max-md:py-14 bg-surface">
+      <section className="px-8 py-20 max-md:px-4 max-md:py-14">
         <div className="mx-auto max-w-[1000px]">
           <div className="text-center mb-14">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-[12px] font-semibold text-primary mb-4">
-              Testimonials
+              Loved by creators
             </div>
             <h2 className="text-[32px] font-semibold text-text-primary max-md:text-[24px]">
               What people say
             </h2>
             <p className="mt-3 text-base text-text-secondary max-md:text-sm">
-              Real feedback from small business owners and marketers.
+              Hear from small business owners and marketers who use Content Hub daily.
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-6 max-lg:grid-cols-2 max-md:grid-cols-1">
-            {testimonials.map((t, i) => (
+          <div className="grid grid-cols-3 gap-5 max-md:grid-cols-1 max-md:gap-4">
+            {testimonials.map((t) => (
               <div
-                key={i}
-                className="flex flex-col rounded-panel border border-border bg-page p-6 transition-colors duration-200 hover:border-primary-200 hover:shadow-card-hover"
+                key={t.name}
+                className="rounded-panel border border-border bg-surface p-6 transition-colors duration-200 hover:border-primary-200 hover:shadow-card-hover flex flex-col"
               >
-                <Quote size={24} className="mb-4 text-primary/30" />
-                <p className="flex-1 mb-6 text-[14px] leading-relaxed text-text-secondary">
-                  &ldquo;{t.text}&rdquo;
-                </p>
+                {/* Stars */}
+                <div className="mb-3 flex gap-0.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} size={14} className="fill-warning text-warning" />
+                  ))}
+                </div>
+                {/* Quote */}
+                <div className="relative mb-4 flex-1">
+                  <Quote size={20} className="absolute -left-1 -top-1 text-primary-100" />
+                  <p className="text-[14px] leading-relaxed text-text-secondary pl-5 italic">
+                    {t.quote}
+                  </p>
+                </div>
+                {/* Author */}
                 <div className="flex items-center gap-3 pt-4 border-t border-border">
-                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-white ${t.color}`}>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-[13px] font-bold text-primary">
                     {t.initials}
                   </div>
                   <div>
-                    <div className="text-[13px] font-semibold text-text-primary">{t.author}</div>
+                    <div className="text-[13px] font-semibold text-text-primary">{t.name}</div>
                     <div className="text-[12px] text-text-muted">{t.role}</div>
                   </div>
                 </div>

@@ -5,6 +5,7 @@
   },
   "worktree": {
     "bgIsolation": "none"
+  },
   "permissions": {
     "allow": [
       "Bash(npx gsd-core *)",

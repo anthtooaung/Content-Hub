@@ -18,7 +18,7 @@
     "db:seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@ai-sdk/groq": "^0.0.3",
+    "@ai-sdk/groq": "^4.0.13",
     "@ai-sdk/openai": "^0.0.72",
     "@auth/prisma-adapter": "^2.11.2",
     "@prisma/client": "^5.14.0",

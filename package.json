@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@ai-sdk/groq": "^0.0.3",
-    "@ai-sdk/openai": "^0.0.72",
+    "@ai-sdk/openai": "^4.0.17",
     "@auth/prisma-adapter": "^2.11.2",
     "@prisma/client": "^5.14.0",
     "@types/bcryptjs": "^2.4.6",
